@@ -37,7 +37,7 @@ from ThreeDToLD.ui_elements.exceptiondialog import ExceptionDialog
 
 basedir = os.path.dirname(__file__)
 
-app_version = "1.6.0"
+app_version = "1.6.1"
 
 if platform.system() == "Windows":
     try:
