@@ -25,7 +25,7 @@ setup(
         'ThreeDToLD.ui_elements.js-libraries': ['*']
     },
     install_requires=["numpy>=2.2.0,<=2.3.2",
-                      "cascadio==0.0.16",
+                      "cascadio==0.0.17",
                       "charset-normalizer==3.4.3",
                       "lxml==6.0.2",
                       "manifold3d==3.2.1",
@@ -36,7 +36,7 @@ setup(
                       "PyQt6==6.10.0",
                       "PyQt6-WebEngine==6.10.0",
                       "scipy>=1.15.0,<=1.16.1",
-                      "trimesh==4.8.3",
+                      "trimesh==4.10.0",
                       ],
     entry_points={
         'gui_scripts': [
