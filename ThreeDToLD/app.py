@@ -611,7 +611,7 @@ def ldu_float_to_string(number: float | int):
     number *= 0.4
     if number >= 1000:
         return f"{(number / 1000):.2f}m"
-    elif number >= 10:
+    elif number >= 100:
         return f"{(number / 10):.2f}cm"
     return f"{number:.2f}mm"
 
