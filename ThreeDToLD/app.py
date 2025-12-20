@@ -1,4 +1,4 @@
-import os,sys
+import os
 import platform
 import traceback
 
@@ -47,17 +47,6 @@ if platform.system() == "Windows":
         windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
     except ImportError:
         pass
-
-sys._excepthook = sys.excepthook
-
-
-def exception_hook(exctype, value, traceback):
-    print(exctype, value, traceback)
-    sys._excepthook(exctype, value, traceback)
-    sys.exit(1)
-
-
-sys.excepthook = exception_hook
 
 
 class MainWindow(QMainWindow):
