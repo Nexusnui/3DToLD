@@ -1,4 +1,4 @@
-import os,sys
+import os
 import platform
 import traceback
 
@@ -37,7 +37,7 @@ from ThreeDToLD.ui_elements.exceptiondialog import ExceptionDialog
 
 basedir = os.path.dirname(__file__)
 
-app_version = "1.6.0"
+app_version = "1.6.1"
 
 if platform.system() == "Windows":
     try:
@@ -47,17 +47,6 @@ if platform.system() == "Windows":
         windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
     except ImportError:
         pass
-
-sys._excepthook = sys.excepthook
-
-
-def exception_hook(exctype, value, traceback):
-    print(exctype, value, traceback)
-    sys._excepthook(exctype, value, traceback)
-    sys.exit(1)
-
-
-sys.excepthook = exception_hook
 
 
 class MainWindow(QMainWindow):
@@ -289,10 +278,10 @@ class MainWindow(QMainWindow):
         loading_widget.setLayout(loading_layout)
 
     # Add Elements to Main Layout
-        top_layout.addLayout(part_area)
+        top_layout.addLayout(file_select_area)
         file_select_area.addWidget(load_file_area)
         file_select_area.addWidget(save_file_area)
-        top_layout.addLayout(file_select_area)
+        top_layout.addLayout(part_area)
         main_settings_widget = QWidget()
         main_settings_widget.setLayout(top_layout)
         self.settings_tabs.addTab(main_settings_widget, "Main Part Settings")
@@ -622,7 +611,7 @@ def ldu_float_to_string(number: float | int):
     number *= 0.4
     if number >= 1000:
         return f"{(number / 1000):.2f}m"
-    elif number >= 10:
+    elif number >= 100:
         return f"{(number / 10):.2f}cm"
     return f"{number:.2f}mm"
 
