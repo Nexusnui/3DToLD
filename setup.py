@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name='3DToLD',
-    version='1.6.0',
+    version='1.6.1',
     description='This is a graphical Python program for converting various 3D file formats(stl,3mf,obj,stp, etc.) to the LDraw file format (.dat).',
     url='https://github.com/Nexusnui/Convert-To-LDraw',
     author='Nexusnui',
