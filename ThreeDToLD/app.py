@@ -278,10 +278,10 @@ class MainWindow(QMainWindow):
         loading_widget.setLayout(loading_layout)
 
     # Add Elements to Main Layout
-        top_layout.addLayout(part_area)
+        top_layout.addLayout(file_select_area)
         file_select_area.addWidget(load_file_area)
         file_select_area.addWidget(save_file_area)
-        top_layout.addLayout(file_select_area)
+        top_layout.addLayout(part_area)
         main_settings_widget = QWidget()
         main_settings_widget.setLayout(top_layout)
         self.settings_tabs.addTab(main_settings_widget, "Main Part Settings")
