@@ -2,9 +2,9 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "3DToLD"
-#define MyAppVersion "1.6.0"
+#define MyAppVersion "1.6.1"
 #define MyAppPublisher "Nexusnui"
-#define MyAppURL "https://github.com/Nexusnui/Convert-To-LDraw"
+#define MyAppURL "https://github.com/Nexusnui/3DToLD"
 #define MyAppExeName "3DToLD.exe"
 
 [Setup]

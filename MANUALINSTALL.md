@@ -9,11 +9,11 @@ Prerequisites:
 
 Installation:  
 1. installation with pipx through console/terminal:  
-`pipx install https://github.com/Nexusnui/Convert-To-LDraw/releases/latest/download/3dtold.tar.gz`  
+`pipx install https://github.com/Nexusnui/3DToLD/releases/latest/download/3dtold.tar.gz`  
 or like this:  
-`python -m pipx install https://github.com/Nexusnui/Convert-To-LDraw/releases/latest/download/3dtold.tar.gz`
+`python -m pipx install https://github.com/Nexusnui/3DToLD/releases/latest/download/3dtold.tar.gz`
 or on some Linux Distro like this:  
-`python3 -m pipx install https://github.com/Nexusnui/Convert-To-LDraw/releases/latest/download/3dtold.tar.gz`
+`python3 -m pipx install https://github.com/Nexusnui/3DToLD/releases/latest/download/3dtold.tar.gz`
 2. You can now run it by with typing `3DToLD`
 
 Update:  
@@ -42,13 +42,13 @@ Optional Steps:
 7. Change target to the location your projects are located for example "C:\Users\{YourUserName}\3D Objects"
 8. Optionally change the icon to the one in
 "C:\Users\{YourUserName}\pipx\venvs\3dtold\Lib\site-packages\ThreeDToLD\icons\"
-or [downloadable here](https://github.com/Nexusnui/Convert-To-LDraw/raw/master/ThreeDToLD/icons/3DToLD_icon.ico).
+or [downloadable here](https://github.com/Nexusnui/3DToLD/raw/master/ThreeDToLD/icons/3DToLD_icon.ico).
 
 
 Use the .desktop file on Linux:  
-1. [Download the Icon](https://github.com/Nexusnui/Convert-To-LDraw/raw/master/ThreeDToLD/icons/3DToLD_icon_256x256.png)
+1. [Download the Icon](https://github.com/Nexusnui/3DToLD/raw/master/ThreeDToLD/icons/3DToLD_icon_256x256.png)
 and move it to "~/.local/share/icons" (you may need to create that one) or another appropriate location for icons.
-2. [Download ConvertToLDraw.desktop](https://github.com/Nexusnui/Convert-To-LDraw/raw/master/build-stuff/3DToLD.desktop) and move it to "~/.local/share/applications"
+2. [Download ConvertToLDraw.desktop](https://github.com/Nexusnui/3DToLD/raw/master/build-stuff/3DToLD.desktop) and move it to "~/.local/share/applications"
 or another appropriate location for .desktop files.
 3. Make sure the .desktop file has the appropriate permissions to be executable
 
