@@ -310,6 +310,8 @@ class MainWindow(QMainWindow):
     def load_file(self, reload=False):
         filepath = self.input_file_line.text()
         filename = os.path.basename(filepath)
+        self.disable_settings(True)
+        self.show_loading_screen("Loading File ...")
         if reload:
             answer = QMessageBox.warning(
                 self,
@@ -319,8 +321,6 @@ class MainWindow(QMainWindow):
             )
             if answer == QMessageBox.StandardButton.No:
                 return
-        self.disable_settings(True)
-        self.show_loading_screen("Loading File ...")
         if not reload:
             dialog = QFileDialog(self)
             dialog.setFileMode(QFileDialog.FileMode.ExistingFile)
