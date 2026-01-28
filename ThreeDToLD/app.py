@@ -310,8 +310,9 @@ class MainWindow(QMainWindow):
     def load_file(self, reload=False):
         filepath = self.input_file_line.text()
         filename = os.path.basename(filepath)
-        self.disable_settings(True)
         self.show_loading_screen("Loading File ...")
+        self.disable_settings(True)
+        start_loading = True
         if reload:
             answer = QMessageBox.warning(
                 self,
@@ -320,7 +321,7 @@ class MainWindow(QMainWindow):
                 QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
             )
             if answer == QMessageBox.StandardButton.No:
-                return
+                start_loading = False
         if not reload:
             dialog = QFileDialog(self)
             dialog.setFileMode(QFileDialog.FileMode.ExistingFile)
@@ -332,7 +333,9 @@ class MainWindow(QMainWindow):
             dialog.setViewMode(QFileDialog.ViewMode.Detail)
             if dialog.exec():
                 filepath = dialog.selectedFiles()[0]
-        if filepath and len(filepath) > 0:
+            else:
+                start_loading = False
+        if filepath and len(filepath) > 0 and start_loading:
             filename = os.path.basename(filepath)
             scale = self.scale_input.value()
             multicolour = self.multicolour_check.checkState() == Qt.CheckState.Checked
