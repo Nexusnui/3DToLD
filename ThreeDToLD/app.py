@@ -78,21 +78,6 @@ class MainWindow(QMainWindow):
         save_file_area.setLayout(save_file_inputs)
 
     # Input File Selection
-        input_label = QLabel("Input File")
-        load_file_inputs.addRow(input_label)
-        input_layout = QHBoxLayout()
-
-        self.input_file_line = QLineEdit()
-        self.input_file_line.setPlaceholderText("Select file to load")
-        self.input_file_line.setReadOnly(True)
-        input_layout.addWidget(self.input_file_line)
-
-        self.load_input_button = QPushButton("Load File")
-        input_layout.addWidget(self.load_input_button)
-        self.load_input_button.clicked.connect(self.load_file)
-
-        load_file_inputs.addRow(input_layout)
-
         # Enable Multicolour Check
         self.multicolour_check = QCheckBox()
         multicolour_label = QLabel("Multicolour ℹ️")
@@ -147,9 +132,26 @@ class MainWindow(QMainWindow):
         load_file_inputs.addRow(ldraw_rotation_label, self.ldraw_rotation_check)
         self.ldraw_rotation_check.setChecked(True)
 
+        # File loading
+        input_label = QLabel("Input File")
+        load_file_inputs.addRow(input_label)
+        input_layout = QHBoxLayout()
+
+        self.input_file_line = QLineEdit()
+        self.input_file_line.setPlaceholderText("Select file to load")
+        self.input_file_line.setReadOnly(True)
+        input_layout.addWidget(self.input_file_line)
+
+        self.load_input_button = QPushButton("Load File")
+        input_layout.addWidget(self.load_input_button)
+        self.load_input_button.clicked.connect(self.load_file)
+
+        load_file_inputs.addRow(input_layout)
+
         # Reload Button
         self.reload_button = QPushButton("Reload Model")
         self.reload_button.setIcon(QIcon(os.path.join(basedir, "icons", "reload-icon.svg")))
+        self.reload_button.setToolTip("Reload model with current settings")
         self.reload_button.clicked.connect(lambda a: self.load_file(True))
         load_file_inputs.addRow(self.reload_button)
 
@@ -203,7 +205,10 @@ class MainWindow(QMainWindow):
         # Author Input
         self.author_line = QLineEdit()
         self.author_line.setPlaceholderText("Your Name/Alias")
-        part_settings_inputs.addRow("Author (Optional)", self.author_line)
+        author_label = QLabel("Author (Optional)ℹ️")
+        author_label.setToolTip("'Realname[LDraw username]'\n"
+                                "Is used for official LDraw files\n")
+        part_settings_inputs.addRow(author_label, self.author_line)
 
         # Category Selection
         self.part_category_input = QComboBox()
