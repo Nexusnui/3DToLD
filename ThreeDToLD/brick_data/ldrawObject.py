@@ -61,6 +61,44 @@ class LDrawConversionFactor(Enum):
         return [member.name for member in list(LDrawConversionFactor)]
 
 
+class UpAxis(Enum):
+    posZ = ("+Z", [
+                [1, 0, 0, 0],
+                [0, 0, -1, 0],
+                [0, 1, 0, 0],
+                [0, 0, 0, 1]
+            ])
+    posY = ("+Y", [
+                [1, 0, 0, 0],
+                [0, -1, 0, 0],
+                [0, 0, -1, 0],
+                [0, 0, 0, 1]
+            ])
+    negY = ("-Y", [
+                [1, 0, 0, 0],
+                [0, 1, 0, 0],
+                [0, 0, 1, 0],
+                [0, 0, 0, 1]
+            ])
+
+    @staticmethod
+    def from_string(axisname: str):
+        axisname = axisname.lower()
+
+        if axisname in ["+z", "z+"]:
+            return UpAxis.posZ
+        elif axisname in ["+y", "y+"]:
+            return UpAxis.posY
+        elif axisname in ["-y", "y-"]:
+            return UpAxis.negY
+        else:
+            # Unknown/No Axis return -Y as default as it does not transform the model
+            return UpAxis.negY
+    @staticmethod
+    def get_membernames_as_string() -> list[str]:
+        return [member.value[0] for member in list(UpAxis)]
+
+
 class LdrawObject:
     def __init__(self, filepath: str = None,
                  name="", bricklinknumber="", author="", category="", keywords=None,
@@ -80,7 +118,7 @@ class LdrawObject:
             self.load_scene(filepath)
 
     def load_scene(self, filepath: str, scale=1, multi_object=True, multicolour=True,
-                   use_ldraw_rotation=True, override_metadata=True,
+                   orientation=UpAxis.posZ, override_metadata=True,
                    use_threemfloader=True, unit_conversion=LDrawConversionFactor.Auto
                    ):
 
@@ -198,15 +236,10 @@ class LdrawObject:
             # Merge duplicate vertices
             list(scene.geometry.values())[0].merge_vertices()
 
-        if use_ldraw_rotation:
-            # LDraw co-ordinate system is right-handed where -Y is "up"
-            # For this reason the entire scene is rotated by 90° around the X-axis
-            scene = scene.apply_transform([
-                [1, 0, 0, 0],
-                [0, 0, -1, 0],
-                [0, 1, 0, 0],
-                [0, 0, 0, 1]
-            ])
+        if orientation != UpAxis.negY:
+            # LDraw co-ordinate system is right-handed where -Y is "up" (no rotation needed if it is already -Y)
+            # For this reason the entire scene is rotated through a transformation matrix depending on the up axis.
+            scene = scene.apply_transform(orientation.value[1])
             if len(scene.geometry) == 1 and (
                     unit_conversion == LDrawConversionFactor.Auto or unit_conversion == LDrawConversionFactor.LDraw
             ) and scale == 1:

@@ -27,7 +27,7 @@ from PyQt6.QtWidgets import (
 )
 
 from ThreeDToLD.appexcetions import *
-from ThreeDToLD.brick_data.ldrawObject import LdrawObject, Subpart, default_part_licenses, LDrawConversionFactor
+from ThreeDToLD.brick_data.ldrawObject import LdrawObject, Subpart, default_part_licenses, LDrawConversionFactor, UpAxis
 from ThreeDToLD.brick_data.brick_categories import brick_categories
 from ThreeDToLD.ui_elements.subpartPanel import SubpartPanel
 from ThreeDToLD.ui_elements.previewPanel import PreviewPanel, register_scheme
@@ -123,14 +123,14 @@ class MainWindow(QMainWindow):
         scale_label.setToolTip("Factor used to scale the model")
         load_file_inputs.addRow(scale_label, self.scale_input)
 
-        # Enable LDraw Rotation Check
-        self.ldraw_rotation_check = QCheckBox()
-        ldraw_rotation_label = QLabel("Use LDraw Axis ℹ️")
-        ldraw_rotation_label.setToolTip("If deactivated the model is not rotated\n"
-                                        "(In LDraws coordinate system -Y is up)\n"
-                                        "You should only disable this if your model uses LDraw axis")
-        load_file_inputs.addRow(ldraw_rotation_label, self.ldraw_rotation_check)
-        self.ldraw_rotation_check.setChecked(True)
+        # Choose Up Axis
+        self.orientation_input = QComboBox()
+        self.orientation_input.addItems(UpAxis.get_membernames_as_string())
+        ldraw_rotation_label = QLabel("Up Axis ℹ️")
+        ldraw_rotation_label.setToolTip("Choose what the up axis of the model is.\n"
+                                        "If '-Y' is chosen no rotation is applied.\n"
+                                        "(In LDraws coordinate system -Y is up)")
+        load_file_inputs.addRow(ldraw_rotation_label, self.orientation_input)
 
         # File loading
         input_label = QLabel("Input File")
@@ -346,7 +346,7 @@ class MainWindow(QMainWindow):
             multicolour = self.multicolour_check.checkState() == Qt.CheckState.Checked
             multi_object = self.multi_object_check.checkState() == Qt.CheckState.Checked
             use_threemfloader = self.threemfloader_check.checkState() == Qt.CheckState.Checked
-            use_ldraw_rotation = self.ldraw_rotation_check.checkState() == Qt.CheckState.Checked
+            orientation = UpAxis.from_string(self.orientation_input.currentText())
             override_metadata = True
             unit_conversion = LDrawConversionFactor.from_string(self.unit_input.currentText())
             try:
@@ -355,7 +355,7 @@ class MainWindow(QMainWindow):
                                        scale=scale,
                                        multi_object=multi_object,
                                        multicolour=multicolour,
-                                       use_ldraw_rotation=use_ldraw_rotation,
+                                       orientation=orientation,
                                        use_threemfloader=use_threemfloader,
                                        unit_conversion=unit_conversion
                                        )
@@ -476,7 +476,7 @@ class MainWindow(QMainWindow):
         self.multi_object_check.setDisabled(value)
         self.threemfloader_check.setDisabled(value)
         self.scale_input.setDisabled(value)
-        self.ldraw_rotation_check.setDisabled(value)
+        self.orientation_input.setDisabled(value)
         self.unit_input.setDisabled(value)
         self.part_category_input.setDisabled(value)
         self.part_license_input.setDisabled(value)
@@ -493,7 +493,7 @@ class MainWindow(QMainWindow):
         self.threemfloader_check.setDisabled(False)
         self.scale_input.setDisabled(False)
         self.load_input_button.setDisabled(False)
-        self.ldraw_rotation_check.setDisabled(False)
+        self.orientation_input.setDisabled(False)
         self.unit_input.setDisabled(False)
 
     def enable_reload(self):
