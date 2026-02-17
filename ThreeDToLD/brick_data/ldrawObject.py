@@ -83,10 +83,6 @@ class UpAxis(Enum):
 
     @staticmethod
     def from_string(axisname: str):
-        if axisname is None or len(axisname) == 0:
-            # If no Unit is given use Millimeter as default
-            return LDrawConversionFactor.Millimeter
-
         axisname = axisname.lower()
 
         if axisname in ["+z", "z+"]:
@@ -95,7 +91,9 @@ class UpAxis(Enum):
             return UpAxis.posY
         elif axisname in ["-y", "y-"]:
             return UpAxis.negY
-
+        else:
+            # Unknown/No Axis return -Y as default as it does not transform the model
+            return UpAxis.negY
     @staticmethod
     def get_membernames_as_string() -> list[str]:
         return [member.value[0] for member in list(UpAxis)]
