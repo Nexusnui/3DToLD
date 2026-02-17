@@ -99,8 +99,6 @@ class UpAxis(Enum):
         return [member.value[0] for member in list(UpAxis)]
 
 
-
-
 class LdrawObject:
     def __init__(self, filepath: str = None,
                  name="", bricklinknumber="", author="", category="", keywords=None,
