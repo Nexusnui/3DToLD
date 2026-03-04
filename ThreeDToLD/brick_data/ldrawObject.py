@@ -303,6 +303,18 @@ class LdrawObject:
         self.model_loaded = True
 
     def convert_to_dat_file(self, filepath=None, one_file=False):
+        """
+                Loader used to load a 3D model from file
+                :param filepath:
+                    path where the converted file is saved,
+                    if set to the one_file parameter will be automatically set to true
+                    and the function returns the converted file as a string.
+                :param one_file:
+                    When set to true the model is converted to one mpd files containing all subparts.
+                    If the model has at least 2 subpart they are saved in a "s" folder,
+                    in the same location as the main file.
+                    If no "s" folder exist a new one is created.
+        """
         if not self.model_loaded:
             raise Exception("No model loaded")
         if filepath is None:
@@ -332,12 +344,14 @@ class LdrawObject:
         if self.part_license is not None and len(self.part_license) > 0:
             license_line = f"0 !LICENSE {self.part_license}\n"
         colour_definitions = ""
+        file_line = ""
         if one_file:
+            file_line = f"0 FILE {filename}\n"
             for definition_line in self.cached_colour_definitions.values():
                 colour_definitions += definition_line
             if len(colour_definitions) > 0:
                 colour_definitions += "\n"
-        header = (f"0 FILE {filename}\n"
+        header = (f"{file_line}"
                   f"0 {self.name}\n"
                   f"0 Name:  {filename}\n"
                   f"0 Author:  {self.author}\n"
@@ -577,20 +591,23 @@ class Subpart:
 
     def convert_to_dat_file(self, filepath, main_file_name, author, license_line):
         filename = fr"s\{os.path.basename(filepath)}"
-        header = self.get_ldraw_header(filename, main_file_name, author, license_line)
+        header = self.get_ldraw_header(filename, main_file_name, author, license_line, internal_file=False)
         with open(filepath, "w", encoding="utf-8") as file:
             file.write(header)
             for line in self.to_ldraw_lines():
                 file.write(line)
 
-    def get_ldraw_header(self, filename, main_file_name, author, license_line, define_colours=False):
+    def get_ldraw_header(self, filename, main_file_name, author, license_line, define_colours=False, internal_file=True):
         colour_definitions = ""
         if define_colours:
             for definition_line in self.cached_colour_definitions.values():
                 colour_definitions += definition_line
             if len(colour_definitions) > 0:
                 colour_definitions += "\n"
-        header = (f"0 FILE {filename}\n"
+        file_line = ""
+        if internal_file:
+            file_line = f"0 FILE {filename}\n"
+        header = (f"{file_line}"
                   f"0 ~{self.name}: Subpart of {main_file_name}\n"
                   f"0 Name: {filename}\n"
                   f"0 Author:  {author}\n"
