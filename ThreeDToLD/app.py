@@ -585,7 +585,14 @@ class MainWindow(QMainWindow):
         try:
             self.ldraw_object.convert_to_dat_file(filepath)
         except Exception:
-            QMessageBox.critical(self, "Conversion Failed", "Conversion failed due to unknown error")
+            formatted_traceback = traceback.format_exc()
+            exception_info = ExceptionDialog(
+                clipboard=self.clipboard,
+                title="Conversion Failed",
+                message="Conversion failed due with the following Exception",
+                traceback_str=formatted_traceback
+            )
+            exception_info.exec()
         else:
             QMessageBox.information(self, "Conversion Successfull", f"Model was saved to {filepath}")
         self.disable_settings(False)
