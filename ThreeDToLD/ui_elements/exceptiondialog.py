@@ -47,7 +47,10 @@ class ExceptionDialog(QDialog):
         self.traceback_content.setReadOnly(True)
         traceback_layout.addWidget(self.traceback_content)
 
-        traceback_copy_button = QPushButton("Copy Traceback")
+        if clipboard is None:
+            traceback_copy_button = QPushButton("Select Traceback Message")
+        else:
+            traceback_copy_button = QPushButton("Copy Traceback")
         traceback_copy_button.clicked.connect(self.copy_tracback)
         traceback_layout.addWidget(traceback_copy_button)
 

@@ -1,4 +1,5 @@
 import os
+import sys
 import platform
 import traceback
 
@@ -47,6 +48,23 @@ if platform.system() == "Windows":
         windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
     except ImportError:
         pass
+
+sys._excepthook = sys.excepthook
+
+
+def exception_hook(exctype, value, _traceback):
+    exception_info = ExceptionDialog(
+        clipboard=None,
+        title="Application Crashed",
+        message="Application crashed due to the following Exception:",
+        traceback_str="".join(traceback.format_tb(_traceback))
+    )
+    sys._excepthook(exctype, value, _traceback)
+    exception_info.exec()
+    sys.exit(1)
+
+
+sys.excepthook = exception_hook
 
 
 class MainWindow(QMainWindow):
