@@ -688,7 +688,7 @@ class Subpart:
                 new_geometry,
                 self.transformation_matrix,
                 new_name,
-                self.main_colour,
+                None,
                 self.cached_colour_definitions,
                 node_key,
                 colours,
