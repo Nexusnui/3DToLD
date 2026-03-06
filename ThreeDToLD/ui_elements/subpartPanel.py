@@ -310,7 +310,7 @@ class SubpartTab(QWidget):
         except Exception:
             formatted_traceback = traceback.format_exc()
             exception_info = ExceptionDialog(
-                clipboard=self.clipboard,
+                clipboard=self.main_window.clipboard,
                 title="Split by Colour Dialog Failed",
                 message="If you know how to replicate this open an issue on the repo",
                 traceback_str=formatted_traceback
