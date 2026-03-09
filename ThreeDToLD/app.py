@@ -28,6 +28,8 @@ from PyQt6.QtWidgets import (
 )
 
 from ThreeDToLD.appexcetions import *
+from ThreeDToLD.model_loaders.trimeshloader import Trimeshloader
+from ThreeDToLD.model_loaders.threemfloader import Threemfloader
 from ThreeDToLD.brick_data.ldrawObject import LdrawObject, Subpart, default_part_licenses, LDrawConversionFactor, UpAxis
 from ThreeDToLD.brick_data.brick_categories import brick_categories
 from ThreeDToLD.ui_elements.subpartPanel import SubpartPanel
@@ -360,10 +362,18 @@ class MainWindow(QMainWindow):
                 start_loading = False
         if filepath and len(filepath) > 0 and start_loading:
             filename = os.path.basename(filepath)
+            _, file_extension = os.path.splitext(filepath)
             scale = self.scale_input.value()
             multicolour = self.multicolour_check.checkState() == Qt.CheckState.Checked
             multi_object = self.multi_object_check.checkState() == Qt.CheckState.Checked
             use_threemfloader = self.threemfloader_check.checkState() == Qt.CheckState.Checked
+            if file_extension in [".stp", ".step"]:
+                # Todo: Dialog for Quality Settings
+                loader = Trimeshloader()
+            elif use_threemfloader and file_extension == ".3mf":
+                loader = Threemfloader()
+            else:
+                loader = Trimeshloader()
             orientation = UpAxis.from_string(self.orientation_input.currentText())
             override_metadata = True
             unit_conversion = LDrawConversionFactor.from_string(self.unit_input.currentText())
@@ -374,7 +384,7 @@ class MainWindow(QMainWindow):
                                        multi_object=multi_object,
                                        multicolour=multicolour,
                                        orientation=orientation,
-                                       use_threemfloader=use_threemfloader,
+                                       loader=loader,
                                        unit_conversion=unit_conversion
                                        )
             except FileTypeUnsupportedError:

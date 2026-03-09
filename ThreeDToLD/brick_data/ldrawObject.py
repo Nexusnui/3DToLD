@@ -8,8 +8,7 @@ from ThreeDToLD.brick_data.brickcolour import Brickcolour, get_closest_brickcolo
     get_all_brickcolours
 import numpy as np
 from collections import OrderedDict
-from ThreeDToLD.model_loaders.trimeshloader import Trimeshloader
-from ThreeDToLD.model_loaders.threemfloader import Threemfloader
+from ThreeDToLD.model_loaders.autoloader import Autoloader
 from ThreeDToLD.matrix_functions import is_identity_matrix
 from enum import Enum
 
@@ -119,23 +118,17 @@ class LdrawObject:
 
     def load_scene(self, filepath: str, scale=1, multi_object=True, multicolour=True,
                    orientation=UpAxis.posZ, override_metadata=True,
-                   use_threemfloader=True, unit_conversion=LDrawConversionFactor.Auto
+                   loader=Autoloader(), unit_conversion=LDrawConversionFactor.Auto
                    ):
 
-        # Todo: Pass unit conversion option as a parameter
         _, file_extension = os.path.splitext(filepath)
-
-        if use_threemfloader and file_extension == ".3mf":
-            loader = Threemfloader()
-        else:
-            loader = Trimeshloader()
 
         try:
             scene, metadata = loader.load_model(filepath)
         except NotImplementedError as exc:
             raise FileTypeUnsupportedError("The filetype is not supported by Trimesh") from exc
         except (Missing3mfElementError, RecursionError) as exc:
-            if use_threemfloader and file_extension == ".3mf":
+            if file_extension == ".3mf":
                 raise LoaderError("Bad 3mf file") from exc
             else:
                 raise LoaderError("Recursion Error in Trimesh") from exc
