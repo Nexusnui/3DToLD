@@ -152,7 +152,6 @@ class Threemfloader(Modelloader):
                 with file_3mf.open(self.model_config_name) as model_config_file:
                     self.model_config = etree.parse(model_config_file).getroot()
         if self.resources is None and self.build is None:
-            # Todo: Raise correct exception
             raise Missing3mfElementError("No build and resources elements in 3mf file")
         if self.resources is None:
             raise Missing3mfElementError("No resources element in 3mf file")
