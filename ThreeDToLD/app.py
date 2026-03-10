@@ -37,6 +37,7 @@ from ThreeDToLD.ui_elements.previewPanel import PreviewPanel, register_scheme
 from ThreeDToLD.ui_elements.line_generation_dialog import LineGenerationDialog, LinePreset
 from ThreeDToLD.ui_elements.brickcolourwidget import ColourCategoriesDialog
 from ThreeDToLD.ui_elements.exceptiondialog import ExceptionDialog
+from ThreeDToLD.ui_elements.stepsettingsdialog import StepSettingsDialog
 
 basedir = os.path.dirname(__file__)
 
@@ -114,15 +115,6 @@ class MainWindow(QMainWindow):
         load_file_inputs.addRow(multi_object_label, self.multi_object_check)
         self.multi_object_check.setChecked(True)
 
-        # Loader Settings
-        self.threemfloader_check = QCheckBox()
-        threemfloader_label = QLabel("Custom 3mf Loader ℹ️")
-        threemfloader_label.setToolTip("Enables color support for 3mf files.\n"
-                                       "MMU painting (Slic3r/Prusa/Bambu) not supported.\n"
-                                       "Trimesh is used to load 3mf files when unchecked.")
-        load_file_inputs.addRow(threemfloader_label, self.threemfloader_check)
-        self.threemfloader_check.setChecked(True)
-
         # Unit Selection
         self.unit_input = QComboBox()
         self.unit_input.addItems(LDrawConversionFactor.get_membernames_as_string())
@@ -151,6 +143,23 @@ class MainWindow(QMainWindow):
                                         "If '-Y' is chosen no rotation is applied.\n"
                                         "(In LDraws coordinate system -Y is up)")
         load_file_inputs.addRow(ldraw_rotation_label, self.orientation_input)
+
+        # Use 3mf Loader Check
+        self.threemfloader_check = QCheckBox()
+        threemfloader_label = QLabel("Custom 3mf Loader ℹ️")
+        threemfloader_label.setToolTip("Enables color support for 3mf files.\n"
+                                       "MMU painting (Slic3r/Prusa/Bambu) not supported.\n"
+                                       "Trimesh is used to load 3mf files when unchecked.")
+        load_file_inputs.addRow(threemfloader_label, self.threemfloader_check)
+        self.threemfloader_check.setChecked(True)
+
+        # Step Quality Settings
+        self.step_quality_button = QPushButton("Step Mesh Quality")
+        self.tol_linear = 0.1
+        self.tol_angular = 0.5
+        self.tol_relative = False
+        self.step_quality_button.clicked.connect(self.set_step_vallues)
+        load_file_inputs.addRow(self.step_quality_button)
 
         # File loading
         input_label = QLabel("Input File")
@@ -368,8 +377,7 @@ class MainWindow(QMainWindow):
             multi_object = self.multi_object_check.checkState() == Qt.CheckState.Checked
             use_threemfloader = self.threemfloader_check.checkState() == Qt.CheckState.Checked
             if file_extension in [".stp", ".step"]:
-                # Todo: Dialog for Quality Settings
-                loader = Trimeshloader()
+                loader = Trimeshloader(True, self.tol_linear, self.tol_angular, self.tol_relative)
             elif use_threemfloader and file_extension == ".3mf":
                 loader = Threemfloader()
             else:
@@ -512,6 +520,7 @@ class MainWindow(QMainWindow):
         self.generate_outlines_button.setDisabled(value)
         self.map_colours_button.setDisabled(value)
         self.settings_tabs.tabBar().setDisabled(value)
+        self.step_quality_button.setDisabled(value)
         if self.file_loaded:
             self.subpart_panel.setDisabled(value)
 
@@ -523,6 +532,7 @@ class MainWindow(QMainWindow):
         self.load_input_button.setDisabled(False)
         self.orientation_input.setDisabled(False)
         self.unit_input.setDisabled(False)
+        self.step_quality_button.setDisabled(False)
 
     def enable_reload(self):
         self.reload_preview = True
@@ -636,6 +646,13 @@ class MainWindow(QMainWindow):
             self.disable_settings(False)
             self.enable_reload()
         self.hide_loading_screen()
+
+    def set_step_vallues(self):
+        step_dialog = StepSettingsDialog(self, self.tol_linear, self.tol_angular, self.tol_relative)
+        if step_dialog.exec():
+            self.tol_linear = step_dialog.tol_linear
+            self.tol_angular = step_dialog.tol_angular
+            self.tol_relative = step_dialog.tol_relative
 
     def show_loading_screen(self, message: str = "Loading ..."):
         loading_blurr = QGraphicsBlurEffect()
