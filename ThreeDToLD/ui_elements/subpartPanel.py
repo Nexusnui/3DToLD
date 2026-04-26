@@ -297,7 +297,7 @@ class SubpartTab(QWidget):
                 self.line_angle = outline_dialog.angle
                 self.merge_vertices = outline_dialog.merge_vertices
                 self.subpart.generate_outlines(self.line_angle, self.merge_vertices)
-                self.colour_changed.emit()
+            self.colour_changed.emit()
             self.refresh_content()
 
     def split_by_colour(self):

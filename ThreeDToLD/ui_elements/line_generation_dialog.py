@@ -119,7 +119,6 @@ class LineGenerationDialog(QDialog):
         answer = QMessageBox.question(self, "Delete Outline?", "Do you want delete the outlines?")
 
         if answer == QMessageBox.StandardButton.Yes:
-            print("Delete")
             self.delete_flag = True
             self.accept()
 
