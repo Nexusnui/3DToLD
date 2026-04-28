@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name='3DToLD',
-    version='1.6.1',
+    version='1.6.2',
     description='This is a graphical Python program for converting various 3D file formats(stl,3mf,obj,stp, etc.) to the LDraw file format (.dat).',
     url='https://github.com/Nexusnui/Convert-To-LDraw',
     author='Nexusnui',
@@ -28,15 +28,15 @@ setup(
                       "cascadio==0.0.17",
                       "charset-normalizer==3.4.3",
                       "lxml==6.1.0",
-                      "manifold3d==3.2.1",
+                      "manifold3d==3.4.1",
                       "meshio==5.3.5",
                       "networkx>=3.4,<=3.5",
                       "pillow==12.2.0",
-                      "pycollada==0.9.2",
-                      "PyQt6==6.10.0",
-                      "PyQt6-WebEngine==6.10.0",
+                      "pycollada==0.9.3",
+                      "PyQt6==6.11.0",
+                      "PyQt6-WebEngine==6.11.0",
                       "scipy>=1.15.0,<=1.16.1",
-                      "trimesh==4.10.0",
+                      "trimesh==4.12.1",
                       ],
     entry_points={
         'gui_scripts': [
