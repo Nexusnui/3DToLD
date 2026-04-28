@@ -41,7 +41,7 @@ from ThreeDToLD.ui_elements.stepsettingsdialog import StepSettingsDialog
 
 basedir = os.path.dirname(__file__)
 
-app_version = "1.6.1"
+app_version = "1.6.2"
 
 if platform.system() == "Windows":
     try:
