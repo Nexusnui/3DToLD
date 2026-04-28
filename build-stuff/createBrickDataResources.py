@@ -109,6 +109,7 @@ def get_brick_categories_from_config(config_path):
                 categories.append(line.split('CATEGORY "')[1].split('" DESCRIPTION')[0])
     return categories
 
+
 def get_color_categories_from_lists(colorlists: list):
     categories = []
     for cl in colorlists:
@@ -116,6 +117,7 @@ def get_color_categories_from_lists(colorlists: list):
             if colour[9] not in categories:
                 categories.append(colour[9])
     return categories
+
 
 def save_list_to_py(listname, str_list, filename):
     with open(filename, "w", encoding="utf-8") as file_out:
@@ -133,7 +135,6 @@ if __name__ == "__main__":
     # Change this to the current version
     bl_studio_custom_color_definition = "C:/Program Files/Studio 2.0/data/CustomColors/CustomColorDefinition_2_1_9.txt"
     bl_studio_colours = parse_bl_studio_color_definition(bl_studio_custom_color_definition)
-
 
     color_definitions_csv = f"{__file__.split("build-stuff")[0]}ThreeDToLD\\brick_data\\colour_definitions.csv"
     save_colourlists_to_csv([ldraw_colours, bl_studio_colours], color_definitions_csv)

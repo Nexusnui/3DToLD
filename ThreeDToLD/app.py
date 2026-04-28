@@ -1,4 +1,5 @@
 import os
+import sys
 import platform
 import traceback
 
@@ -27,17 +28,20 @@ from PyQt6.QtWidgets import (
 )
 
 from ThreeDToLD.appexcetions import *
-from ThreeDToLD.brick_data.ldrawObject import LdrawObject, Subpart, default_part_licenses, LDrawConversionFactor
+from ThreeDToLD.model_loaders.trimeshloader import Trimeshloader
+from ThreeDToLD.model_loaders.threemfloader import Threemfloader
+from ThreeDToLD.brick_data.ldrawObject import LdrawObject, Subpart, default_part_licenses, LDrawConversionFactor, UpAxis
 from ThreeDToLD.brick_data.brick_categories import brick_categories
 from ThreeDToLD.ui_elements.subpartPanel import SubpartPanel
 from ThreeDToLD.ui_elements.previewPanel import PreviewPanel, register_scheme
 from ThreeDToLD.ui_elements.line_generation_dialog import LineGenerationDialog, LinePreset
 from ThreeDToLD.ui_elements.brickcolourwidget import ColourCategoriesDialog
 from ThreeDToLD.ui_elements.exceptiondialog import ExceptionDialog
+from ThreeDToLD.ui_elements.stepsettingsdialog import StepSettingsDialog
 
 basedir = os.path.dirname(__file__)
 
-app_version = "1.6.1"
+app_version = "1.6.2"
 
 if platform.system() == "Windows":
     try:
@@ -47,6 +51,23 @@ if platform.system() == "Windows":
         windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
     except ImportError:
         pass
+
+sys._excepthook = sys.excepthook
+
+
+def exception_hook(exctype, value, _traceback):
+    exception_info = ExceptionDialog(
+        clipboard=None,
+        title="Application Crashed",
+        message="Application crashed due to the following Exception:",
+        traceback_str="".join(traceback.format_tb(_traceback))
+    )
+    sys._excepthook(exctype, value, _traceback)
+    exception_info.exec()
+    sys.exit(1)
+
+
+sys.excepthook = exception_hook
 
 
 class MainWindow(QMainWindow):
@@ -78,21 +99,6 @@ class MainWindow(QMainWindow):
         save_file_area.setLayout(save_file_inputs)
 
     # Input File Selection
-        input_label = QLabel("Input File")
-        load_file_inputs.addRow(input_label)
-        input_layout = QHBoxLayout()
-
-        self.input_file_line = QLineEdit()
-        self.input_file_line.setPlaceholderText("Select file to load")
-        self.input_file_line.setReadOnly(True)
-        input_layout.addWidget(self.input_file_line)
-
-        self.load_input_button = QPushButton("Load File")
-        input_layout.addWidget(self.load_input_button)
-        self.load_input_button.clicked.connect(self.load_file)
-
-        load_file_inputs.addRow(input_layout)
-
         # Enable Multicolour Check
         self.multicolour_check = QCheckBox()
         multicolour_label = QLabel("Multicolour ℹ️")
@@ -108,15 +114,6 @@ class MainWindow(QMainWindow):
                                       "(If the the file does not define colours)")
         load_file_inputs.addRow(multi_object_label, self.multi_object_check)
         self.multi_object_check.setChecked(True)
-
-        # Loader Settings
-        self.threemfloader_check = QCheckBox()
-        threemfloader_label = QLabel("Custom 3mf Loader ℹ️")
-        threemfloader_label.setToolTip("Enables color support for 3mf files.\n"
-                                       "MMU painting (Slic3r/Prusa/Bambu) not supported.\n"
-                                       "Trimesh is used to load 3mf files when unchecked.")
-        load_file_inputs.addRow(threemfloader_label, self.threemfloader_check)
-        self.threemfloader_check.setChecked(True)
 
         # Unit Selection
         self.unit_input = QComboBox()
@@ -138,18 +135,52 @@ class MainWindow(QMainWindow):
         scale_label.setToolTip("Factor used to scale the model")
         load_file_inputs.addRow(scale_label, self.scale_input)
 
-        # Enable LDraw Rotation Check
-        self.ldraw_rotation_check = QCheckBox()
-        ldraw_rotation_label = QLabel("Use LDraw Axis ℹ️")
-        ldraw_rotation_label.setToolTip("If deactivated the model is not rotated\n"
-                                        "(In LDraws coordinate system -Y is up)\n"
-                                        "You should only disable this if your model uses LDraw axis")
-        load_file_inputs.addRow(ldraw_rotation_label, self.ldraw_rotation_check)
-        self.ldraw_rotation_check.setChecked(True)
+        # Choose Up Axis
+        self.orientation_input = QComboBox()
+        self.orientation_input.addItems(UpAxis.get_membernames_as_string())
+        ldraw_rotation_label = QLabel("Up Axis ℹ️")
+        ldraw_rotation_label.setToolTip("Choose what the up axis of the model is.\n"
+                                        "If '-Y' is chosen no rotation is applied.\n"
+                                        "(In LDraws coordinate system -Y is up)")
+        load_file_inputs.addRow(ldraw_rotation_label, self.orientation_input)
+
+        # Use 3mf Loader Check
+        self.threemfloader_check = QCheckBox()
+        threemfloader_label = QLabel("Custom 3mf Loader ℹ️")
+        threemfloader_label.setToolTip("Enables color support for 3mf files.\n"
+                                       "MMU painting (Slic3r/Prusa/Bambu) not supported.\n"
+                                       "Trimesh is used to load 3mf files when unchecked.")
+        load_file_inputs.addRow(threemfloader_label, self.threemfloader_check)
+        self.threemfloader_check.setChecked(True)
+
+        # Step Quality Settings
+        self.step_quality_button = QPushButton("Step Mesh Quality")
+        self.tol_linear = 0.1
+        self.tol_angular = 0.5
+        self.tol_relative = False
+        self.step_quality_button.clicked.connect(self.set_step_vallues)
+        load_file_inputs.addRow(self.step_quality_button)
+
+        # File loading
+        input_label = QLabel("Input File")
+        load_file_inputs.addRow(input_label)
+        input_layout = QHBoxLayout()
+
+        self.input_file_line = QLineEdit()
+        self.input_file_line.setPlaceholderText("Select file to load")
+        self.input_file_line.setReadOnly(True)
+        input_layout.addWidget(self.input_file_line)
+
+        self.load_input_button = QPushButton("Load File")
+        input_layout.addWidget(self.load_input_button)
+        self.load_input_button.clicked.connect(self.load_file)
+
+        load_file_inputs.addRow(input_layout)
 
         # Reload Button
         self.reload_button = QPushButton("Reload Model")
         self.reload_button.setIcon(QIcon(os.path.join(basedir, "icons", "reload-icon.svg")))
+        self.reload_button.setToolTip("Reload model with current settings")
         self.reload_button.clicked.connect(lambda a: self.load_file(True))
         load_file_inputs.addRow(self.reload_button)
 
@@ -203,7 +234,10 @@ class MainWindow(QMainWindow):
         # Author Input
         self.author_line = QLineEdit()
         self.author_line.setPlaceholderText("Your Name/Alias")
-        part_settings_inputs.addRow("Author (Optional)", self.author_line)
+        author_label = QLabel("Author (Optional)ℹ️")
+        author_label.setToolTip("'Realname[LDraw username]'\n"
+                                "Is used for official LDraw files\n")
+        part_settings_inputs.addRow(author_label, self.author_line)
 
         # Category Selection
         self.part_category_input = QComboBox()
@@ -310,6 +344,9 @@ class MainWindow(QMainWindow):
     def load_file(self, reload=False):
         filepath = self.input_file_line.text()
         filename = os.path.basename(filepath)
+        self.show_loading_screen("Loading File ...")
+        self.disable_settings(True)
+        start_loading = True
         if reload:
             answer = QMessageBox.warning(
                 self,
@@ -318,9 +355,7 @@ class MainWindow(QMainWindow):
                 QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
             )
             if answer == QMessageBox.StandardButton.No:
-                return
-        self.disable_settings(True)
-        self.show_loading_screen("Loading File ...")
+                start_loading = False
         if not reload:
             dialog = QFileDialog(self)
             dialog.setFileMode(QFileDialog.FileMode.ExistingFile)
@@ -332,13 +367,22 @@ class MainWindow(QMainWindow):
             dialog.setViewMode(QFileDialog.ViewMode.Detail)
             if dialog.exec():
                 filepath = dialog.selectedFiles()[0]
-        if filepath and len(filepath) > 0:
+            else:
+                start_loading = False
+        if filepath and len(filepath) > 0 and start_loading:
             filename = os.path.basename(filepath)
+            _, file_extension = os.path.splitext(filepath)
             scale = self.scale_input.value()
             multicolour = self.multicolour_check.checkState() == Qt.CheckState.Checked
             multi_object = self.multi_object_check.checkState() == Qt.CheckState.Checked
             use_threemfloader = self.threemfloader_check.checkState() == Qt.CheckState.Checked
-            use_ldraw_rotation = self.ldraw_rotation_check.checkState() == Qt.CheckState.Checked
+            if file_extension in [".stp", ".step"]:
+                loader = Trimeshloader(True, self.tol_linear, self.tol_angular, self.tol_relative)
+            elif use_threemfloader and file_extension == ".3mf":
+                loader = Threemfloader()
+            else:
+                loader = Trimeshloader()
+            orientation = UpAxis.from_string(self.orientation_input.currentText())
             override_metadata = True
             unit_conversion = LDrawConversionFactor.from_string(self.unit_input.currentText())
             try:
@@ -347,8 +391,8 @@ class MainWindow(QMainWindow):
                                        scale=scale,
                                        multi_object=multi_object,
                                        multicolour=multicolour,
-                                       use_ldraw_rotation=use_ldraw_rotation,
-                                       use_threemfloader=use_threemfloader,
+                                       orientation=orientation,
+                                       loader=loader,
                                        unit_conversion=unit_conversion
                                        )
             except FileTypeUnsupportedError:
@@ -468,7 +512,7 @@ class MainWindow(QMainWindow):
         self.multi_object_check.setDisabled(value)
         self.threemfloader_check.setDisabled(value)
         self.scale_input.setDisabled(value)
-        self.ldraw_rotation_check.setDisabled(value)
+        self.orientation_input.setDisabled(value)
         self.unit_input.setDisabled(value)
         self.part_category_input.setDisabled(value)
         self.part_license_input.setDisabled(value)
@@ -476,6 +520,7 @@ class MainWindow(QMainWindow):
         self.generate_outlines_button.setDisabled(value)
         self.map_colours_button.setDisabled(value)
         self.settings_tabs.tabBar().setDisabled(value)
+        self.step_quality_button.setDisabled(value)
         if self.file_loaded:
             self.subpart_panel.setDisabled(value)
 
@@ -485,8 +530,9 @@ class MainWindow(QMainWindow):
         self.threemfloader_check.setDisabled(False)
         self.scale_input.setDisabled(False)
         self.load_input_button.setDisabled(False)
-        self.ldraw_rotation_check.setDisabled(False)
+        self.orientation_input.setDisabled(False)
         self.unit_input.setDisabled(False)
+        self.step_quality_button.setDisabled(False)
 
     def enable_reload(self):
         self.reload_preview = True
@@ -559,7 +605,14 @@ class MainWindow(QMainWindow):
         try:
             self.ldraw_object.convert_to_dat_file(filepath)
         except Exception:
-            QMessageBox.critical(self, "Conversion Failed", "Conversion failed due to unknown error")
+            formatted_traceback = traceback.format_exc()
+            exception_info = ExceptionDialog(
+                clipboard=self.clipboard,
+                title="Conversion Failed",
+                message="Conversion failed due with the following Exception",
+                traceback_str=formatted_traceback
+            )
+            exception_info.exec()
         else:
             QMessageBox.information(self, "Conversion Successfull", f"Model was saved to {filepath}")
         self.disable_settings(False)
@@ -593,6 +646,13 @@ class MainWindow(QMainWindow):
             self.disable_settings(False)
             self.enable_reload()
         self.hide_loading_screen()
+
+    def set_step_vallues(self):
+        step_dialog = StepSettingsDialog(self, self.tol_linear, self.tol_angular, self.tol_relative)
+        if step_dialog.exec():
+            self.tol_linear = step_dialog.tol_linear
+            self.tol_angular = step_dialog.tol_angular
+            self.tol_relative = step_dialog.tol_relative
 
     def show_loading_screen(self, message: str = "Loading ..."):
         loading_blurr = QGraphicsBlurEffect()

@@ -152,7 +152,6 @@ class Threemfloader(Modelloader):
                 with file_3mf.open(self.model_config_name) as model_config_file:
                     self.model_config = etree.parse(model_config_file).getroot()
         if self.resources is None and self.build is None:
-            # Todo: Raise correct exception
             raise Missing3mfElementError("No build and resources elements in 3mf file")
         if self.resources is None:
             raise Missing3mfElementError("No resources element in 3mf file")
@@ -174,9 +173,8 @@ class Threemfloader(Modelloader):
                 if resource.attrib["type"] != "model":
                     continue
                 self.sub_models[resource_id] = resource
-        
 
-        #Collect mesh data with combined transformation matrices
+        # Collect mesh data with combined transformation matrices
         for item in self.build:
             if _get_tag_type(item) == "item":
                 transform = None
@@ -227,10 +225,12 @@ class Threemfloader(Modelloader):
                                 int(triangle.attrib["v3"])
                             ))
                             if triangle.attrib.has_key("pid"):
-                                mesh_colours.append(self.colour_groups
-                                                    [triangle.attrib["pid"]]
-                                                    [int(triangle.attrib["p1"])]
-                                                    )
+                                if triangle.attrib["pid"] in self.colour_groups.keys():
+                                    mesh_colours.append(self.colour_groups
+                                                        [triangle.attrib["pid"]]
+                                                        [int(triangle.attrib["p1"])]
+                                                        )
+                                # Todo: elif case for future support for 3mf textures
                             else:
                                 mesh_colours.append(mesh_base_colour)
             geometry = Trimesh(vertices=mesh_vertices, faces=mesh_triangles, face_colors=mesh_colours)
@@ -260,6 +260,6 @@ class Threemfloader(Modelloader):
                     if component.attrib.has_key("transform"):
                         component_transform = _combine_transforms(transform, component.attrib["transform"])
                     component_id = component.attrib["objectid"]
-                    self.collect_object_meshes(component_id, component_transform, depth+1)
+                    self.collect_object_meshes(component_id, component_transform, depth + 1)
             elif content_tag == "mesh":
                 self.meshes.append((build_object, transform, index))

@@ -8,8 +8,7 @@ from ThreeDToLD.brick_data.brickcolour import Brickcolour, get_closest_brickcolo
     get_all_brickcolours
 import numpy as np
 from collections import OrderedDict
-from ThreeDToLD.model_loaders.trimeshloader import Trimeshloader
-from ThreeDToLD.model_loaders.threemfloader import Threemfloader
+from ThreeDToLD.model_loaders.autoloader import Autoloader
 from ThreeDToLD.matrix_functions import is_identity_matrix
 from enum import Enum
 
@@ -61,6 +60,44 @@ class LDrawConversionFactor(Enum):
         return [member.name for member in list(LDrawConversionFactor)]
 
 
+class UpAxis(Enum):
+    posZ = ("+Z", [
+                [1, 0, 0, 0],
+                [0, 0, -1, 0],
+                [0, 1, 0, 0],
+                [0, 0, 0, 1]
+            ])
+    posY = ("+Y", [
+                [1, 0, 0, 0],
+                [0, -1, 0, 0],
+                [0, 0, -1, 0],
+                [0, 0, 0, 1]
+            ])
+    negY = ("-Y", [
+                [1, 0, 0, 0],
+                [0, 1, 0, 0],
+                [0, 0, 1, 0],
+                [0, 0, 0, 1]
+            ])
+
+    @staticmethod
+    def from_string(axisname: str):
+        axisname = axisname.lower()
+
+        if axisname in ["+z", "z+"]:
+            return UpAxis.posZ
+        elif axisname in ["+y", "y+"]:
+            return UpAxis.posY
+        elif axisname in ["-y", "y-"]:
+            return UpAxis.negY
+        else:
+            # Unknown/No Axis return -Y as default as it does not transform the model
+            return UpAxis.negY
+    @staticmethod
+    def get_membernames_as_string() -> list[str]:
+        return [member.value[0] for member in list(UpAxis)]
+
+
 class LdrawObject:
     def __init__(self, filepath: str = None,
                  name="", bricklinknumber="", author="", category="", keywords=None,
@@ -80,24 +117,18 @@ class LdrawObject:
             self.load_scene(filepath)
 
     def load_scene(self, filepath: str, scale=1, multi_object=True, multicolour=True,
-                   use_ldraw_rotation=True, override_metadata=True,
-                   use_threemfloader=True, unit_conversion=LDrawConversionFactor.Auto
+                   orientation=UpAxis.posZ, override_metadata=True,
+                   loader=Autoloader(), unit_conversion=LDrawConversionFactor.Auto
                    ):
 
-        # Todo: Pass unit conversion option as a parameter
         _, file_extension = os.path.splitext(filepath)
-
-        if use_threemfloader and file_extension == ".3mf":
-            loader = Threemfloader()
-        else:
-            loader = Trimeshloader()
 
         try:
             scene, metadata = loader.load_model(filepath)
         except NotImplementedError as exc:
             raise FileTypeUnsupportedError("The filetype is not supported by Trimesh") from exc
         except (Missing3mfElementError, RecursionError) as exc:
-            if use_threemfloader and file_extension == ".3mf":
+            if file_extension == ".3mf":
                 raise LoaderError("Bad 3mf file") from exc
             else:
                 raise LoaderError("Recursion Error in Trimesh") from exc
@@ -198,15 +229,10 @@ class LdrawObject:
             # Merge duplicate vertices
             list(scene.geometry.values())[0].merge_vertices()
 
-        if use_ldraw_rotation:
-            # LDraw co-ordinate system is right-handed where -Y is "up"
-            # For this reason the entire scene is rotated by 90° around the X-axis
-            scene = scene.apply_transform([
-                [1, 0, 0, 0],
-                [0, 0, -1, 0],
-                [0, 1, 0, 0],
-                [0, 0, 0, 1]
-            ])
+        if orientation != UpAxis.negY:
+            # LDraw co-ordinate system is right-handed where -Y is "up" (no rotation needed if it is already -Y)
+            # For this reason the entire scene is rotated through a transformation matrix depending on the up axis.
+            scene = scene.apply_transform(orientation.value[1])
             if len(scene.geometry) == 1 and (
                     unit_conversion == LDrawConversionFactor.Auto or unit_conversion == LDrawConversionFactor.LDraw
             ) and scale == 1:
@@ -270,6 +296,18 @@ class LdrawObject:
         self.model_loaded = True
 
     def convert_to_dat_file(self, filepath=None, one_file=False):
+        """
+                Loader used to load a 3D model from file
+                :param filepath:
+                    path where the converted file is saved,
+                    if set to the one_file parameter will be automatically set to true
+                    and the function returns the converted file as a string.
+                :param one_file:
+                    When set to true the model is converted to one mpd files containing all subparts.
+                    If the model has at least 2 subpart they are saved in a "s" folder,
+                    in the same location as the main file.
+                    If no "s" folder exist a new one is created.
+        """
         if not self.model_loaded:
             raise Exception("No model loaded")
         if filepath is None:
@@ -299,12 +337,14 @@ class LdrawObject:
         if self.part_license is not None and len(self.part_license) > 0:
             license_line = f"0 !LICENSE {self.part_license}\n"
         colour_definitions = ""
+        file_line = ""
         if one_file:
+            file_line = f"0 FILE {filename}\n"
             for definition_line in self.cached_colour_definitions.values():
                 colour_definitions += definition_line
             if len(colour_definitions) > 0:
                 colour_definitions += "\n"
-        header = (f"0 FILE {filename}\n"
+        header = (f"{file_line}"
                   f"0 {self.name}\n"
                   f"0 Name:  {filename}\n"
                   f"0 Author:  {self.author}\n"
@@ -544,20 +584,23 @@ class Subpart:
 
     def convert_to_dat_file(self, filepath, main_file_name, author, license_line):
         filename = fr"s\{os.path.basename(filepath)}"
-        header = self.get_ldraw_header(filename, main_file_name, author, license_line)
+        header = self.get_ldraw_header(filename, main_file_name, author, license_line, internal_file=False)
         with open(filepath, "w", encoding="utf-8") as file:
             file.write(header)
             for line in self.to_ldraw_lines():
                 file.write(line)
 
-    def get_ldraw_header(self, filename, main_file_name, author, license_line, define_colours=False):
+    def get_ldraw_header(self, filename, main_file_name, author, license_line, define_colours=False, internal_file=True):
         colour_definitions = ""
         if define_colours:
             for definition_line in self.cached_colour_definitions.values():
                 colour_definitions += definition_line
             if len(colour_definitions) > 0:
                 colour_definitions += "\n"
-        header = (f"0 FILE {filename}\n"
+        file_line = ""
+        if internal_file:
+            file_line = f"0 FILE {filename}\n"
+        header = (f"{file_line}"
                   f"0 ~{self.name}: Subpart of {main_file_name}\n"
                   f"0 Name: {filename}\n"
                   f"0 Author:  {author}\n"
@@ -638,7 +681,7 @@ class Subpart:
                 new_geometry,
                 self.transformation_matrix,
                 new_name,
-                self.main_colour,
+                None,
                 self.cached_colour_definitions,
                 node_key,
                 colours,

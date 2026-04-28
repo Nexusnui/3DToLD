@@ -297,7 +297,7 @@ class SubpartTab(QWidget):
                 self.line_angle = outline_dialog.angle
                 self.merge_vertices = outline_dialog.merge_vertices
                 self.subpart.generate_outlines(self.line_angle, self.merge_vertices)
-                self.colour_changed.emit()
+            self.colour_changed.emit()
             self.refresh_content()
 
     def split_by_colour(self):
@@ -310,7 +310,7 @@ class SubpartTab(QWidget):
         except Exception:
             formatted_traceback = traceback.format_exc()
             exception_info = ExceptionDialog(
-                clipboard=self.clipboard,
+                clipboard=self.main_window.clipboard,
                 title="Split by Colour Dialog Failed",
                 message="If you know how to replicate this open an issue on the repo",
                 traceback_str=formatted_traceback

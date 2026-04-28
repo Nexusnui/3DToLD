@@ -89,17 +89,19 @@ Reddish_Orange;402;#CA4C0B;#333333;255;;;402;Reddish Orange;LDraw:LDraw Solid Co
 Sienna_Brown;422;#915C3C;#333333;255;;;422;Sienna Brown;LDraw:LDraw Solid Colours
 Umber_Brown;423;#543F33;#333333;255;;;423;Umber Brown ;LDraw:LDraw Solid Colours
 Ochre_Yellow;424;#DD9E47;#333333;255;;;424;Ochre Yellow ;LDraw:LDraw Solid Colours
+Warm_Pink;430;#F79B9B;#333333;255;;;430;Warm Pink;LDraw:LDraw Solid Colours
+Bright_Blue_Violet;431;#665EA7;#333333;255;;;431;Blue Violet;LDraw:LDraw Solid Colours
 Fabuland_Brown;450;#D27744;#333333;255;;;4;Brick Red;LDraw:LDraw Solid Colours
 Medium_Orange;462;#F58624;#333333;255;;;105;Bright Yellowish Orange;LDraw:LDraw Solid Colours
 Dark_Orange;484;#91501C;#333333;255;;;38;Dark Orange;LDraw:LDraw Solid Colours
 Very_Light_Grey;503;#BCB4A5;#333333;255;;;103;Light Grey;LDraw:LDraw Solid Colours
-Light_Orange_Brown;507;#FA9C1C;#333333;255;;;12;Light Orange Brown (OBSOLETE);LDraw:LDraw Solid Colours
 Fabuland_Red;508;#C65127;#333333;255;;;13;Red Orange;LDraw:LDraw Solid Colours
 Fabuland_Orange;509;#CF8A47;#333333;255;;;19;Light Brown;LDraw:LDraw Solid Colours
-Fabuland_Lime;510;#78FC78;#333333;255;;;14;Pastel Green;LDraw:LDraw Solid Colours
+Fabuland_Lime;510;#ACE35A;#333333;255;;;14;Pastel Green;LDraw:LDraw Solid Colours
 Lemon;10015;#FFF230;#333333;255;;;15;Lemon;LDraw:LDraw Solid Colours
 Rose_Pink;10017;#FF9494;#333333;255;;;17;Rose;LDraw:LDraw Solid Colours
 Yellowish_Dark_Pink;10022;#D05098;#333333;255;;;22;Medium Reddish Violet;LDraw:LDraw Solid Colours
+Trans_Black_IR_Lens;32;#000000;#333333;245;;;109/355;Trans Black IR;LDraw:LDraw Transparent Colours
 Trans_Dark_Blue;33;#0020A0;#000B38;128;;;43;Transparent Blue;LDraw:LDraw Transparent Colours
 Trans_Green;34;#237841;#174F2B;128;;;48;Transparent Green;LDraw:LDraw Transparent Colours
 Trans_Bright_Green;35;#56E646;#27AF18;128;;;311;Transparent Bright Green ;LDraw:LDraw Transparent Colours
@@ -118,7 +120,6 @@ Trans_Clear;47;#FCFCFC;#C9C9C9;128;;;40;Transparent;LDraw:LDraw Transparent Colo
 Trans_Purple;52;#A5A5CB;#6464A6;128;;;126;Transparent Bright Bluish Violet;LDraw:LDraw Transparent Colours
 Trans_Neon_Yellow;54;#DAB000;#755E00;128;;;157;Transparent Fluorescent Yellow;LDraw:LDraw Transparent Colours
 Trans_Orange;57;#F08F1C;#9E5C0A;128;;;182;Trans Bright Orange;LDraw:LDraw Transparent Colours
-Trans_Black_IR_Lens;32;#000000;#333333;210;;;109/355;Trans Black IR;LDraw:LDraw Transparent Colours
 Trans_Neon_Red;158;#F18EBB;#E63384;128;;;158;Transparent Fluorescent Red;LDraw:LDraw Transparent Colours
 Trans_Bright_Light_Green;227;#B5D96C;#86B22E;128;;;227;Transparent Bright Yellowish Green;LDraw:LDraw Transparent Colours
 Trans_Bright_Light_Orange;231;#FCB76D;#FA860A;128;;;231;Transparent Flame Yellowish Orange;LDraw:LDraw Transparent Colours
@@ -170,24 +171,25 @@ Metallic_Pink;10046;#AD659A;#333333;255;;METAL;911;Metallic Pink (Clikits);LDraw
 Metallic_Light_Pink;10049;#FECCCF;#333333;255;;METAL;345;Magenta Metallic Ink;LDraw:LDraw Metallic Paint Colours
 Fluorescent_Red_Ink;332;#D06D4F;#333333;255;;;332;Fluorescent Red Ink;LDraw:LDraw Fluorescent Paint Colours
 Fluorescent_Green_Ink;333;#DBEA7A;#333333;255;;;333;Fluorescent Green Ink;LDraw:LDraw Fluorescent Paint Colours
+Glow_In_Dark_Opaque;21;#E0FFB0;#B8FF4D;245;15;;50;Phosphorescent White;LDraw:LDraw Milky Colours
 Milky_White;79;#EEEEEE;#BABABA;240;;;20;Nature;LDraw:LDraw Milky Colours
-Glow_In_Dark_Opaque;21;#E0FFB0;#B8FF4D;240;15;;294;Phosphorescent Green;LDraw:LDraw Milky Colours
-Glow_In_Dark_Trans;294;#BDC6AD;#8D9D72;240;15;;50;Phosphorescent White;LDraw:LDraw Milky Colours
-Glow_In_Dark_White;329;#F5F3D7;#E0DA85;240;15;;329;White Glow;LDraw:LDraw Milky Colours
+Glow_In_Dark_Trans;294;#BDC6AD;#8D9D72;200;15;;294;Phosphorescent Green ;LDraw:LDraw Milky Colours
+Glow_In_Dark_White;329;#F5F3D7;#E0DA85;245;15;;329;White Glow;LDraw:LDraw Milky Colours
 Glitter_Trans_Dark_Pink;114;#DF6695;#B9275F;128;;MATERIAL GLITTER VALUE #B92790 FRACTION 0.17 VFRACTION 0.2 SIZE 1;114;Transparent Medium Reddish-Violet w. Glitter 2%;LDraw:LDraw Glitter Colours
 Glitter_Trans_Clear;117;#EEEEEE;#BABABA;128;;MATERIAL GLITTER VALUE #FFFFFF FRACTION 0.08 VFRACTION 0.1 SIZE 1;117;Transparent Glitter;LDraw:LDraw Glitter Colours
 Glitter_Trans_Purple;129;#640061;#000000;128;;MATERIAL GLITTER VALUE #8F00CC FRACTION 0.03 VFRACTION 0.4 SIZE 1;129;Transparent Bright Bluish Violet w. Glitter 2%;LDraw:LDraw Glitter Colours
 Glitter_Trans_Light_Blue;302;#AEE9EF;#59D1DE;128;;MATERIAL GLITTER VALUE #59DEBF FRACTION 0.17 VFRACTION 0.2 SIZE 1;302;Transparent Light Blue with Glitter 2%;LDraw:LDraw Glitter Colours
 Glitter_Trans_Neon_Green;339;#C0FF00;#739900;128;;MATERIAL GLITTER VALUE #998C00 FRACTION 0.17 VFRACTION 0.2 SIZE 1 ;339;Transparent Fluorescent Green with Glitter 2%;LDraw:LDraw Glitter Colours
 Glitter_Trans_Orange;341;#F08F1C;#9E5C0A;128;;MATERIAL GLITTER VALUE #9E2A0A FRACTION 0.17 VFRACTION 0.2 SIZE 1;341;Transparent Bright Orange with Glitter 2%;LDraw:LDraw Glitter Colours
-Opal_Trans_Clear;360;#FCFCFC;#C9C9C9;240;5;MATERIAL GLITTER VALUE #FFFFFF FRACTION 0.8 VFRACTION 0.6 MINSIZE 0.02 MAXSIZE 0.1;360;Transparent Clear Opal;LDraw:LDraw Glitter Colours
-Opal_Trans_Light_Blue;362;#AEE9EF;#59D1DE;200;5;MATERIAL GLITTER VALUE #59DEBF FRACTION 0.8 VFRACTION 0.6 MINSIZE 0.02 MAXSIZE 0.1;362;Transparent Blue Opal;LDraw:LDraw Glitter Colours
-Opal_Trans_Black;363;#635F52;#2A2823;200;5;MATERIAL GLITTER VALUE #7781C9 FRACTION 0.8 VFRACTION 0.6 MINSIZE 0.02 MAXSIZE 0.1;363;Transparent Brown Opal;LDraw:LDraw Glitter Colours
-Opal_Trans_Dark_Pink;364;#DF6695;#B9275F;200;5;MATERIAL GLITTER VALUE #B92790 FRACTION 0.8 VFRACTION 0.6 MINSIZE 0.02 MAXSIZE 0.1;364;Transparent Medium Reddish Violet Opal;LDraw:LDraw Glitter Colours
-Opal_Trans_Purple;365;#671F81;#441456;200;5;MATERIAL GLITTER VALUE #2F1456 FRACTION 0.8 VFRACTION 0.6 MINSIZE 0.02 MAXSIZE 0.1;365;Transparent Violet Opal;LDraw:LDraw Glitter Colours
-Opal_Trans_Green;367;#237841;#174F2B;200;5;MATERIAL GLITTER VALUE #0B270B FRACTION 0.8 VFRACTION 0.6 MINSIZE 0.02 MAXSIZE 0.1;367;Transparent Green Opal;LDraw:LDraw Glitter Colours
 Glitter_Trans_Bright_Green;10351;#56E646;#27AF18;128;;MATERIAL GLITTER VALUE #59AF18 FRACTION 0.17 VFRACTION 0.2 SIZE 1;351;Transparent Bright Green with Glitter 2%;LDraw:LDraw Glitter Colours
-Opal_Trans_Dark_Blue;10366;#0020A0;#000B38;200;5;MATERIAL GLITTER VALUE #001D38 FRACTION 0.8 VFRACTION 0.6 MINSIZE 0.02 MAXSIZE 0.1;366;Transparent Blue Opal ;LDraw:LDraw Glitter Colours
+Opal_Trans_Clear;360;#FCFCFC;#C9C9C9;240;5;MATERIAL GLITTER VALUE #FFFFFF FRACTION 0.8 VFRACTION 0.6 MINSIZE 0.02 MAXSIZE 0.1;360;Transparent Clear Opal;LDraw:LDraw Opalescent Colours
+Opal_Trans_Light_Blue;362;#AEE9EF;#59D1DE;200;5;MATERIAL GLITTER VALUE #59DEBF FRACTION 0.8 VFRACTION 0.6 MINSIZE 0.02 MAXSIZE 0.1;362;Transparent Blue Opal;LDraw:LDraw Opalescent Colours
+Opal_Trans_Black;363;#635F52;#2A2823;200;5;MATERIAL GLITTER VALUE #7781C9 FRACTION 0.8 VFRACTION 0.6 MINSIZE 0.02 MAXSIZE 0.1;363;Transparent Brown Opal;LDraw:LDraw Opalescent Colours
+Opal_Trans_Dark_Pink;364;#DF6695;#B9275F;200;5;MATERIAL GLITTER VALUE #B92790 FRACTION 0.8 VFRACTION 0.6 MINSIZE 0.02 MAXSIZE 0.1;364;Transparent Medium Reddish Violet Opal;LDraw:LDraw Opalescent Colours
+Opal_Trans_Purple;365;#671F81;#441456;200;5;MATERIAL GLITTER VALUE #2F1456 FRACTION 0.8 VFRACTION 0.6 MINSIZE 0.02 MAXSIZE 0.1;365;Transparent Violet Opal;LDraw:LDraw Opalescent Colours
+Opal_Trans_Green;367;#237841;#174F2B;200;5;MATERIAL GLITTER VALUE #0B270B FRACTION 0.8 VFRACTION 0.6 MINSIZE 0.02 MAXSIZE 0.1;367;Transparent Green Opal;LDraw:LDraw Opalescent Colours
+Opal_Trans_Yellow;376;#F5CD2F;#B49208;200;5;MATERIAL GLITTER VALUE #B45908 FRACTION 0.8 VFRACTION 0.6 MINSIZE 0.02 MAXSIZE 0.1;376;Transparent Yellow Opalescence;LDraw:LDraw Opalescent Colours
+Opal_Trans_Dark_Blue;10366;#0020A0;#000B38;200;5;MATERIAL GLITTER VALUE #001D38 FRACTION 0.8 VFRACTION 0.6 MINSIZE 0.02 MAXSIZE 0.1;366;Transparent Blue Opal ;LDraw:LDraw Opalescent Colours
 Speckle_Black_Copper;75;#000000;#AB6038;255;;MATERIAL SPECKLE VALUE #AB6038 FRACTION 0.4 MINSIZE 1 MAXSIZE 3;306;Copper, Diffuse;LDraw:LDraw Speckle Colours
 Speckle_Dark_Bluish_Grey_Silver;76;#635F61;#898788;255;;MATERIAL SPECKLE VALUE #898788 FRACTION 0.4 MINSIZE 1 MAXSIZE 3;;;LDraw:LDraw Speckle Colours
 Speckle_Black_Silver;132;#000000;#898788;255;;MATERIAL SPECKLE VALUE #898788 FRACTION 0.4 MINSIZE 1 MAXSIZE 3;304;Cool Silver, Diffuse;LDraw:LDraw Speckle Colours
@@ -312,6 +314,7 @@ Canvas_Dark_Green;20288;#00451A;#808080;255;;MATERIAL FABRIC CANVAS;;;LDraw:LDra
 Canvas_Dark_Red;20320;#720012;#333333;255;;MATERIAL FABRIC CANVAS;;;LDraw:LDraw Fabric Colours
 Canvas_Sand_Red;20335;#88605E;#333333;255;;MATERIAL FABRIC CANVAS;;;LDraw:LDraw Fabric Colours
 Canvas_Cream;20500;#F8F3E4;#333333;255;;MATERIAL FABRIC CANVAS;;;LDraw:LDraw Fabric Colours
+Obsolete_Light_Orange_Brown;507;#FA9C1C;#333333;255;;;;;LDraw:LDraw Obsolete Colours
 Main_Colour;16;#FFFF80;#333333;255;;;;;LDraw:LDraw Internal Common Material Colours
 Edge_Colour;24;#7F7F7F;#333333;255;;;;;LDraw:LDraw Internal Common Material Colours
 Magnet;493;#656761;#333333;255;;METAL;;;LDraw:LDraw Internal Common Material Colours
