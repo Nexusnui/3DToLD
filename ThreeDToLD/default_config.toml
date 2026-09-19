@@ -1,5 +1,6 @@
+#Manually added comments may disappear after an update that changes the default config
 [Paths] # Paths used by 3DToLD
-project_path = "" # Path where your 3D files are located
+model_path = "" # Path where your 3D files are located
 
 [Theme]
 # Valid values are:
@@ -24,14 +25,14 @@ custom_3mf_loader = true
     tol_relative = false
 
 [Metadata] # Defaults for the "Part Metadata" area
-name_from_file = true # Get Name from file
 name_from_metadata = true # Use name from metadata, if non existend or set to false use filename
 default_author       = ""
 author_from_metadata = true # If true the default author is also overidden.
-default_license = ""
+default_license = "" # If empty the default LDraw license is used.
+license_from_metadata = true # Default license is replaced if another is found in the Metadata.
 
 [Convert_To_LDraw_Colours]
 # Colour Categories checked by default in the "Convert direct/html colours to LDraw colours" dialog
 default_colour_categories = ["LDraw:LDraw Solid Colours", "LDraw:LDraw Internal Common Material Colours"]
 # Use default colour categories to convert colours on file import
-convert_on_model_load = false
+convert_colours_on_load = false
