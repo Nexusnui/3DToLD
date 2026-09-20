@@ -2,6 +2,7 @@ import os
 from platformdirs import PlatformDirs
 import tomlkit
 import tomlkit.items
+from brick_data.colour_categories import colour_categories
 
 __basedir__ = os.path.dirname(__file__)
 __appdirs__ = PlatformDirs("3DToLD", "Nexusnui")
@@ -9,7 +10,18 @@ config_path = os.path.join(__appdirs__.user_config_dir, "config.toml")
 
 
 def validate_value(key, value) -> bool:
-    # Todo: Validate Config Fields
+    if isinstance(value, int) or isinstance(value, float):
+        if value <= 0:
+            return False
+    if key == "mode" and value not in ["System", "Dark", "Light"]:
+        return False
+    elif (key == "unit" and value not in
+            ["Auto", "LDraw", "Micrometer", "Millimeter", "Centimeter", "Decimeter", "Meter", "Inch", "Foot"]):
+        return False
+    elif key == "default_colour_categories":
+        for category in value:
+            if category not in colour_categories:
+                return False
     return True
 
 
@@ -77,3 +89,10 @@ def save_config(config: tomlkit.TOMLDocument) -> bool:
     except (OSError, PermissionError) as e:
         return False
     return True
+
+
+if __name__ == "__main__":
+    print(__appdirs__.user_config_dir)
+    testconfig, warnings = loadconfig()
+    print("Test Config: ", testconfig)
+    print("Warnings: ", warnings)
