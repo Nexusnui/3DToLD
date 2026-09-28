@@ -2,7 +2,7 @@ import os
 from platformdirs import PlatformDirs
 import tomlkit
 import tomlkit.items
-from brick_data.colour_categories import colour_categories
+from ThreeDToLD.brick_data.colour_categories import colour_categories
 
 __basedir__ = os.path.dirname(__file__)
 __appdirs__ = PlatformDirs("3DToLD", "Nexusnui")
@@ -25,7 +25,7 @@ def validate_value(key, value) -> bool:
     return True
 
 
-def loadconfig() -> (tomlkit.TOMLDocument, dict):
+def loadconfig(reset_config=False) -> (tomlkit.TOMLDocument, dict):
     warning_messages = {}
     config: tomlkit.TOMLDocument
     is_user_config = False
@@ -33,7 +33,7 @@ def loadconfig() -> (tomlkit.TOMLDocument, dict):
 
     with open(os.path.join(__basedir__, "default_config.toml"), "r", encoding="utf-8") as source:
         default_config = tomlkit.load(source)
-    if not os.path.exists(config_path):
+    if not os.path.exists(config_path) or reset_config:
         update_user_config = True
     else:
         try:
@@ -47,7 +47,6 @@ def loadconfig() -> (tomlkit.TOMLDocument, dict):
     # Checks is config has to be updated/repaired
     if is_user_config:
         for category, values in default_config.items():
-            print(category)
             if category not in default_config.keys():
                 update_user_config = True
             else:
@@ -92,7 +91,6 @@ def save_config(config: tomlkit.TOMLDocument) -> bool:
 
 
 if __name__ == "__main__":
-    print(__appdirs__.user_config_dir)
     testconfig, warnings = loadconfig()
     print("Test Config: ", testconfig)
     print("Warnings: ", warnings)
