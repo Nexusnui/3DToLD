@@ -10,6 +10,8 @@ config_path = os.path.join(__appdirs__.user_config_dir, "config.toml")
 
 
 def validate_value(key, value) -> bool:
+    if isinstance(value, bool):
+        return True
     if isinstance(value, int) or isinstance(value, float):
         if value <= 0:
             return False
