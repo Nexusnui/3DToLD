@@ -28,7 +28,7 @@ custom_3mf_loader = true
 name_from_metadata = true # Use name from metadata, if non existend or set to false use filename
 default_author       = ""
 author_from_metadata = true # If true the default author is also overidden.
-default_license = "" # If empty the default LDraw license is used.
+default_license = "Licensed under CC BY 4.0 : see CAreadme.txt " # If empty the default LDraw license is used.
 license_from_metadata = true # Default license is replaced if another is found in the Metadata.
 
 [Convert_To_LDraw_Colours]
