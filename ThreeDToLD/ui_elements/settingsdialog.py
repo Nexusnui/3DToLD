@@ -55,7 +55,6 @@ class SettingsDialog(QDialog):
 
         paths_layout.addWidget(model_path_label)
 
-
         model_path_inputs = QHBoxLayout()
         self.model_path_line = QLineEdit()
         self.model_path_line.setReadOnly(True)
@@ -199,8 +198,8 @@ class SettingsDialog(QDialog):
         third_tab = QWidget()
         third_tab_layout = QFormLayout()
         third_tab.setLayout(third_tab_layout)
-        second_tab_layout.addWidget(QLabel("Here you can set the default Metadata settings.\n"
-                                           "Most of these are used at the start of the application."))
+        third_tab_layout.addRow(QLabel("Here you can set the default Metadata settings.\n"
+                                       "Some of these are used at the start of the application."))
 
         self.name_from_metadata_check = QCheckBox()
         name_from_metadata_label = QLabel("Part Name from Metadata ℹ️")
