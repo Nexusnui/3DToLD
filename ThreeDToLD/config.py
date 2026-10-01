@@ -24,6 +24,8 @@ def validate_value(key, value) -> bool:
         for category in value:
             if category not in colour_categories:
                 return False
+    elif key == "model_path":
+        return os.path.isdir(value)
     return True
 
 

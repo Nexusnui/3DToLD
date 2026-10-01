@@ -25,7 +25,7 @@ custom_3mf_loader = true
     tol_relative = false
 
 [Metadata] # Defaults for the "Part Metadata" area
-name_from_metadata = true # Use name from metadata, if non existend or set to false use filename
+name_from_metadata = true # Use name from metadata, if non existend or set to false use filename.
 default_author       = ""
 author_from_metadata = true # If true the default author is also overidden.
 default_license = "Licensed under CC BY 4.0 : see CAreadme.txt " # If empty the default LDraw license is used.
