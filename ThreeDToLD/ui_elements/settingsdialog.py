@@ -33,7 +33,6 @@ class SettingsDialog(QDialog):
                                                                 f"{warnings}")
 
         self.has_unsaved_changes = False
-        self.setWindowTitle("Settings")
 
         main_layout = QVBoxLayout()
         self.category_tabs = QTabWidget()
@@ -274,6 +273,7 @@ class SettingsDialog(QDialog):
         self.set_input_values()
         self.save_button.setDisabled(True)
         self.has_unsaved_changes = False
+        self.setWindowTitle("Settings")
 
         self.setLayout(main_layout)
 
@@ -308,6 +308,7 @@ class SettingsDialog(QDialog):
             self.save_button.setDisabled(True)
             self.has_unsaved_changes = False
             self.config_changed = True
+            self.setWindowTitle("Settings")
 
     def reject(self):
         if self.has_unsaved_changes:
@@ -390,6 +391,7 @@ class SettingsDialog(QDialog):
     def input_changed(self):
         self.has_unsaved_changes = True
         self.save_button.setEnabled(True)
+        self.setWindowTitle("Settings*")
 
 
 if __name__ == "__main__":
