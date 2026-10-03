@@ -38,6 +38,8 @@ from ThreeDToLD.ui_elements.line_generation_dialog import LineGenerationDialog, 
 from ThreeDToLD.ui_elements.brickcolourwidget import ColourCategoriesDialog
 from ThreeDToLD.ui_elements.exceptiondialog import ExceptionDialog
 from ThreeDToLD.ui_elements.stepsettingsdialog import StepSettingsDialog
+from ThreeDToLD.ui_elements.settingsdialog import SettingsDialog
+from ThreeDToLD.config import loadconfig
 
 basedir = os.path.dirname(__file__)
 
@@ -71,7 +73,7 @@ sys.excepthook = exception_hook
 
 
 class MainWindow(QMainWindow):
-    def __init__(self, clipboard: QClipboard):
+    def __init__(self, clipboard: QClipboard, config):
         super().__init__()
 
         self.clipboard = clipboard
@@ -81,6 +83,9 @@ class MainWindow(QMainWindow):
         self.line_preset = LinePreset.Low
         self.line_angle = LinePreset.Low.value
         self.merge_vertices = False
+        self.config = config
+        self.previous_colour_categories = None
+        self.directory_selected = False
 
         self.setWindowTitle(f"3DToLD {app_version}")
         self.loading_stack = QStackedLayout()
@@ -104,7 +109,7 @@ class MainWindow(QMainWindow):
         multicolour_label = QLabel("Multicolour ℹ️")
         multicolour_label.setToolTip("If deactivated all objects are single colour")
         load_file_inputs.addRow(multicolour_label, self.multicolour_check)
-        self.multicolour_check.setChecked(True)
+        self.multicolour_check.setChecked(self.config["Import_Settings"]["multicolour"])
 
         # Enable Multi Objects Check
         self.multi_object_check = QCheckBox()
@@ -113,7 +118,7 @@ class MainWindow(QMainWindow):
                                       "With multicolour unique colours are applied before merging\n"
                                       "(If the the file does not define colours)")
         load_file_inputs.addRow(multi_object_label, self.multi_object_check)
-        self.multi_object_check.setChecked(True)
+        self.multi_object_check.setChecked(self.config["Import_Settings"]["multiple_objects"])
 
         # Unit Selection
         self.unit_input = QComboBox()
@@ -123,11 +128,12 @@ class MainWindow(QMainWindow):
         category_label.setToolTip("Unit conversion used to convert to LDraw Units.\n"
                                   "If LDraw is selected no conversion is applied.\n"
                                   "If no Unit is found Millimeter is used by default.")
+        self.unit_input.setCurrentText(self.config["Import_Settings"]["unit"])
         load_file_inputs.addRow(category_label, self.unit_input)
 
         # Set Scale
         self.scale_input = QDoubleSpinBox()
-        self.scale_input.setValue(1.0)
+        self.scale_input.setValue(self.config["Import_Settings"]["scale"])
         self.scale_input.setMaximum(999.999)
         self.scale_input.setMinimum(0.001)
         self.scale_input.setDecimals(3)
@@ -142,6 +148,7 @@ class MainWindow(QMainWindow):
         ldraw_rotation_label.setToolTip("Choose what the up axis of the model is.\n"
                                         "If '-Y' is chosen no rotation is applied.\n"
                                         "(In LDraws coordinate system -Y is up)")
+        self.orientation_input.setCurrentText(self.config["Import_Settings"]["up_axis"])
         load_file_inputs.addRow(ldraw_rotation_label, self.orientation_input)
 
         # Use 3mf Loader Check
@@ -151,13 +158,13 @@ class MainWindow(QMainWindow):
                                        "MMU painting (Slic3r/Prusa/Bambu) not supported.\n"
                                        "Trimesh is used to load 3mf files when unchecked.")
         load_file_inputs.addRow(threemfloader_label, self.threemfloader_check)
-        self.threemfloader_check.setChecked(True)
+        self.threemfloader_check.setChecked(self.config["Import_Settings"]["custom_3mf_loader"])
 
         # Step Quality Settings
         self.step_quality_button = QPushButton("Step Mesh Quality")
-        self.tol_linear = 0.1
-        self.tol_angular = 0.5
-        self.tol_relative = False
+        self.tol_linear = self.config["Import_Settings"]["Step_Settings"]["tol_linear"]
+        self.tol_angular = self.config["Import_Settings"]["Step_Settings"]["tol_angular"]
+        self.tol_relative = self.config["Import_Settings"]["Step_Settings"]["tol_relative"]
         self.step_quality_button.clicked.connect(self.set_step_vallues)
         load_file_inputs.addRow(self.step_quality_button)
 
@@ -237,6 +244,8 @@ class MainWindow(QMainWindow):
         author_label = QLabel("Author (Optional)ℹ️")
         author_label.setToolTip("'Realname[LDraw username]'\n"
                                 "Is used for official LDraw files\n")
+        if len(self.config["Metadata"]["default_author"]) > 0:
+            self.author_line.setText(self.config["Metadata"]["default_author"])
         part_settings_inputs.addRow(author_label, self.author_line)
 
         # Category Selection
@@ -264,6 +273,8 @@ class MainWindow(QMainWindow):
         self.part_license_input.setEditable(True)
         part_license_label = QLabel("Part License (Optional) ℹ️")
         part_license_label.setToolTip("License of the Part, set your own one or use one from the list.")
+        if len(self.config["Metadata"]["default_license"]) > 0:
+            self.part_license_input.setCurrentText(self.config["Metadata"]["default_license"])
         part_settings_inputs.addRow(part_license_label, self.part_license_input)
 
         # Convert Button
@@ -310,6 +321,10 @@ class MainWindow(QMainWindow):
         self.loading_label.setAlignment(Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignHCenter)
         loading_layout.addWidget(self.loading_label)
         loading_widget.setLayout(loading_layout)
+
+    # Setup Menubar
+        open_settings_action = self.menuBar().addAction("Settings")
+        open_settings_action.triggered.connect(self.open_settings)
 
     # Add Elements to Main Layout
         top_layout.addLayout(file_select_area)
@@ -365,8 +380,11 @@ class MainWindow(QMainWindow):
             # This means the formats with Unknown Compatibility do not work.
             # "Unknown Compatibility (*.brep *.igs *.iges *.bdf *.msh *.inp *.diff *.mesh);;"
             dialog.setViewMode(QFileDialog.ViewMode.Detail)
+            if not self.directory_selected:
+                dialog.setDirectory(self.config["Paths"]["model_path"])
             if dialog.exec():
                 filepath = dialog.selectedFiles()[0]
+                self.directory_selected = True
             else:
                 start_loading = False
         if filepath and len(filepath) > 0 and start_loading:
@@ -383,7 +401,6 @@ class MainWindow(QMainWindow):
             else:
                 loader = Trimeshloader()
             orientation = UpAxis.from_string(self.orientation_input.currentText())
-            override_metadata = True
             unit_conversion = LDrawConversionFactor.from_string(self.unit_input.currentText())
             try:
                 loaded_part = LdrawObject(autoload=False)
@@ -430,16 +447,20 @@ class MainWindow(QMainWindow):
 
                 if not reload:
                     self.reset_part_settings()
-                    if len(self.ldraw_object.name) > 0:
+                    if self.config["Metadata"]["name_from_metadata"] and len(self.ldraw_object.name) > 0:
                         name = self.ldraw_object.name
 
                 self.input_file_line.setText(filepath)
 
-                if override_metadata and not reload:
-                    if len(self.ldraw_object.author) > 0:
+                if not reload:
+                    if self.config["Metadata"]["author_from_metadata"] and len(self.ldraw_object.author) > 0:
                         self.author_line.setText(self.ldraw_object.author)
-                    if self.ldraw_object.part_license is not None and len(self.ldraw_object.part_license) > 0:
+                    else:
+                        self.author_line.setText(self.config["Metadata"]["default_author"])
+                    if self.config["Metadata"]["license_from_metadata"] and self.ldraw_object.part_license is not None and len(self.ldraw_object.part_license) > 0:
                         self.part_license_input.setCurrentText(self.ldraw_object.part_license)
+                    else:
+                        self.part_license_input.setCurrentText(self.config["Metadata"]["default_license"])
 
                 filedir = os.path.dirname(filepath)
                 if not reload:
@@ -628,9 +649,13 @@ class MainWindow(QMainWindow):
             self.enable_reload()
 
     def map_to_ldraw_colours(self):
+        checked_categories = self.config["Convert_To_LDraw_Colours"]["default_colour_categories"]
+        if self.previous_colour_categories is not None:
+            checked_categories = self.previous_colour_categories
         categories_dialog = ColourCategoriesDialog(
             message="Select Colour Categories Direct/HTML will be matched with.\n"
-                    "(Only Reversible by reloading and may take a while)"
+                    "(Only Reversible by reloading and may take a while)",
+            checked_categories=checked_categories
         )
 
         self.show_loading_screen("Mapping Colours\nCould take a bit of time")
@@ -640,6 +665,7 @@ class MainWindow(QMainWindow):
             if len(colour_categories) == 0:
                 QMessageBox.warning(self, "Nothing Selected", "No Categories selected\nMapping Aborted")
                 return
+            self.previous_colour_categories = colour_categories
             self.disable_settings(True)
             self.ldraw_object.map_to_ldraw_colours(colour_categories)
             self.subpart_panel.update_children()
@@ -666,6 +692,12 @@ class MainWindow(QMainWindow):
         self.main_widget.setGraphicsEffect(None)
         self.loading_stack.setCurrentIndex(0)
 
+    def open_settings(self):
+        settings_dia = SettingsDialog(self)
+        settings_dia.exec()
+        if settings_dia.config_changed:
+            self.config = settings_dia.config
+
 
 def ldu_float_to_string(number: float | int):
     number *= 0.4
@@ -677,11 +709,12 @@ def ldu_float_to_string(number: float | int):
 
 
 def run():
+    config, _ = loadconfig()
     register_scheme()
     app = QApplication([0])
     app.setWindowIcon(QIcon(os.path.join(basedir, "icons", "3DToLD_icon.ico")))
 
-    window = MainWindow(app.clipboard())
+    window = MainWindow(app.clipboard(), config)
 
     window.show()
 

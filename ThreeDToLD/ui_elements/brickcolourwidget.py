@@ -320,7 +320,7 @@ class BrickcolourListmodel(QAbstractTableModel):
 class ColourCategoriesDialog(QDialog):
     def __init__(self, parent=None,
                  title: str = "Colour Categories", message: str = "Select Colour Categories",
-                 buttons=None):
+                 buttons=None, checked_categories: list[str] = []):
         super().__init__(parent)
 
         main_layout = QVBoxLayout()
@@ -332,7 +332,10 @@ class ColourCategoriesDialog(QDialog):
         self.items = []
         for category in colour_categories:
             item = QListWidgetItem(category)
-            item.setCheckState(Qt.CheckState.Unchecked)
+            if category in checked_categories:
+                item.setCheckState(Qt.CheckState.Checked)
+            else:
+                item.setCheckState(Qt.CheckState.Unchecked)
             item.setFlags(item.flags() | Qt.ItemFlag.ItemIsUserCheckable)
             self.list_widget.addItem(item)
             self.items.append(item)
@@ -350,6 +353,7 @@ class ColourCategoriesDialog(QDialog):
         main_layout.addWidget(self.list_widget)
         main_layout.addWidget(select_all_button)
         main_layout.addWidget(button_box)
+
         self.setLayout(main_layout)
 
     def get_selected_items(self):
