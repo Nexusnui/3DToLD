@@ -40,10 +40,11 @@ from ThreeDToLD.ui_elements.exceptiondialog import ExceptionDialog
 from ThreeDToLD.ui_elements.stepsettingsdialog import StepSettingsDialog
 from ThreeDToLD.ui_elements.settingsdialog import SettingsDialog
 from ThreeDToLD.config import loadconfig
+from ThreeDToLD.about import version
 
 basedir = os.path.dirname(__file__)
 
-app_version = "1.6.2"
+app_version = version
 
 if platform.system() == "Windows":
     try:

@@ -1,8 +1,9 @@
 from setuptools import setup
+from ThreeDToLD.about import version
 
 setup(
     name='3DToLD',
-    version='1.6.2',
+    version=version,
     description='This is a graphical Python program for converting various 3D file formats(stl,3mf,obj,stp, etc.) to the LDraw file format (.dat).',
     url='https://github.com/Nexusnui/Convert-To-LDraw',
     author='Nexusnui',
