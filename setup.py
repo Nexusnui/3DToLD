@@ -23,7 +23,8 @@ setup(
                                  'reload-icon.svg', 'loading_animation.webm',
                                  'Loading_Symbol.png'],
         'ThreeDToLD.ui_elements': ['viewer_template.html'],
-        'ThreeDToLD.ui_elements.js-libraries': ['*']
+        'ThreeDToLD.ui_elements.js-libraries': ['*'],
+        'ThreeDToLD': ['default_config.toml']
     },
     install_requires=["numpy>=2.2.0,<=2.3.2",
                       "cascadio==0.0.17",
