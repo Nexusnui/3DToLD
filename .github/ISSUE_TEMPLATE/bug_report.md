@@ -20,6 +20,11 @@ Steps to reproduce the behavior:
 **Expected behavior**
 A clear and concise description of what you expected to happen.
 
+**Traceback**
+```
+If the bug produces a traceback paste it here. You may censor filepaths.
+```
+
 **Screenshots**
 If applicable, add screenshots to help explain your problem.
 
