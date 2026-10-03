@@ -149,8 +149,9 @@ class Threemfloader(Modelloader):
                                         self.colour_groups["sc"].append(_hex_to_rgba_colour(colour))
                                     break
             if self.model_config_name is not None:
-                with file_3mf.open(self.model_config_name) as model_config_file:
-                    self.model_config = etree.parse(model_config_file).getroot()
+                if self.config_name in file_3mf.namelist():
+                    with file_3mf.open(self.model_config_name) as model_config_file:
+                        self.model_config = etree.parse(model_config_file).getroot()
         if self.resources is None and self.build is None:
             raise Missing3mfElementError("No build and resources elements in 3mf file")
         if self.resources is None:
