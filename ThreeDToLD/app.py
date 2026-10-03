@@ -38,6 +38,7 @@ from ThreeDToLD.ui_elements.line_generation_dialog import LineGenerationDialog, 
 from ThreeDToLD.ui_elements.brickcolourwidget import ColourCategoriesDialog
 from ThreeDToLD.ui_elements.exceptiondialog import ExceptionDialog
 from ThreeDToLD.ui_elements.stepsettingsdialog import StepSettingsDialog
+from ThreeDToLD.ui_elements.settingsdialog import SettingsDialog
 from ThreeDToLD.config import loadconfig
 
 basedir = os.path.dirname(__file__)
@@ -72,7 +73,7 @@ sys.excepthook = exception_hook
 
 
 class MainWindow(QMainWindow):
-    def __init__(self, clipboard: QClipboard):
+    def __init__(self, clipboard: QClipboard, config):
         super().__init__()
 
         self.clipboard = clipboard
@@ -82,7 +83,7 @@ class MainWindow(QMainWindow):
         self.line_preset = LinePreset.Low
         self.line_angle = LinePreset.Low.value
         self.merge_vertices = False
-        self.config, _ = loadconfig()
+        self.config = config
         self.previous_colour_categories = None
         self.directory_selected = False
 
@@ -320,6 +321,10 @@ class MainWindow(QMainWindow):
         self.loading_label.setAlignment(Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignHCenter)
         loading_layout.addWidget(self.loading_label)
         loading_widget.setLayout(loading_layout)
+
+    # Setup Menubar
+        open_settings_action = self.menuBar().addAction("Settings")
+        open_settings_action.triggered.connect(self.open_settings)
 
     # Add Elements to Main Layout
         top_layout.addLayout(file_select_area)
@@ -687,6 +692,12 @@ class MainWindow(QMainWindow):
         self.main_widget.setGraphicsEffect(None)
         self.loading_stack.setCurrentIndex(0)
 
+    def open_settings(self):
+        settings_dia = SettingsDialog(self)
+        settings_dia.exec()
+        if settings_dia.config_changed:
+            self.config = settings_dia.config
+
 
 def ldu_float_to_string(number: float | int):
     number *= 0.4
@@ -698,11 +709,12 @@ def ldu_float_to_string(number: float | int):
 
 
 def run():
+    config, _ = loadconfig()
     register_scheme()
     app = QApplication([0])
     app.setWindowIcon(QIcon(os.path.join(basedir, "icons", "3DToLD_icon.ico")))
 
-    window = MainWindow(app.clipboard())
+    window = MainWindow(app.clipboard(), config)
 
     window.show()
 

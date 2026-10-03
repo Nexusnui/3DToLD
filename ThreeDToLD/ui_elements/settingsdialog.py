@@ -303,7 +303,6 @@ class SettingsDialog(QDialog):
         if not save_config(self.config):
             QMessageBox.critical(self, "Failed to save settings", f"Failed to save settings in config file:\n"
                                                                   f"{config_path}")
-            pass
         else:
             self.save_button.setDisabled(True)
             self.has_unsaved_changes = False
