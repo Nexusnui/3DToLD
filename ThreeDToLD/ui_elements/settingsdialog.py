@@ -75,9 +75,8 @@ class SettingsDialog(QDialog):
         self.mode_input = QComboBox()
         self.mode_input.addItems(["auto", "dark", "light"])
         self.mode_input.currentTextChanged.connect(self.input_changed)
-        mode_label = QLabel("Mode ℹ️❗")
-        mode_label.setToolTip("Theme of the application. Requires restart of the application.\n"
-                              "Not implemented Yet!")
+        mode_label = QLabel("Mode ℹ️")
+        mode_label.setToolTip("Theme of the application. Requires restart of the application.")
         theme_layout.addRow(mode_label, self.mode_input)
 
         first_tab_layout.addWidget(theme_area)
