@@ -88,7 +88,7 @@ class SettingsDialog(QDialog):
         self.select_accent_colour_button.clicked.connect(self.select_accent_colour)
         accent_colour_label = QLabel("Accent Color ℹ️")
         accent_colour_label.setToolTip("Custom Accent Colour is applied on restart.")
-        theme_layout.addRow("Accent Color", self.select_accent_colour_button)
+        theme_layout.addRow(accent_colour_label, self.select_accent_colour_button)
 
         first_tab_layout.addWidget(theme_area)
 
