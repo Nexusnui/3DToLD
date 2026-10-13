@@ -15,7 +15,7 @@ def validate_value(key, value) -> bool:
     if isinstance(value, int) or isinstance(value, float):
         if value <= 0:
             return False
-    if key == "mode" and value not in ["System", "Dark", "Light"]:
+    if key == "mode" and value not in ["auto", "dark", "light"]:
         return False
     elif (key == "unit" and value not in
             ["Auto", "LDraw", "Micrometer", "Millimeter", "Centimeter", "Decimeter", "Meter", "Inch", "Foot"]):
