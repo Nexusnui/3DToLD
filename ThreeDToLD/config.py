@@ -2,6 +2,7 @@ import os
 from platformdirs import PlatformDirs
 import tomlkit
 import tomlkit.items
+import re
 from ThreeDToLD.brick_data.colour_categories import colour_categories
 
 __basedir__ = os.path.dirname(__file__)
@@ -15,7 +16,7 @@ def validate_value(key, value) -> bool:
     if isinstance(value, int) or isinstance(value, float):
         if value <= 0:
             return False
-    if key == "mode" and value not in ["System", "Dark", "Light"]:
+    if key == "mode" and value not in ["auto", "dark", "light"]:
         return False
     elif (key == "unit" and value not in
             ["Auto", "LDraw", "Micrometer", "Millimeter", "Centimeter", "Decimeter", "Meter", "Inch", "Foot"]):
@@ -26,6 +27,10 @@ def validate_value(key, value) -> bool:
                 return False
     elif key == "model_path":
         return os.path.isdir(value)
+    elif key == "accent_colour":
+        if re.fullmatch(r'^#(?:[0-9a-fA-F]{3}){1,2}$', value) is None:
+            return False
+
     return True
 
 

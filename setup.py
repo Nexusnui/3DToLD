@@ -41,6 +41,7 @@ setup(
                       "trimesh==4.12.1",
                       "platformdirs==4.11.11",
                       "tomlkit==0.15.1"
+                      "pyqtdarktheme-fork==2.3.6"
                       ],
     entry_points={
         'gui_scripts': [

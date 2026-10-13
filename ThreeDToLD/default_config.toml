@@ -4,8 +4,10 @@ model_path = "" # Path where your 3D files are located
 
 [Theme]
 # Valid values are:
-# System, Dark, Light
-mode = "System"
+# auto, dark, light
+mode = "auto"
+use_accent_colour = true # Use custom accent colour
+accent_colour = "#F58624" # Custom accent colour
 
 [Import_Settings] # Default values for the settings in the "Load File Area"
 multicolour      = true

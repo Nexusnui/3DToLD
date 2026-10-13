@@ -27,6 +27,8 @@ from PyQt6.QtWidgets import (
     QGraphicsBlurEffect
 )
 
+import qdarktheme
+
 from ThreeDToLD.appexcetions import *
 from ThreeDToLD.model_loaders.trimeshloader import Trimeshloader
 from ThreeDToLD.model_loaders.threemfloader import Threemfloader
@@ -303,7 +305,8 @@ class MainWindow(QMainWindow):
         subpart_area.setLayout(self.subpart_area_layout)
 
     # Preview Panel
-        hex_bg_color = self.palette().window().color().name()
+        hex_bg_color = self.get_current_background_colour()
+
         self.preview_panel = PreviewPanel(background_color=hex_bg_color)
 
     # Loading Animation
@@ -699,6 +702,11 @@ class MainWindow(QMainWindow):
         if settings_dia.config_changed:
             self.config = settings_dia.config
 
+    def get_current_background_colour(self):
+        current_palette = qdarktheme.load_palette(self.config["Theme"]["mode"])
+        background_colour = current_palette.window().color().name()
+        return background_colour
+
 
 def ldu_float_to_string(number: float | int):
     number *= 0.4
@@ -713,6 +721,10 @@ def run():
     config, _ = loadconfig()
     register_scheme()
     app = QApplication([0])
+    if config["Theme"]["use_accent_colour"]:
+        qdarktheme.setup_theme(config["Theme"]["mode"], custom_colors={"primary": config["Theme"]["accent_colour"]})
+    else:
+        qdarktheme.setup_theme(config["Theme"]["mode"])
     app.setWindowIcon(QIcon(os.path.join(basedir, "icons", "3DToLD_icon.ico")))
 
     window = MainWindow(app.clipboard(), config)

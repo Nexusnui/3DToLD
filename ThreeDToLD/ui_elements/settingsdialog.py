@@ -19,7 +19,8 @@ from PyQt6.QtWidgets import (
 
 from ThreeDToLD.brick_data.ldrawObject import LDrawConversionFactor, UpAxis, default_part_licenses
 from ThreeDToLD.config import loadconfig, save_config, config_path
-from ThreeDToLD.ui_elements.brickcolourwidget import ColourCategoriesDialog
+from ThreeDToLD.ui_elements.brickcolourwidget import BrickcolourDialog, ColourCategoriesDialog
+from ThreeDToLD.brick_data.brickcolour import Brickcolour, get_contrast_colour
 
 
 class SettingsDialog(QDialog):
@@ -73,12 +74,21 @@ class SettingsDialog(QDialog):
         theme_layout = QFormLayout()
         theme_area.setLayout(theme_layout)
         self.mode_input = QComboBox()
-        self.mode_input.addItems(["System", "Dark", "Light"])
+        self.mode_input.addItems(["auto", "dark", "light"])
         self.mode_input.currentTextChanged.connect(self.input_changed)
-        mode_label = QLabel("Mode ℹ️❗")
-        mode_label.setToolTip("Theme of the application. Requires restart of the application.\n"
-                              "Not implemented Yet!")
+        mode_label = QLabel("Mode ℹ️")
+        mode_label.setToolTip("Theme of the application. Requires restart of the application.")
         theme_layout.addRow(mode_label, self.mode_input)
+        self.use_accent_colour_check = QCheckBox()
+        self.use_accent_colour_check.checkStateChanged.connect(self.input_changed)
+        use_accent_colour_label = QLabel("Use Accent Colour ℹ️")
+        use_accent_colour_label.setToolTip("Use custom accent colour. If unchecked use auto value.")
+        theme_layout.addRow(use_accent_colour_label, self.use_accent_colour_check)
+        self.select_accent_colour_button = QPushButton("Select")
+        self.select_accent_colour_button.clicked.connect(self.select_accent_colour)
+        accent_colour_label = QLabel("Accent Color ℹ️")
+        accent_colour_label.setToolTip("Custom Accent Colour is applied on restart.")
+        theme_layout.addRow(accent_colour_label, self.select_accent_colour_button)
 
         first_tab_layout.addWidget(theme_area)
 
@@ -280,6 +290,7 @@ class SettingsDialog(QDialog):
     def save_config(self):
         # Values First Tab
         self.config["Theme"]["mode"] = self.mode_input.currentText()
+        self.config["Theme"]["use_accent_colour"] = self.use_accent_colour_check.isChecked()
         # Values Second Tab
         self.config["Import_Settings"]["multicolour"] = self.multicolour_check.isChecked()
         self.config["Import_Settings"]["multiple_objects"] = self.multi_object_check.isChecked()
@@ -357,6 +368,9 @@ class SettingsDialog(QDialog):
         # Values First Tab
         self.model_path_line.setText(self.config["Paths"]["model_path"])
         self.mode_input.setCurrentText(self.config["Theme"]["mode"])
+        self.use_accent_colour_check.setChecked(self.config["Theme"]["use_accent_colour"])
+        text_colour = get_contrast_colour(self.config["Theme"]["accent_colour"])
+        self.select_accent_colour_button.setStyleSheet(f"color: {text_colour}; background-color: {self.config["Theme"]["accent_colour"]};")
         # Values Second Tab
         self.multicolour_check.setChecked(self.config["Import_Settings"]["multicolour"])
         self.multi_object_check.setChecked(self.config["Import_Settings"]["multiple_objects"])
@@ -385,6 +399,15 @@ class SettingsDialog(QDialog):
         if categories_dialog.exec():
             colour_categories = categories_dialog.get_selected_items()
             self.config["Convert_To_LDraw_Colours"]["default_colour_categories"] = colour_categories
+            self.input_changed()
+
+    def select_accent_colour(self):
+        color_picker = BrickcolourDialog(Brickcolour(self.config["Theme"]["accent_colour"]), True)
+        if color_picker.exec():
+            print(color_picker.brickcolour.get_hex_rgba()[:-2])
+            self.config["Theme"]["accent_colour"] = color_picker.brickcolour.get_hex_rgba()[:-2]
+            text_colour = get_contrast_colour(self.config["Theme"]["accent_colour"])
+            self.select_accent_colour_button.setStyleSheet(f"color: {text_colour}; background-color: {self.config["Theme"]["accent_colour"]};")
             self.input_changed()
 
     def input_changed(self):
