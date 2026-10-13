@@ -9,7 +9,8 @@ datas=[('ThreeDToLD\\icons\\3DToLD_icon.ico','icons'),
            ('ThreeDToLD\\brick_data\\colour_definitions.csv','ThreeDToLD\\brick_data'),
            ('LICENSE','.'),
            ('ThreeDToLD\\ui_elements\\viewer_template.html','ThreeDToLD\\ui_elements'),
-           ('ThreeDToLD\\ui_elements\\js-libraries\\*','ThreeDToLD\\ui_elements\\js-libraries')
+           ('ThreeDToLD\\ui_elements\\js-libraries\\*','ThreeDToLD\\ui_elements\\js-libraries'),
+           ('ThreeDToLD\\default_config.toml','ThreeDToLD')
 ]
 datas += collect_data_files('collada')
 datas += collect_data_files('trimesh')

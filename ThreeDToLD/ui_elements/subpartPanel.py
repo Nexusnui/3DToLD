@@ -265,9 +265,13 @@ class SubpartTab(QWidget):
         self.setDisabled(False)
 
     def map_colours_to_LDraw(self):
+        checked_categories = self.main_window.config["Convert_To_LDraw_Colours"]["default_colour_categories"]
+        if self.main_window.previous_colour_categories is not None:
+            checked_categories = self.main_window.previous_colour_categories
         categories_dialog = ColourCategoriesDialog(
             message="Select Colour Categories Direct/HTML will be matched with.\n"
-                    "(Only Reversible by reloading and may take a while)"
+                    "(Only Reversible by reloading and may take a while)",
+            checked_categories=checked_categories
         )
 
         self.main_window.show_loading_screen("Mapping Colours\nCould take a bit of time")
@@ -277,6 +281,7 @@ class SubpartTab(QWidget):
             if len(colour_categories) == 0:
                 QMessageBox.warning(self, "Nothing Selected", "No Categories selected\nMapping Aborted")
                 return
+            self.main_window.previous_colour_categories = colour_categories
             self.main_window.disable_settings(True)
             self.subpart.map_to_ldraw_colours(colour_categories)
             self.refresh_content()
