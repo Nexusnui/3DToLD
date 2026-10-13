@@ -40,7 +40,7 @@ setup(
                       "scipy>=1.15.0,<=1.16.1",
                       "trimesh==4.12.1",
                       "platformdirs==4.11.11",
-                      "tomlkit==0.15.1"
+                      "tomlkit==0.15.1",
                       "pyqtdarktheme-fork==2.3.6"
                       ],
     entry_points={
