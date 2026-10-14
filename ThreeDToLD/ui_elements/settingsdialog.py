@@ -370,7 +370,7 @@ class SettingsDialog(QDialog):
         self.mode_input.setCurrentText(self.config["Theme"]["mode"])
         self.use_accent_colour_check.setChecked(self.config["Theme"]["use_accent_colour"])
         text_colour = get_contrast_colour(self.config["Theme"]["accent_colour"])
-        self.select_accent_colour_button.setStyleSheet(f"color: {text_colour}; background-color: {self.config["Theme"]["accent_colour"]};")
+        self.select_accent_colour_button.setStyleSheet(f"color: {text_colour}; background-color: {self.config['Theme']['accent_colour']};")
         # Values Second Tab
         self.multicolour_check.setChecked(self.config["Import_Settings"]["multicolour"])
         self.multi_object_check.setChecked(self.config["Import_Settings"]["multiple_objects"])
@@ -407,7 +407,7 @@ class SettingsDialog(QDialog):
             print(color_picker.brickcolour.get_hex_rgba()[:-2])
             self.config["Theme"]["accent_colour"] = color_picker.brickcolour.get_hex_rgba()[:-2]
             text_colour = get_contrast_colour(self.config["Theme"]["accent_colour"])
-            self.select_accent_colour_button.setStyleSheet(f"color: {text_colour}; background-color: {self.config["Theme"]["accent_colour"]};")
+            self.select_accent_colour_button.setStyleSheet(f"color: {text_colour}; background-color: {self.config['Theme']['accent_colour']};")
             self.input_changed()
 
     def input_changed(self):
