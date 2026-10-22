@@ -26,7 +26,7 @@ setup(
         'ThreeDToLD.ui_elements.js-libraries': ['*'],
         'ThreeDToLD': ['default_config.toml']
     },
-    install_requires=["numpy>=2.2.0,<=2.3.2",
+    install_requires=["numpy>=2.2.0,<=2.5.4",
                       "cascadio==0.0.17",
                       "charset-normalizer==3.4.3",
                       "lxml==6.1.0",
