@@ -15,4 +15,4 @@ class Autoloader(Modelloader):
         else:
             loader = Trimeshloader()
 
-        return loader.load_scene(file)
+        return loader.load_model(file)
