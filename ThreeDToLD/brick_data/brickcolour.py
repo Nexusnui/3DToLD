@@ -1,7 +1,13 @@
 import os
-import numpy as np
+from enum import Enum
 
 basedir = os.path.dirname(__file__)
+
+
+class Colourtype(Enum):
+    LDRAW = "LDraw"
+    DIRECT = "Direct"
+    ALPHA = "Transparent Direct"
 
 
 def is_brickcolour(colour_code: str):
@@ -29,17 +35,15 @@ def is_brickcolour(colour_code: str):
                         f"Valid characters are 0-9 and A-F(uppercase)")
     elif colour_code.startswith("#"):
         colour_code = colour_code.upper()
-        if len(colour_code) > 7:
+        if len(colour_code) not in (7, 9):
             return (False, "Invalid Colour Code",
-                    f"The provided colour '{colour_code}' seems to be a Direct/HTML colour but is to long.")
-        elif len(colour_code) < 7:
-            return (False, "Invalid Colour Code",
-                    f"The provided colour '{colour_code}' seems to be a Direct/HTML colour but is to short.")
-        for i in range(1, 7):
-            if colour_code[i] not in ["A", "B", "C", "D", "E", "F"] and not colour_code[i].isdigit():
+                    f"The provided colour '{colour_code}' seems to be a Direct/HTML colour and "
+                    f"has an invalid length: {len(colour_code)}")
+        for char in colour_code[1:]:
+            if char not in ["A", "B", "C", "D", "E", "F"] and not char.isdigit():
                 return (False, "Invalid Colour Code",
                         f"The provided colour '{colour_code}' seems to be a Direct/HTML colour, "
-                        f"but contains a invalid charcter at position: {i - 2} - '{colour_code[i]}'.\n"
+                        f"but contains at least one invalid character: '{char}'.\n"
                         f"Valid characters are 0-9 and A-F(uppercase)")
     return True,
 
@@ -55,22 +59,34 @@ class Brickcolour:
         if values is None:
             self.colour_code = colour_code
             if colour_code.startswith("0x2"):
-                self.colour_type = "Direct"
+                self._colour_type = Colourtype.DIRECT
                 self.rgb_values = f"#{self.colour_code[3:]}"
                 self.rgb_edge = get_contrast_colour(self.rgb_values)
                 self.alpha = "255"
-                self.ldrawname = self.colour_code
+                self._ldrawname = self.colour_code
             elif colour_code.startswith("#"):
                 colour_code = colour_code.upper()
-                self.colour_type = "Direct"
-                self.rgb_values = colour_code
-                self.colour_code = f"0x2{colour_code[1:]}"
+                if colour_code[7:] == "FF":
+                    colour_code = colour_code[:-2]
+                if len(colour_code) == 7:
+                    self._colour_type = Colourtype.DIRECT
+                    self.rgb_values = colour_code
+                    self.colour_code = f"0x2{colour_code[1:]}"
+                    self.alpha = "255"
+                    self._ldrawname = self.colour_code
+                else:
+                    self._colour_type = Colourtype.ALPHA
+                    self.rgb_values = colour_code[:-2]
+                    self.colour_code = colour_code
+                    self.alpha = str(int(colour_code[7:], 16))
+                    self._ldrawname = f"Trans_Direct_{colour_code[1:]}"
                 self.rgb_edge = get_contrast_colour(self.rgb_values)
-                self.alpha = "255"
-                self.ldrawname = self.colour_code
+                self.luminance = None
+                self.material = None
+
             else:
-                self.colour_type = "LDraw"
-                self.ldrawname, _, \
+                self._colour_type = Colourtype.LDRAW
+                self._ldrawname, _, \
                     self.rgb_values, \
                     self.rgb_edge, \
                     self.alpha, \
@@ -80,8 +96,8 @@ class Brickcolour:
                     self.legoname, \
                     self.category = get_colour_info_by_colour_code(self.colour_code)
         else:
-            self.colour_type = "LDraw"
-            self.ldrawname, \
+            self._colour_type = Colourtype.LDRAW
+            self._ldrawname, \
                 self.colour_code, \
                 self.rgb_values, \
                 self.rgb_edge, \
@@ -92,9 +108,17 @@ class Brickcolour:
                 self.legoname, \
                 self.category = values
 
+    @property
+    def colour_type(self):
+        return self._colour_type
+
+    @property
+    def ldrawname(self):
+        return self._ldrawname
+
     def __getitem__(self, key):
         if key == 0:
-            return self.ldrawname
+            return self._ldrawname
         elif key == 1:
             return self.colour_code
         elif key == 2:
@@ -115,11 +139,11 @@ class Brickcolour:
             return self.category
 
     def __str__(self):
-        if self.colour_type == "Direct":
-            return f"Direct Colour: {self.colour_code}"
+        if self._colour_type == Colourtype.DIRECT or self._colour_type == Colourtype.ALPHA:
+            return f"{self._colour_type.value} Colour: {self.colour_code}"
         else:
-            if self.ldrawname is not None:
-                return f"LDraw Colour {self.colour_code}: {self.ldrawname}, {self.rgb_values}"
+            if self._ldrawname is not None:
+                return f"LDraw Colour {self.colour_code}: {self._ldrawname}, {self.rgb_values}"
             else:
                 return f"Unknown LDraw Colour {self.colour_code}"
 
@@ -140,21 +164,33 @@ class Brickcolour:
         r = int(self.rgb_values[1:3], 16)
         g = int(self.rgb_values[3:5], 16)
         b = int(self.rgb_values[5:7], 16)
-        return r, g, b, int(self.alpha)
+        a = int(self.alpha)
+        return r, g, b, a
+
+    def convert_to_opaque_colour(self):
+        # Converts an Transparent Direct Colour to an opaque one
+        if self._colour_type == Colourtype.ALPHA:
+            self._colour_type = Colourtype.DIRECT
+            self.colour_code = f"0x2{self.rgb_values[1:]}"
+            self.alpha = "255"
+            self._ldrawname = self.colour_code
 
     def get_ldraw_line(self) -> str:
-        line = f"0 !COLOUR {self.ldrawname} CODE {self.colour_code} VALUE {self.rgb_values} EDGE {self.rgb_edge}"
+        line = f"0 !COLOUR {self._ldrawname} CODE {self.colour_code} VALUE {self.rgb_values} EDGE {self.rgb_edge}"
         if int(self.alpha) < 255:
             line += f" ALPHA {self.alpha}"
-        if self.luminance != "" and self.luminance is not None:
+        if self.luminance is not None and self.luminance != "":
             line += f" LUMINANCE {self.luminance}"
-        if self.material != "" and self.material is not None:
+        if self.material is not None and self.material != "":
             line += f" {self.material}"
         line += "\n"
         return line
 
 
 def get_colour_info_by_colour_code(colour_code: str):
+    # The colour name "Undefined" is for colour codes that are unknown to 3DToLD,
+    # but may be used by other LDraw software.
+    # These are usually input manually by the user
     found_colour = ["Undefined", colour_code, "#FFFFFF", "000000", "255", "", "", "", "", ""]
     with open(os.path.join(basedir, "colour_definitions.csv"), "r", encoding="utf-8") as source:
         # skip row with column names

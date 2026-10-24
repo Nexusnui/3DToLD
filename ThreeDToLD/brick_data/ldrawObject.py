@@ -5,7 +5,7 @@ from trimesh.base import Trimesh
 import os
 from ThreeDToLD.appexcetions import *
 from ThreeDToLD.brick_data.brickcolour import Brickcolour, get_closest_brickcolour_by_rgb_colour, \
-    get_all_brickcolours
+    get_all_brickcolours, Colourtype
 import numpy as np
 from collections import OrderedDict
 from ThreeDToLD.model_loaders.autoloader import Autoloader
@@ -283,7 +283,7 @@ class LdrawObject:
                     if default_colour:
                         main_colour = Brickcolour("16")
                     else:
-                        hexcolour = rgba_to_hex(geometry.visual.main_color)[:7]
+                        hexcolour = rgba_to_hex(geometry.visual.main_color)
                         main_colour = Brickcolour(hexcolour)
                 if "matrix" in scene_graph.edge_data[("world", node)]:
                     transformation_matrix = scene_graph.edge_data[("world", node)]["matrix"]
@@ -471,7 +471,7 @@ class Subpart:
         if not self.mesh.visual.defined:
             if main_colour is not None:
                 self.main_colour = main_colour
-                if self.main_colour.colour_type == "LDraw" and self.main_colour.ldrawname != "Undefined":
+                if self.main_colour.colour_type in (Colourtype.LDRAW, Colourtype.ALPHA) and self.main_colour.ldrawname != "Undefined":
                     self.cached_colour_definitions[self.main_colour.colour_code] = self.main_colour.get_ldraw_line()
             else:
                 self.main_colour = Brickcolour("16")
@@ -480,17 +480,13 @@ class Subpart:
         else:
             self.colours = OrderedDict()
             is_invisible = True
-            has_transparency = False
             for index, colour in enumerate(self.mesh.visual.face_colors):
                 hex_colour = rgba_to_hex(colour)
                 if hex_colour in self.colours:
                     self.colours[hex_colour][1].append(index)
                 else:
-                    brickcolour = Brickcolour(hex_colour[:7])
-                    brickcolour.alpha = str(colour[3])
+                    brickcolour = Brickcolour(hex_colour)
                     self.colours[hex_colour] = [brickcolour, [index]]
-                    if not has_transparency and colour[3] > 0 and colour[3] > 255:
-                        has_transparency = True
                     if is_invisible and colour[3] > 0:
                         is_invisible = False
             if len(self.colours) > 1:
@@ -501,20 +497,22 @@ class Subpart:
                 else:
                     self.main_colour = main_colour
                     if self.main_colour:
-                        if self.main_colour.colour_type == "LDraw" and self.main_colour.ldrawname != "Undefined":
+                        if self.main_colour.colour_type == Colourtype.LDRAW and self.main_colour.ldrawname != "Undefined":
                             self.cached_colour_definitions[
                                 self.main_colour.colour_code] = self.main_colour.get_ldraw_line()
             else:
                 if main_colour is not None:
+                    if main_colour.colour_type == Colourtype.ALPHA and int(main_colour.alpha) == 0:
+                        main_colour.convert_to_opaque_colour()
                     self.main_colour = main_colour
-                    if self.main_colour.colour_type == "LDraw" and self.main_colour.ldrawname != "Undefined":
+                    if self.main_colour.colour_type in (Colourtype.LDRAW, Colourtype.ALPHA) and self.main_colour.ldrawname != "Undefined":
                         self.cached_colour_definitions[self.main_colour.colour_code] = self.main_colour.get_ldraw_line()
                     self.apply_color()
                 else:
                     self.main_colour = self.colours.popitem()[1][0]
             if is_invisible:
                 for key, value in self.colours.items():
-                    value[0].alpha = "255"
+                    value[0].convert_to_opaque_colour()
                     self.apply_color(key=key)
 
     def _colour_from_dict(self, colours: OrderedDict, main_colour: Brickcolour):
@@ -533,7 +531,7 @@ class Subpart:
     def apply_color(self, colour: Brickcolour = None, key=None):
         if colour is not None:
             if (colour.colour_code not in self.cached_colour_definitions
-                    and colour.colour_type == "LDraw" and colour.ldrawname != "Undefined"):
+                    and colour.colour_type in (Colourtype.LDRAW, Colourtype.ALPHA) and colour.ldrawname != "Undefined"):
                 self.cached_colour_definitions[colour.colour_code] = colour.get_ldraw_line()
 
         if not self.multicolour or key is None:
@@ -548,7 +546,7 @@ class Subpart:
             if colour is None:
                 colour = self.colours[key][0]
                 if (colour.colour_code not in self.cached_colour_definitions
-                        and colour.colour_type == "LDraw" and colour.ldrawname != "Undefined"):
+                        and colour.colour_type in (Colourtype.LDRAW, Colourtype.ALPHA) and colour.ldrawname != "Undefined"):
                     self.cached_colour_definitions[colour.colour_code] = colour.get_ldraw_line()
             self.colours[key][0] = colour
 
@@ -572,12 +570,13 @@ class Subpart:
         colourlist = get_all_brickcolours(included_colour_categories)
         if self.multicolour:
             for key in self.colours:
-                if self.colours[key][0].colour_type == "Direct":
+                # Todo: Handle Transparent Direct Colours
+                if self.colours[key][0].colour_type == Colourtype.DIRECT:
                     rgb_values = self.colours[key][0].rgb_values
                     mappedcolor = get_closest_brickcolour_by_rgb_colour(rgb_values, colourlist)
                     self.colours[key][0] = mappedcolor
             self.merge_duplicate_colours(True)
-        elif self.main_colour.colour_type != "LDraw":
+        elif self.main_colour.colour_type != Colourtype.LDRAW:
             rgb_values = self.main_colour.rgb_values
             mappedcolor = get_closest_brickcolour_by_rgb_colour(rgb_values, colourlist)
             self.apply_color(mappedcolor)
@@ -692,6 +691,16 @@ class Subpart:
         parent.subparts.extend(split_subparts)
         return split_subparts
 
+    def contains_alpha_colours(self) -> bool:
+        # Returns True if the subpart has any Transparent Direct Colours
+        if not self.multicolour:
+            return self.main_colour.colour_type == Colourtype.ALPHA
+
+        for key in self.colours:
+            if self.colours[key][0].colour_type == Colourtype.ALPHA:
+                return True
+        return False
+
 
 class ResultWriter:
     def __init__(self, filepath: str = None):
@@ -734,8 +743,8 @@ def rgba_to_hex(color):
             hex_number = "00"
         else:
             hex_number = hex(number).lstrip("0x")
-        if len(hex_number) < 2:
-            hex_number = "0" + hex_number
+            if len(hex_number) < 2:
+                hex_number = "0" + hex_number
         return hex_number
 
     r = __color_to_hex(color[0])

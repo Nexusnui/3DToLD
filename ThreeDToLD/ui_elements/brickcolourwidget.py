@@ -6,7 +6,8 @@ from ThreeDToLD.brick_data.brickcolour import (
     is_brickcolour,
     get_all_brickcolours,
     search_brickcolour_by_rgb_colour,
-    search_by_color_name
+    search_by_color_name,
+    Colourtype
 )
 
 from ThreeDToLD.brick_data.colour_categories import colour_categories
@@ -78,9 +79,9 @@ class BrickcolourWidget(QWidget):
             self.preview.setStyleSheet("background-color : black; color : white;")
             self.preview.setText("Invalid/Unknown")
             return
-        if self.colour.colour_type == "LDraw":
+        if self.colour.colour_type == Colourtype.LDRAW:
             self.preview.setText(self.colour.ldrawname)
-        elif self.colour.colour_type == "Direct":
+        elif self.colour.colour_type in (Colourtype.DIRECT, Colourtype.ALPHA):
             self.preview.setText(self.colour.colour_code)
         text_colour = get_contrast_colour(self.colour.rgb_values)
         self.preview.setStyleSheet(f"background-color : {self.colour.rgb_values}; color : {text_colour};")
@@ -216,7 +217,7 @@ class BrickcolourDialog(QDialog):
             self.preview.setStyleSheet(f"background-color : {colour.rgb_values}; color : {text_colour};")
             self.brickcolour = colour
             preview_text = self.brickcolour.colour_code
-            if colour.colour_type == "LDraw":
+            if colour.colour_type == Colourtype.LDRAW:
                 preview_text = f"{preview_text}: {self.brickcolour.ldrawname}"
             self.preview.setText(preview_text)
 
