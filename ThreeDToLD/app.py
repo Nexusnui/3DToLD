@@ -79,16 +79,16 @@ class MainWindow(QMainWindow):
     def __init__(self, clipboard: QClipboard, config):
         super().__init__()
 
-        self.clipboard = clipboard
-        self.ldraw_object = None
-        self.file_loaded = False
-        self.reload_preview = False
-        self.line_preset = LinePreset.Low
-        self.line_angle = LinePreset.Low.value
-        self.merge_vertices = False
+        self.clipboard: QClipboard = clipboard
+        self.ldraw_object: LdrawObject | None = None
+        self.file_loaded: bool = False
+        self.reload_preview: bool = False
+        self.line_preset: LinePreset = LinePreset.Low
+        self.line_angle: int = LinePreset.Low.value
+        self.merge_vertices: bool = False
         self.config = config
-        self.previous_colour_categories = None
-        self.directory_selected = False
+        self.previous_colour_categories: [str] | None = None
+        self.directory_selected: bool = False
 
         self.setWindowTitle(f"3DToLD {app_version}")
         self.loading_stack = QStackedLayout()
@@ -569,13 +569,23 @@ class MainWindow(QMainWindow):
 
     def convert_file(self):
         self.disable_settings(True)
+        if self.ldraw_object.contains_alpha_colours():
+            answer = QMessageBox.warning(
+                self,
+                "Contains Transparent Direct Colours",
+                f"The part has Transparent Direct Colours. They are an intermediate colours not supported in other LDraw software. Please change them to LDraw colours or set the alpha value to '255'.\n\nConvert anyway?",
+                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
+            )
+            if answer == QMessageBox.StandardButton.No:
+                self.disable_settings(False)
+                return
         partname = self.partname_line.text()
         if len(partname) == 0:
             partname = "UntitledModel"
             answer = QMessageBox.warning(
                 self,
                 "No Partname",
-                f"No partname was set.\nWant to save as 'UntitledModel'",
+                f"No partname was set.\n\nSave as 'UntitledModel'?",
                 QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
             )
             if answer == QMessageBox.StandardButton.No:

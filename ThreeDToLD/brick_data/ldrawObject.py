@@ -264,7 +264,7 @@ class LdrawObject:
 
         self.size = scene.extents
 
-        self.subparts = []
+        self.subparts: [Subpart] = []
 
         scene_graph = scene.graph.transforms
         for node in scene_graph.nodes:
@@ -295,7 +295,7 @@ class LdrawObject:
         self.scene = scene
         self.model_loaded = True
 
-    def convert_to_dat_file(self, filepath=None, one_file=False):
+    def convert_to_dat_file(self, filepath=None, one_file=False) -> str | None:
         """
                 Loader used to load a 3D model from file
                 :param filepath:
@@ -434,6 +434,12 @@ class LdrawObject:
             raise Exception("No model loaded")
         for subpart in self.subparts:
             subpart.map_to_ldraw_colours(included_colour_categories)
+
+    def contains_alpha_colours(self) -> bool:
+        for subpart in self.subparts:
+            if subpart.contains_alpha_colours():
+                return True
+        return False
 
     def delete_subpart(self, subpart):
         self.subparts.remove(subpart)
