@@ -206,13 +206,10 @@ class BrickcolourDialog(QDialog):
             self.update_brickcolor(Brickcolour("16"))
 
     def update_brickcolor(self, colour):
-        if isinstance(colour, QColor):
-            text_colour = get_contrast_colour(colour.name())
-            hex_name = colour.name()
-            if colour.alpha() < 255:
-                hex_name = f"{hex_name}{'%02x' % colour.alpha()}"
-            self.preview.setStyleSheet(f"background-color : {colour.name()}; color : {text_colour};")
-            self.brickcolour = Brickcolour(hex_name)
+        if isinstance(colour, str):
+            text_colour = get_contrast_colour(colour)
+            self.preview.setStyleSheet(f"background-color : {colour[:-2]}; color : {text_colour};")
+            self.brickcolour = Brickcolour(colour)
             self.preview.setText(self.brickcolour.colour_code)
         if isinstance(colour, Brickcolour):
             self.direct_color_widget.setHex(colour.hex_rgba[1:])

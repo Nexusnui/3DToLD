@@ -13,14 +13,13 @@
 import colorsys
 
 from PyQt6.QtCore import (Qt, pyqtSignal, QPointF)
-from PyQt6.QtGui import QColor
 from PyQt6.QtWidgets import QWidget
 
 from .ui_main import Ui_ColorPicker as Ui_Main
 
 
 class ColorPicker(QWidget):
-    colorChanged = pyqtSignal(QColor)
+    colorChanged = pyqtSignal(str)
 
     def __init__(self, *args, **kwargs):
 
@@ -88,7 +87,7 @@ class ColorPicker(QWidget):
         self.ui.color_vis.setStyleSheet(f"background-color: rgb({r},{g},{b})")
         self.ui.color_view.setStyleSheet(
             f"border-radius: 5px;background-color: qlineargradient(x1:1, x2:0, stop:0 hsl({h}%,100%,50%), stop:1 #fff);")
-        self.colorChanged.emit(QColor(*self.getRGBA()))
+        self.colorChanged.emit(self.getHex(True))
 
     def rgbaChanged(self):
         r, g, b, a = self.i(self.ui.red.text()), self.i(self.ui.green.text()), self.i(self.ui.blue.text()), self.i(self.ui.alpha.text())
@@ -96,7 +95,7 @@ class ColorPicker(QWidget):
         self._setHSV(self.color)
         self._setHex(self.rgba2hex((r, g, b, a)))
         self.ui.color_vis.setStyleSheet(f"background-color: rgb({r},{g},{b})")
-        self.colorChanged.emit(QColor(*self.getRGBA()))
+        self.colorChanged.emit(self.getHex(True))
 
     def hexChanged(self):
         hex = self.ui.hex.text()
@@ -105,7 +104,7 @@ class ColorPicker(QWidget):
         self._setHSV(self.color)
         self._setRGBA((r, g, b, a))
         self.ui.color_vis.setStyleSheet(f"background-color: rgb({r},{g},{b})")
-        self.colorChanged.emit(QColor(*self.getRGBA()))
+        self.colorChanged.emit(self.getHex(True))
 
     ## internal setting functions ##
     def _setRGBA(self, c):
