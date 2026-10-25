@@ -404,8 +404,7 @@ class SettingsDialog(QDialog):
     def select_accent_colour(self):
         color_picker = BrickcolourDialog(Brickcolour(self.config["Theme"]["accent_colour"]), True)
         if color_picker.exec():
-            print(color_picker.brickcolour.get_hex_rgba()[:-2])
-            self.config["Theme"]["accent_colour"] = color_picker.brickcolour.get_hex_rgba()[:-2]
+            self.config["Theme"]["accent_colour"] = color_picker.brickcolour.rgb_values
             text_colour = get_contrast_colour(self.config["Theme"]["accent_colour"])
             self.select_accent_colour_button.setStyleSheet(f"color: {text_colour}; background-color: {self.config['Theme']['accent_colour']};")
             self.input_changed()

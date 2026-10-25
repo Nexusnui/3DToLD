@@ -208,11 +208,14 @@ class BrickcolourDialog(QDialog):
     def update_brickcolor(self, colour):
         if isinstance(colour, QColor):
             text_colour = get_contrast_colour(colour.name())
+            hex_name = colour.name()
+            if colour.alpha() < 255:
+                hex_name = f"{hex_name}{'%02x' % colour.alpha()}"
             self.preview.setStyleSheet(f"background-color : {colour.name()}; color : {text_colour};")
-            self.brickcolour = Brickcolour(colour.name())
+            self.brickcolour = Brickcolour(hex_name)
             self.preview.setText(self.brickcolour.colour_code)
         if isinstance(colour, Brickcolour):
-            self.direct_color_widget.setHex(colour.rgb_values[1:])
+            self.direct_color_widget.setHex(colour.hex_rgba[1:])
             text_colour = get_contrast_colour(colour.rgb_values)
             self.preview.setStyleSheet(f"background-color : {colour.rgb_values}; color : {text_colour};")
             self.brickcolour = colour
@@ -243,7 +246,6 @@ class BrickcolourDialog(QDialog):
         else:
             self.search_bar.setPlaceholderText("Enter HTML Colour like:#D67923")
         if len(self.search_bar.text()) > 0:
-            print(self.search_bar.text())
             self.search(self.search_bar.text())
 
     def reset_colours(self):
@@ -653,3 +655,6 @@ if __name__ == "__main__":
     colour_cat_dia = ColourCategoriesDialog()
     colour_cat_dia.exec()
     print(colour_cat_dia.get_selected_items())
+
+    colour_dia = BrickcolourDialog()
+    colour_dia.exec()

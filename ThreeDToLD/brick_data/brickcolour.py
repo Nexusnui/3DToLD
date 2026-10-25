@@ -116,6 +116,12 @@ class Brickcolour:
     def ldrawname(self):
         return self._ldrawname
 
+    @property
+    def hex_rgba(self) -> str:
+        if not hasattr(self, "_hex_rgba"):
+            self._hex_rgba = f"{self.rgb_values}{'%02x' % int(self.alpha)}"
+        return self._hex_rgba
+
     def __getitem__(self, key):
         if key == 0:
             return self._ldrawname
@@ -149,11 +155,6 @@ class Brickcolour:
 
     def __repr__(self):
         return f"brickcolour({self.colour_code})"
-
-    def get_hex_rgba(self) -> str:
-        if not hasattr(self, "hex_rgba"):
-            self.hex_rgba = self.rgb_values + hex(int(self.alpha)).lstrip("0x")
-        return self.hex_rgba
 
     def __eq__(self, other):
         if isinstance(other, Brickcolour):
