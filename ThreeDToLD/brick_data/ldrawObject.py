@@ -4,7 +4,7 @@ import trimesh.visual.material
 from trimesh.base import Trimesh
 import os
 from ThreeDToLD.appexcetions import *
-from ThreeDToLD.brick_data.brickcolour import Brickcolour, get_closest_brickcolour_by_rgb_colour, \
+from ThreeDToLD.brick_data.brickcolour import Brickcolour, get_closest_brickcolour_by_rgba_colour, \
     get_all_brickcolours, Colourtype
 import numpy as np
 from collections import OrderedDict
@@ -576,15 +576,14 @@ class Subpart:
         colourlist = get_all_brickcolours(included_colour_categories)
         if self.multicolour:
             for key in self.colours:
-                # Todo: Handle Transparent Direct Colours
-                if self.colours[key][0].colour_type == Colourtype.DIRECT:
-                    rgb_values = self.colours[key][0].rgb_values
-                    mappedcolor = get_closest_brickcolour_by_rgb_colour(rgb_values, colourlist)
+                if self.colours[key][0].colour_type in (Colourtype.DIRECT, Colourtype.ALPHA):
+                    rgba_values = self.colours[key][0].hex_rgba
+                    mappedcolor = get_closest_brickcolour_by_rgba_colour(rgba_values, colourlist)
                     self.colours[key][0] = mappedcolor
             self.merge_duplicate_colours(True)
-        elif self.main_colour.colour_type != Colourtype.LDRAW:
-            rgb_values = self.main_colour.rgb_values
-            mappedcolor = get_closest_brickcolour_by_rgb_colour(rgb_values, colourlist)
+        elif self.main_colour.colour_type in (Colourtype.DIRECT, Colourtype.ALPHA):
+            rgba_values = self.main_colour.hex_rgba
+            mappedcolor = get_closest_brickcolour_by_rgba_colour(rgba_values, colourlist)
             self.apply_color(mappedcolor)
 
     def convert_to_dat_file(self, filepath, main_file_name, author, license_line):

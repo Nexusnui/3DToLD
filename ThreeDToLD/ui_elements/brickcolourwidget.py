@@ -232,7 +232,7 @@ class BrickcolourDialog(QDialog):
             search_results = search_by_color_name(text, self.all_colours)
             self.colourslistmodel.updateData(search_results)
         elif search_type == 1:
-            if re.search('^#[a-f,A-F,0-9]{6}$', text):
+            if re.search('^#[a-f,A-F,0-9]{6,8}$', text):
                 search_brickcolour_by_rgb_colour(text, self.all_colours)
                 self.colourslistmodel.updateData()
 
@@ -250,7 +250,7 @@ class BrickcolourDialog(QDialog):
         self.colourslistmodel.updateData(self.all_colours)
 
     def show_simular_colours(self):
-        self.search_bar.setText(self.brickcolour.rgb_values)
+        self.search_bar.setText(self.brickcolour.hex_rgba)
         self.search_category_input.setCurrentIndex(1)
         self.update_search_bar(1)
         self.tab_widget.setCurrentIndex(0)

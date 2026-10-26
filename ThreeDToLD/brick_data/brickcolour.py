@@ -225,8 +225,8 @@ def get_all_brickcolours(included_color_categories=None):
     return colour_list
 
 
-def search_brickcolour_by_rgb_colour(rgb_colour: str, colourlist: list):
-    colourlist.sort(key=lambda c: get_hex_colour_weight(rgb_colour, c.rgb_values))
+def search_brickcolour_by_rgb_colour(rgb_colour: str, colourlist: [Brickcolour]):
+    colourlist.sort(key=lambda c: get_hex_colour_weight(rgb_colour, c.hex_rgba))
     return colourlist
 
 
@@ -244,11 +244,15 @@ def search_by_color_name(name: str, colourlist: list):
     return search_results
 
 
-def get_closest_brickcolour_by_rgb_colour(rgb_colour: str, colourlist: list):
+def get_closest_brickcolour_by_rgba_colour(rgb_colour: str, colourlist: list):
     r_1 = int(rgb_colour[1:3], 16)
     g_1 = int(rgb_colour[3:5], 16)
     b_1 = int(rgb_colour[5:7], 16)
-    return min(colourlist, key=lambda c: _get_hex_colour_weight(r_1, g_1, b_1, c.rgb_values))
+    if len(rgb_colour) == 9:
+        a_1 = int(rgb_colour[7:9], 16)
+    else:
+        a_1 = 255
+    return min(colourlist, key=lambda c: _get_hex_colour_weight(r_1, g_1, b_1, a_1, c.hex_rgba))
 
 
 def get_contrast_colour(rgb_values: str):
@@ -275,12 +279,24 @@ def get_hex_colour_weight(colour_1: str, colour_2: str) -> int:
     r_1 = int(colour_1[1:3], 16)
     g_1 = int(colour_1[3:5], 16)
     b_1 = int(colour_1[5:7], 16)
+    if len(colour_1) == 9:
+        a_1 = int(colour_1[7:9], 16)
+    else:
+        a_1 = 255
 
-    return _get_hex_colour_weight(r_1, g_1, b_1, colour_2)
+    return _get_hex_colour_weight(r_1, g_1, b_1, a_1, colour_2)
 
 
-def _get_hex_colour_weight(r_1: int, g_1: int, b_1: int, colour_2: str) -> int:
+def _get_hex_colour_weight(r_1: int, g_1: int, b_1: int, a_1: int, colour_2: str) -> int:
     r_2 = int(colour_2[1:3], 16)
     g_2 = int(colour_2[3:5], 16)
     b_2 = int(colour_2[5:7], 16)
-    return (r_1 - r_2) ** 2 + (g_1 - g_2) ** 2 + (b_1 - b_2) ** 2
+    if len(colour_2) == 9:
+        a_2 = int(colour_2[7:9], 16)
+    else:
+        a_2 = 255
+    alpha_weight = 0
+    if (a_1 < 255 == a_2) or (a_2 < 255 == a_1):
+        alpha_weight = 255 ** 2 * 3
+
+    return (r_1 - r_2) ** 2 + (g_1 - g_2) ** 2 + (b_1 - b_2) ** 2 + alpha_weight
