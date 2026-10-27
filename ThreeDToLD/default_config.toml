@@ -35,6 +35,6 @@ license_from_metadata = true # Default license is replaced if another is found i
 
 [Convert_To_LDraw_Colours]
 # Colour Categories checked by default in the "Convert direct/html colours to LDraw colours" dialog
-default_colour_categories = ["LDraw:LDraw Solid Colours", "LDraw:LDraw Internal Common Material Colours"]
+default_colour_categories = ["LDraw:LDraw Solid Colours", "LDraw:LDraw Transparent Colours"]
 # Use default colour categories to convert colours on file import
 convert_colours_on_load = false

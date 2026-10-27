@@ -445,7 +445,9 @@ class MainWindow(QMainWindow):
                 self.enable_load_settings()
             else:
                 self.ldraw_object = loaded_part
-
+                if self.config["Convert_To_LDraw_Colours"]["convert_colours_on_load"]:
+                    self.ldraw_object.map_to_ldraw_colours(
+                        self.config["Convert_To_LDraw_Colours"]["default_colour_categories"])
                 filename = ".".join(filename.split(".")[:-1])
                 name = filename
 
