@@ -6,7 +6,8 @@ from ThreeDToLD.brick_data.brickcolour import (
     is_brickcolour,
     get_all_brickcolours,
     search_brickcolour_by_rgb_colour,
-    search_by_color_name
+    search_by_color_name,
+    Colourtype
 )
 
 from ThreeDToLD.brick_data.colour_categories import colour_categories
@@ -78,9 +79,9 @@ class BrickcolourWidget(QWidget):
             self.preview.setStyleSheet("background-color : black; color : white;")
             self.preview.setText("Invalid/Unknown")
             return
-        if self.colour.colour_type == "LDraw":
+        if self.colour.colour_type == Colourtype.LDRAW:
             self.preview.setText(self.colour.ldrawname)
-        elif self.colour.colour_type == "Direct":
+        elif self.colour.colour_type in (Colourtype.DIRECT, Colourtype.ALPHA):
             self.preview.setText(self.colour.colour_code)
         text_colour = get_contrast_colour(self.colour.rgb_values)
         self.preview.setStyleSheet(f"background-color : {self.colour.rgb_values}; color : {text_colour};")
@@ -205,18 +206,18 @@ class BrickcolourDialog(QDialog):
             self.update_brickcolor(Brickcolour("16"))
 
     def update_brickcolor(self, colour):
-        if isinstance(colour, QColor):
-            text_colour = get_contrast_colour(colour.name())
-            self.preview.setStyleSheet(f"background-color : {colour.name()}; color : {text_colour};")
-            self.brickcolour = Brickcolour(colour.name())
+        if isinstance(colour, str):
+            text_colour = get_contrast_colour(colour)
+            self.preview.setStyleSheet(f"background-color : {colour[:-2]}; color : {text_colour};")
+            self.brickcolour = Brickcolour(colour)
             self.preview.setText(self.brickcolour.colour_code)
         if isinstance(colour, Brickcolour):
-            self.direct_color_widget.setHex(colour.rgb_values[1:])
+            self.direct_color_widget.setHex(colour.hex_rgba[1:])
             text_colour = get_contrast_colour(colour.rgb_values)
             self.preview.setStyleSheet(f"background-color : {colour.rgb_values}; color : {text_colour};")
             self.brickcolour = colour
             preview_text = self.brickcolour.colour_code
-            if colour.colour_type == "LDraw":
+            if colour.colour_type == Colourtype.LDRAW:
                 preview_text = f"{preview_text}: {self.brickcolour.ldrawname}"
             self.preview.setText(preview_text)
 
@@ -231,7 +232,7 @@ class BrickcolourDialog(QDialog):
             search_results = search_by_color_name(text, self.all_colours)
             self.colourslistmodel.updateData(search_results)
         elif search_type == 1:
-            if re.search('^#[a-f,A-F,0-9]{6}$', text):
+            if re.search('^#[a-f,A-F,0-9]{6,8}$', text):
                 search_brickcolour_by_rgb_colour(text, self.all_colours)
                 self.colourslistmodel.updateData()
 
@@ -242,7 +243,6 @@ class BrickcolourDialog(QDialog):
         else:
             self.search_bar.setPlaceholderText("Enter HTML Colour like:#D67923")
         if len(self.search_bar.text()) > 0:
-            print(self.search_bar.text())
             self.search(self.search_bar.text())
 
     def reset_colours(self):
@@ -250,7 +250,7 @@ class BrickcolourDialog(QDialog):
         self.colourslistmodel.updateData(self.all_colours)
 
     def show_simular_colours(self):
-        self.search_bar.setText(self.brickcolour.rgb_values)
+        self.search_bar.setText(self.brickcolour.hex_rgba)
         self.search_category_input.setCurrentIndex(1)
         self.update_search_bar(1)
         self.tab_widget.setCurrentIndex(0)
@@ -652,3 +652,6 @@ if __name__ == "__main__":
     colour_cat_dia = ColourCategoriesDialog()
     colour_cat_dia.exec()
     print(colour_cat_dia.get_selected_items())
+
+    colour_dia = BrickcolourDialog()
+    colour_dia.exec()

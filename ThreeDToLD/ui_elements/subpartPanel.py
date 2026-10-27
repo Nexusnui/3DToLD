@@ -17,7 +17,7 @@ from PyQt6.QtWidgets import (
 )
 
 from ThreeDToLD.brick_data.ldrawObject import LdrawObject, Subpart
-from ThreeDToLD.brick_data.brickcolour import Brickcolour, is_brickcolour, get_contrast_colour
+from ThreeDToLD.brick_data.brickcolour import Brickcolour, is_brickcolour, get_contrast_colour, Colourtype
 from ThreeDToLD.ui_elements.brickcolourwidget import BrickcolourWidget, BrickcolourDialog, ColourCategoriesDialog, SplitColourDialog
 from ThreeDToLD.ui_elements.line_generation_dialog import LineGenerationDialog, LinePreset
 from ThreeDToLD.ui_elements.exceptiondialog import ExceptionDialog
@@ -210,7 +210,7 @@ class SubpartTab(QWidget):
             self.setDisabled(True)
             colour = self.main_colour_input.colour
             colour_name = colour.colour_code
-            if colour.colour_type == "LDraw":
+            if colour.colour_type == Colourtype.LDRAW:
                 colour_name = colour.ldrawname
             dlg = QMessageBox(self)
             dlg.setWindowTitle("Override Colours?")
