@@ -63,21 +63,22 @@ def _hex_to_rgba_colour(hexcolour: str):
 class Threemfloader(Modelloader):
 
     def __init__(self):
-        self.was_reset = True
+        super().__init__()
+        self.was_reset: bool = True
         self.model: Scene = Scene()
         self.metadata: dict = {}
         self.vendor: str = ""
-        self.app_version: str = None
-        self.resources = None
-        self.build = None
-        self.model_config = None
-        self.config_name: str = None
-        self.model_config_name: str = None
-        self.unit: str = None
+        self.app_version: str | None = None
+        self.resources: etree._Element | None = None
+        self.build: etree._Element | None = None
+        self.model_config: etree._Element | None = None
+        self.config_name: str | None = None
+        self.model_config_name: str | None = None
+        self.unit: str | None = None
         self.is_slic3r_derivat: bool = False
-        self.colour_groups = {}
-        self.sub_models = {}
-        self.meshes = []
+        self.colour_groups: dict = {}
+        self.sub_models: dict = {}
+        self.meshes: list = []
 
     def load_model(self, filepath) -> tuple[Scene, dict]:
         if not self.was_reset:
@@ -87,7 +88,7 @@ class Threemfloader(Modelloader):
         # Collect Data from 3mf file
         with ZipFile(filepath) as file_3mf:
             with file_3mf.open("3D/3dmodel.model", "r") as model_file:
-                model_3mf = etree.parse(model_file).getroot()
+                model_3mf: etree._Element | None = etree.parse(model_file).getroot()
             if model_3mf.attrib.has_key("unit"):
                 self.unit = model_3mf.attrib["unit"]
             for element in model_3mf.getchildren():

@@ -1,4 +1,4 @@
-colour_categories = [
+colour_categories: list[str] = [
     "LDraw:LDraw Solid Colours",
     "LDraw:LDraw Transparent Colours",
     "LDraw:LDraw Chrome Plated Colours",

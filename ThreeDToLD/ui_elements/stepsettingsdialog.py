@@ -21,14 +21,14 @@ class StepSettingsDialog(QDialog):
         super().__init__(parent)
         self.setWindowTitle("Step File Quality Settings")
         if tol_linear is None:
-            self.tol_linear = 0.1
+            self.tol_linear: int | float = 0.1
         else:
-            self.tol_linear = tol_linear
+            self.tol_linear: int | float = tol_linear
         if tol_angular is None:
-            self.tol_angular = 0.5
+            self.tol_angular: int | float = 0.5
         else:
-            self.tol_angular = tol_angular
-        self.tol_relative = tol_relative
+            self.tol_angular: int | float = tol_angular
+        self.tol_relative: bool = tol_relative
 
         main_layout = QVBoxLayout()
 
@@ -37,27 +37,27 @@ class StepSettingsDialog(QDialog):
 
         input_layout = QFormLayout()
 
-        self.tol_linear_input = QDoubleSpinBox()
+        self.tol_linear_input: QDoubleSpinBox = QDoubleSpinBox()
         self.tol_linear_input.valueChanged.connect(self.linear_changed)
         self.tol_linear_input.setDecimals(3)
         self.tol_linear_input.setValue(self.tol_linear)
 
-        tol_linear_label = QLabel("Tolerance Linear ℹ️")
+        tol_linear_label: QLabel = QLabel("Tolerance Linear ℹ️")
         tol_linear_label.setToolTip("How large should angular deflection be allowed.\n"
                                     "Uses model units.\n"
                                     "0.01 is the used by Cascadio.")
         input_layout.addRow(tol_linear_label, self.tol_linear_input)
 
-        self.tol_angular_input = QDoubleSpinBox()
+        self.tol_angular_input: QDoubleSpinBox = QDoubleSpinBox()
         self.tol_angular_input.valueChanged.connect(self.angle_changed)
         self.tol_angular_input.setDecimals(3)
         self.tol_angular_input.setValue(self.tol_angular)
 
-        tol_angular_label = QLabel("Tolerance Angular ℹ️")
+        tol_angular_label: QLabel = QLabel("Tolerance Angular ℹ️")
         tol_angular_label.setToolTip("How large should linear deflection be allowed.")
         input_layout.addRow(tol_angular_label, self.tol_angular_input)
 
-        self.tol_relative_check = QCheckBox()
+        self.tol_relative_check: QCheckBox = QCheckBox()
         self.tol_relative_check.setChecked(self.tol_relative)
         self.tol_relative_check.checkStateChanged.connect(self.merge_check_changed)
 

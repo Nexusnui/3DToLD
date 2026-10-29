@@ -121,7 +121,7 @@ def get_color_categories_from_lists(colorlists: list):
 
 def save_list_to_py(listname, str_list, filename):
     with open(filename, "w", encoding="utf-8") as file_out:
-        file_out.write(f"{listname} = [\n")
+        file_out.write(f"{listname} list[str] = [\n")
         for item in str_list:
             file_out.write(f'    "{item}",\n')
         file_out.write("]\n")

@@ -8,6 +8,7 @@ from ThreeDToLD.brick_data.brickcolour import Brickcolour, get_closest_brickcolo
     get_all_brickcolours, Colourtype
 import numpy as np
 from collections import OrderedDict
+from ThreeDToLD.model_loaders.modelloader import Modelloader
 from ThreeDToLD.model_loaders.autoloader import Autoloader
 from ThreeDToLD.matrix_functions import is_identity_matrix
 from enum import Enum
@@ -84,41 +85,49 @@ class UpAxis(Enum):
     def from_string(axisname: str):
         axisname = axisname.lower()
 
-        if axisname in ["+z", "z+"]:
+        if axisname in ["+z", "z+", "z"]:
             return UpAxis.posZ
-        elif axisname in ["+y", "y+"]:
+        elif axisname in ["+y", "y+", "y"]:
             return UpAxis.posY
         elif axisname in ["-y", "y-"]:
             return UpAxis.negY
         else:
             # Unknown/No Axis return -Y as default as it does not transform the model
             return UpAxis.negY
+
     @staticmethod
     def get_membernames_as_string() -> list[str]:
         return [member.value[0] for member in list(UpAxis)]
 
 
 class LdrawObject:
-    def __init__(self, filepath: str = None,
-                 name="", bricklinknumber="", author="", category="", keywords=None,
-                 part_license=None, autoload=True):
-        self.cached_colour_definitions = OrderedDict()
-        self.name = name
-        self.author = author
-        self.part_license = part_license
-        self.bricklinknumber = bricklinknumber
-        self.category = category
-        self.keywords = keywords
-        self.model_loaded = False
+    def __init__(self, filepath: str | None = None,
+                 name: str = "", bricklinknumber: str = "", author: str = "",
+                 category: str = "", keywords: list[str] | None = None,
+                 part_license: str | None = None, autoload: bool = True):
+        self.cached_colour_definitions: OrderedDict = OrderedDict()
+        self.name: str = name
+        self.author: str = author
+        self.part_license: str | None = part_license
+        self.bricklinknumber: str = bricklinknumber
+        self.category: str = category
+        self.keywords: list[str] | None = keywords
+        self.model_loaded: bool = False
+
+        self.size = None
+
+        self.subparts: list[Subpart] = []
+        self.scene: trimesh.scene.Scene | None = None
 
         if autoload:
             if filepath is None:
                 raise ValueError("No Filepath given with autoload activated")
             self.load_scene(filepath)
 
-    def load_scene(self, filepath: str, scale=1, multi_object=True, multicolour=True,
-                   orientation=UpAxis.posZ, override_metadata=True,
-                   loader=Autoloader(), unit_conversion=LDrawConversionFactor.Auto
+    def load_scene(self, filepath: str, scale: int | float = 1, multi_object: bool = True, multicolour: bool = True,
+                   orientation: UpAxis = UpAxis.posZ, override_metadata: bool = True,
+                   loader: Modelloader = Autoloader(),
+                   unit_conversion: LDrawConversionFactor = LDrawConversionFactor.Auto
                    ):
 
         _, file_extension = os.path.splitext(filepath)
@@ -264,8 +273,6 @@ class LdrawObject:
 
         self.size = scene.extents
 
-        self.subparts: [Subpart] = []
-
         scene_graph = scene.graph.transforms
         for node in scene_graph.nodes:
             key = None
@@ -410,10 +417,7 @@ class LdrawObject:
             if filepath is None:
                 return file.get_result()
 
-    def set_main_colour(self, colour: Brickcolour):
-        if not self.model_loaded:
-            raise Exception("No model loaded")
-        self.main_colour = colour
+    def apply_colour(self, colour: Brickcolour):
         for part in self.subparts:
             part.apply_color(colour, None)
 
@@ -423,13 +427,13 @@ class LdrawObject:
         moved_part = self.subparts.pop(from_index)
         self.subparts.insert(to_index, moved_part)
 
-    def generate_outlines(self, angle_threshold=85, merge_vertices=False):
+    def generate_outlines(self, angle_threshold: int | float = 85, merge_vertices: bool = False):
         if not self.model_loaded:
             raise Exception("No model loaded")
         for subpart in self.subparts:
             subpart.generate_outlines(angle_threshold, merge_vertices)
 
-    def map_to_ldraw_colours(self, included_colour_categories):
+    def map_to_ldraw_colours(self, included_colour_categories: list[str]):
         if not self.model_loaded:
             raise Exception("No model loaded")
         for subpart in self.subparts:
@@ -450,24 +454,29 @@ class Subpart:
     def __init__(self, mesh: Trimesh,
                  transformation_matrix,
                  name: str,
-                 main_colour: Brickcolour = None,
-                 cached_colour_definitions: OrderedDict = OrderedDict(),
-                 node_key: str = None,
-                 colours: OrderedDict = None,
-                 outlines: list = None
+                 main_colour: Brickcolour | None = None,
+                 cached_colour_definitions: OrderedDict | None = None,
+                 node_key: str | None = None,
+                 colours: OrderedDict | None = None,
+                 outlines: list | None = None
                  ):
-        self.mesh = mesh
-        self.name = name
+        self.mesh: Trimesh = mesh
+        self.name: str = name
         self.transformation_matrix = transformation_matrix
         self.vertices_with_transform = None
-        self.cached_colour_definitions = cached_colour_definitions
-        self.node_key = node_key
-        if outlines is None:
-            self.outlines = []
+        if cached_colour_definitions is None:
+            self.cached_colour_definitions: OrderedDict = OrderedDict()
         else:
-            self.outlines = outlines
-        self.outlines_only = False
-        self.multicolour = False
+            self.cached_colour_definitions: OrderedDict = cached_colour_definitions
+        self.node_key: str | None = node_key
+        if outlines is None:
+            self.outlines: list = []
+        else:
+            self.outlines: list = outlines
+        self.outlines_only: bool = False
+        self.multicolour: bool = False
+        self.colours: OrderedDict | None = colours
+        self.main_colour: Brickcolour = Brickcolour("16")
         if colours is None:
             self._colour_from_mesh(main_colour)
         else:
@@ -556,7 +565,7 @@ class Subpart:
                     self.cached_colour_definitions[colour.colour_code] = colour.get_ldraw_line()
             self.colours[key][0] = colour
 
-    def merge_duplicate_colours(self, apply_after=False):
+    def merge_duplicate_colours(self, apply_after: bool = False):
         new_colours = OrderedDict()
         for key in self.colours:
             colour = self.colours[key][0]
@@ -572,7 +581,7 @@ class Subpart:
             self.multicolour = False
             self.main_colour = self.colours.popitem()[1][0]
 
-    def map_to_ldraw_colours(self, included_colour_categories):
+    def map_to_ldraw_colours(self, included_colour_categories: list[str]):
         colourlist = get_all_brickcolours(included_colour_categories)
         if self.multicolour:
             for key in self.colours:
@@ -586,7 +595,7 @@ class Subpart:
             mappedcolor = get_closest_brickcolour_by_rgba_colour(rgba_values, colourlist)
             self.apply_color(mappedcolor)
 
-    def convert_to_dat_file(self, filepath, main_file_name, author, license_line):
+    def convert_to_dat_file(self, filepath, main_file_name: str, author: str, license_line: str):
         filename = fr"s\{os.path.basename(filepath)}"
         header = self.get_ldraw_header(filename, main_file_name, author, license_line, internal_file=False)
         with open(filepath, "w", encoding="utf-8") as file:
@@ -594,7 +603,8 @@ class Subpart:
             for line in self.to_ldraw_lines():
                 file.write(line)
 
-    def get_ldraw_header(self, filename, main_file_name, author, license_line, define_colours=False, internal_file=True):
+    def get_ldraw_header(self, filename, main_file_name: str, author: str, license_line: str,
+                         define_colours: bool = False, internal_file: bool = True):
         colour_definitions = ""
         if define_colours:
             for definition_line in self.cached_colour_definitions.values():
@@ -614,7 +624,7 @@ class Subpart:
                   f"0 BFC CERTIFY CCW\n")
         return header
 
-    def to_ldraw_lines(self, color_code="16", apply_transform=False):
+    def to_ldraw_lines(self, color_code: str = "16", apply_transform: bool = False):
         vertices = self.mesh.vertices
         if apply_transform and not is_identity_matrix(self.transformation_matrix):
             if self.vertices_with_transform is None:
@@ -642,7 +652,7 @@ class Subpart:
             yield (f"2 24 {vertices[outline[0]][0]} {vertices[outline[0]][1]} {vertices[outline[0]][2]} "
                    f"{vertices[outline[1]][0]} {vertices[outline[1]][1]} {vertices[outline[1]][2]}\n")
 
-    def generate_outlines(self, angle_threshold=85, merge_vertices=False):
+    def generate_outlines(self, angle_threshold: int | float = 85, merge_vertices: bool = False):
         mesh = self.mesh
         if merge_vertices:
             self.mesh.merge_vertices()
@@ -736,30 +746,17 @@ class ResultWriter:
         else:
             self._result.extend(lines)
 
-    def get_result(self):
+    def get_result(self) -> str | None:
         if not self._is_file_writer:
             return "".join(self._result)
         return None
 
 
-def rgba_to_hex(color):
-    def __color_to_hex(number: int):
-        if number == 0:
-            hex_number = "00"
-        else:
-            hex_number = hex(number).lstrip("0x")
-            if len(hex_number) < 2:
-                hex_number = "0" + hex_number
-        return hex_number
-
-    r = __color_to_hex(color[0])
-    g = __color_to_hex(color[1])
-    b = __color_to_hex(color[2])
-    a = __color_to_hex(color[3])
-    return f"#{r}{g}{b}{a}"
+def rgba_to_hex(color) -> str:
+    return '#%02x%02x%02x%02x' % (color[0], color[1], color[2], color[3])
 
 
-default_part_licenses = [
+default_part_licenses: list[str] = [
     "Licensed under CC BY 4.0 : see CAreadme.txt ",
     "Licensed under CC BY 2.0 and CC BY 4.0 : see CAreadme.txt",
     "Redistributable under CCAL version 2.0 : see CAreadme.txt",

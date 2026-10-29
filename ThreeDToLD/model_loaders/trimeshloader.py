@@ -4,10 +4,9 @@ from ThreeDToLD.model_loaders.modelloader import Modelloader
 
 
 class Trimeshloader(Modelloader):
-    def __init__(self, use_step_options=False,
-                 tol_linear: int | float = None,
-                 tol_angular: int | float = None,
+    def __init__(self, use_step_options=False, tol_linear: int | float = None, tol_angular: int | float = None,
                  tol_relative: bool = False):
+        super().__init__()
         self.use_step_options = use_step_options
         if self.use_step_options:
             self.tol_linear = tol_linear

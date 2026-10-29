@@ -1,4 +1,5 @@
 import math
+import typing
 
 from ThreeDToLD.brick_data.brickcolour import (
     Brickcolour,
@@ -52,21 +53,21 @@ class BrickcolourWidget(QWidget):
     def __init__(self, labeltext: str = "Brick Colour", colour: Brickcolour = Brickcolour("16")):
         super().__init__()
 
-        self.layout = QHBoxLayout()
+        self.layout: QHBoxLayout = QHBoxLayout()
 
-        self.colour = colour
+        self.colour: Brickcolour | None = colour
 
-        self.preview = QLineEdit()
+        self.preview: QLineEdit = QLineEdit()
         self.preview.setReadOnly(True)
         self.__update_preview()
 
-        self.colourinput = QLineEdit()
+        self.colourinput: QLineEdit = QLineEdit()
         self.colourinput.setText(self.colour.colour_code)
-        self.colourinput.textEdited.connect(self.changecolour)
-        self.select_button = QPushButton("Select")
+        self.colourinput.textEdited.connect(self.change_colour)
+        self.select_button: QPushButton = QPushButton("Select")
         self.select_button.clicked.connect(self.open_color_picker)
 
-        self.label = QLabel(labeltext)
+        self.label: QLabel = QLabel(labeltext)
         self.layout.addWidget(self.label)
         self.layout.addWidget(self.preview)
         self.layout.addWidget(self.colourinput)
@@ -86,7 +87,7 @@ class BrickcolourWidget(QWidget):
         text_colour = get_contrast_colour(self.colour.rgb_values)
         self.preview.setStyleSheet(f"background-color : {self.colour.rgb_values}; color : {text_colour};")
 
-    def changecolour(self, colour: str | Brickcolour, send_emit=True, set_text=False):
+    def change_colour(self, colour: str | Brickcolour, send_emit: bool = True, set_text: bool = False):
         if isinstance(colour, str):
             if is_brickcolour(colour)[0]:
                 self.colour = Brickcolour(colour)
@@ -111,7 +112,7 @@ class BrickcolourWidget(QWidget):
         if self.colour is not None:
             initial_color = self.colour
         color_picker = BrickcolourDialog(initial_color)
-        color_picker.accepted.connect(lambda: self.changecolour(color_picker.brickcolour, set_text=True))
+        color_picker.accepted.connect(lambda: self.change_colour(color_picker.brickcolour, set_text=True))
         color_picker.exec()
 
 
@@ -122,11 +123,12 @@ class BrickcolourDialog(QDialog):
         self.setWindowTitle("Select LDraw Colour")
         # Todo: Better Initial Size
 
+        self.brickcolour: Brickcolour | None = None
         main_layout = QVBoxLayout()
-        self.tab_widget = QTabWidget()
+        self.tab_widget: QTabWidget = QTabWidget()
 
         # Widget for picking direct colours
-        self.direct_color_widget = ColorPicker()
+        self.direct_color_widget: ColorPicker = ColorPicker()
 
         # Widget for picking LDraw colour
         ldraw_wigdet = QWidget()
@@ -134,7 +136,7 @@ class BrickcolourDialog(QDialog):
         ldraw_wigdet.setLayout(ldraw_wigdet_layout)
 
         search_inputs = QHBoxLayout()
-        self.search_bar = QLineEdit()
+        self.search_bar: QLineEdit = QLineEdit()
         self.search_bar.setPlaceholderText("LDraw or Lego Name")
         self.search_bar.textChanged.connect(self.search)
         search_inputs.addWidget(self.search_bar)
@@ -144,20 +146,20 @@ class BrickcolourDialog(QDialog):
         clear_button.setStyleSheet("color: white; background-color: red;")
         search_inputs.addWidget(clear_button)
 
-        self.search_category_input = QComboBox()
+        self.search_category_input: QComboBox = QComboBox()
         self.search_category_input.addItems(["Name", "Colour Values"])
         self.search_category_input.currentIndexChanged.connect(self.update_search_bar)
         search_inputs.addWidget(self.search_category_input)
 
         ldraw_wigdet_layout.addLayout(search_inputs)
 
-        self.ldraw_colour_table = QTableView()
+        self.ldraw_colour_table: QTableView = QTableView()
         self.ldraw_colour_table.setSelectionMode(QTableView.SelectionMode.SingleSelection)
         self.ldraw_colour_table.setSelectionBehavior(QTableView.SelectionBehavior.SelectRows)
         self.ldraw_colour_table.setCornerButtonEnabled(False)
 
-        self.all_colours = get_all_brickcolours()
-        self.colourslistmodel = BrickcolourListmodel(self.all_colours)
+        self.all_colours: list[Brickcolour] = get_all_brickcolours()
+        self.colourslistmodel: BrickcolourListmodel = BrickcolourListmodel(self.all_colours)
         self.ldraw_colour_table.setModel(self.colourslistmodel)
         self.ldraw_colour_table.clicked.connect(self.on_select_brickcolour)
         self.ldraw_colour_table.horizontalHeader().setSectionResizeMode(0, QHeaderView.ResizeMode.ResizeToContents)
@@ -169,10 +171,10 @@ class BrickcolourDialog(QDialog):
         self.ldraw_colour_table.horizontalHeader().setSectionResizeMode(7, QHeaderView.ResizeMode.ResizeToContents)
         self.ldraw_colour_table.horizontalHeader().setSectionResizeMode(9, QHeaderView.ResizeMode.Stretch)
         ldraw_wigdet_layout.addWidget(self.ldraw_colour_table)
-        colunm_wdith = self.ldraw_colour_table.horizontalHeader().sectionSize(0)
+        column_width = self.ldraw_colour_table.horizontalHeader().sectionSize(0)
         row_height = self.ldraw_colour_table.verticalHeader().sectionSize(0)
-        new_width = int(colunm_wdith*2.5)
-        new_height = row_height*6
+        new_width = int(column_width * 2.5)
+        new_height = row_height * 6
         self.ldraw_colour_table.setMinimumSize(new_width, new_height)
 
         self.tab_widget.addTab(ldraw_wigdet, "LDraw Color")
@@ -188,7 +190,7 @@ class BrickcolourDialog(QDialog):
         button_box.accepted.connect(self.accept)
         button_box.rejected.connect(self.reject)
         bottom_layout.addWidget(button_box)
-        self.preview = QLineEdit()
+        self.preview: QLineEdit = QLineEdit()
         self.preview.setReadOnly(True)
         bottom_layout.addWidget(self.preview)
         simular_colour_button = QPushButton("Show Simular Colours")
@@ -205,7 +207,7 @@ class BrickcolourDialog(QDialog):
         else:
             self.update_brickcolor(Brickcolour("16"))
 
-    def update_brickcolor(self, colour):
+    def update_brickcolor(self, colour: str | Brickcolour):
         if isinstance(colour, str):
             text_colour = get_contrast_colour(colour)
             self.preview.setStyleSheet(f"background-color : {colour[:-2]}; color : {text_colour};")
@@ -236,7 +238,7 @@ class BrickcolourDialog(QDialog):
                 search_brickcolour_by_rgb_colour(text, self.all_colours)
                 self.colourslistmodel.updateData()
 
-    def update_search_bar(self, value):
+    def update_search_bar(self, value: int):
         self.reset_colours()
         if value == 0:
             self.search_bar.setPlaceholderText("LDraw or Lego Name")
@@ -257,11 +259,11 @@ class BrickcolourDialog(QDialog):
 
 
 class BrickcolourListmodel(QAbstractTableModel):
-    def __init__(self, colorlist):
+    def __init__(self, colorlist: list[Brickcolour]):
         super().__init__()
         self._data = colorlist
 
-    def data(self, index, role):
+    def data(self, index: QModelIndex, role: int = ...) -> typing.Any:
         if role == Qt.ItemDataRole.DisplayRole:
             if index.column() == 9:
                 return self._data[index.row()][index.column()].split(":")[1]
@@ -296,7 +298,7 @@ class BrickcolourListmodel(QAbstractTableModel):
             if value is not None and len(value) > 0:
                 return f'"{value}"'
 
-    def headerData(self, section, orientation, role):
+    def headerData(self, section: int, orientation: Qt.Orientation, role: int = ...) -> typing.Any:
         # section is the index of the column/row.
         if role == Qt.ItemDataRole.DisplayRole:
 
@@ -304,13 +306,13 @@ class BrickcolourListmodel(QAbstractTableModel):
                 return ["LDraw Name", "Colour Code", "Value", "Edge", "Alpha", "Luminance", "Material", "Lego IDs",
                         "Lego Names", "Category"][section]
 
-    def rowCount(self, index):
+    def rowCount(self, index: QModelIndex = ...) -> int:
         return len(self._data)
 
-    def columnCount(self, index):
+    def columnCount(self, index: QModelIndex = ...) -> int:
         return 10
 
-    def updateData(self, data=None):
+    def updateData(self, data: list[Brickcolour] | None = None):
         self.beginResetModel()
         if data is not None:
             self._data = data
@@ -318,9 +320,9 @@ class BrickcolourListmodel(QAbstractTableModel):
 
 
 class ColourCategoriesDialog(QDialog):
-    def __init__(self, parent=None,
+    def __init__(self, parent: QWidget | None = None,
                  title: str = "Colour Categories", message: str = "Select Colour Categories",
-                 buttons=None, checked_categories: list[str] = []):
+                 checked_categories: list[str] = []):
         super().__init__(parent)
 
         main_layout = QVBoxLayout()
@@ -328,8 +330,8 @@ class ColourCategoriesDialog(QDialog):
         self.setWindowTitle(title)
 
         message_label = QLabel(message)
-        self.list_widget = QListWidget()
-        self.items = []
+        self.list_widget: QListWidget = QListWidget()
+        self.items: list[QListWidgetItem] = []
         for category in colour_categories:
             item = QListWidgetItem(category)
             if category in checked_categories:
@@ -343,8 +345,7 @@ class ColourCategoriesDialog(QDialog):
         select_all_button = QPushButton("Select All")
         select_all_button.clicked.connect(self.check_all_items)
 
-        if buttons is None:
-            buttons = QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel
+        buttons = QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel
         button_box = QDialogButtonBox(buttons)
         button_box.accepted.connect(self.accept)
         button_box.rejected.connect(self.reject)
@@ -371,24 +372,24 @@ class ColourCategoriesDialog(QDialog):
 class SplitColourDialog(QDialog):
     def __init__(self, colours: OrderedDict, has_outlines: bool = False):
         super().__init__()
-        self.input_colours = colours
-        self.has_outlines = has_outlines
-        self.item_count = len(colours) + int(self.has_outlines)
-        self.colour_groups = None
+        self.input_colours: OrderedDict = colours
+        self.has_outlines: bool = has_outlines
+        self.item_count: int = len(colours) + int(self.has_outlines)
+        self.colour_groups: list | None = None
 
         self.setWindowTitle("Split Subpart by Colours")
-        self.main_layout = QVBoxLayout()
+        self.main_layout: QVBoxLayout = QVBoxLayout()
 
-        self.number_label = QLabel("Choose the number of groups to split into:\n"
+        self.number_label: QLabel = QLabel("Choose the number of groups to split into:\n"
                                    "(Groups can be added/removed in the next step)")
         self.main_layout.addWidget(self.number_label)
 
-        self.number_input = QSpinBox()
+        self.number_input: QSpinBox = QSpinBox()
         self.number_input.setRange(2, self.item_count)
         self.number_input.setSingleStep(1)
         self.main_layout.addWidget(self.number_input)
 
-        self.number_slider = QSlider(Qt.Orientation.Horizontal)
+        self.number_slider: QSlider = QSlider(Qt.Orientation.Horizontal)
         self.number_slider.setRange(2, self.item_count)
         self.number_slider.setSingleStep(1)
         self.number_slider.setPageStep(1)
@@ -404,14 +405,18 @@ class SplitColourDialog(QDialog):
         self.main_layout.addWidget(self.item_count_label)
 
         buttons = QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel
-        self.number_button_box = QDialogButtonBox(buttons)
+        self.number_button_box: QDialogButtonBox = QDialogButtonBox(buttons)
         self.number_button_box.buttons()[0].setText("Next")
         self.number_button_box.accepted.connect(self.show_colours)
         self.number_button_box.rejected.connect(self.reject)
         self.main_layout.addWidget(self.number_button_box)
-        self.splitcoloursmodel = None
-        self.splitview = None
+        self.splitcoloursmodel: SplitColourTreemodel | None = None
+        self.splitview: QTreeView | None = None
         self.setLayout(self.main_layout)
+
+        self.add_group_button: QPushButton = QPushButton("+Add Group")
+        self.remove_empty_groups_button: QPushButton = QPushButton("-Remove Empty Groups")
+
 
     def show_colours(self):
         splits = self.number_input.value()
@@ -436,11 +441,9 @@ class SplitColourDialog(QDialog):
 
         group_button_layout = QHBoxLayout()
 
-        self.add_group_button = QPushButton("+Add Group")
         self.add_group_button.clicked.connect(lambda: self.splitcoloursmodel.add_groups())
         group_button_layout.addWidget(self.add_group_button)
 
-        self.remove_empty_groups_button = QPushButton("-Remove Empty Groups")
         self.remove_empty_groups_button.clicked.connect(self.splitcoloursmodel.remove_empty_groups)
         group_button_layout.addWidget(self.remove_empty_groups_button)
 
@@ -461,7 +464,7 @@ class SplitColourDialog(QDialog):
         header_height = self.splitview.header().size().height()
         row_height = self.splitview.rowHeight(self.splitcoloursmodel.index(0, 0))
         new_height = row_height * (self.item_count + splits + 1) + header_height
-        max_height = int(math.floor(self.screen().size().height()*3/5))
+        max_height = int(math.floor(self.screen().size().height() * 3 / 5))
         self.splitview.setMinimumHeight(min(new_height, max_height))
 
     def rows_moved(self):
@@ -481,7 +484,7 @@ class SplitColourTreemodel(QAbstractItemModel):
 
     def __init__(self, colours: OrderedDict, has_outlines: bool = False, splits: int = 2):
         super().__init__()
-        self.colours = colours
+        self.colours: OrderedDict = colours
         colour_keys = list(colours.keys())
         if has_outlines:
             colour_keys.append("outlines")
@@ -490,7 +493,7 @@ class SplitColourTreemodel(QAbstractItemModel):
         self._data = [arr.tolist() for arr in array_split(colour_keys, splits)]
         self.pointers = []
 
-    def index(self, row: int, column: int, parent: QModelIndex = QModelIndex()):
+    def index(self, row: int, column: int, parent: QModelIndex = QModelIndex()) -> QModelIndex:
         if parent.isValid():
             if parent.internalPointer()[1] is None:
                 pointer = (parent.internalPointer()[0], row)
@@ -521,7 +524,7 @@ class SplitColourTreemodel(QAbstractItemModel):
         else:
             return QModelIndex()
 
-    def rowCount(self, index: QModelIndex = QModelIndex()):
+    def rowCount(self, index: QModelIndex = QModelIndex()) -> int:
         if index.isValid():
             if index.internalPointer()[1] is None:
                 return len(self._data[index.internalPointer()[0]])
@@ -530,7 +533,7 @@ class SplitColourTreemodel(QAbstractItemModel):
         else:
             return len(self._data)
 
-    def columnCount(self, parent: QModelIndex = QModelIndex()):
+    def columnCount(self, parent: QModelIndex = QModelIndex()) -> int:
         return 1
 
     def data(self, index: QModelIndex, role=Qt.ItemDataRole.DisplayRole):
@@ -538,7 +541,7 @@ class SplitColourTreemodel(QAbstractItemModel):
             return None
         if role == Qt.ItemDataRole.DisplayRole:
             if index.internalPointer()[1] is None:
-                return f"Group {index.internalPointer()[0]+1}"
+                return f"Group {index.internalPointer()[0] + 1}"
             else:
                 colour_index = self._data[index.internalPointer()[0]][index.internalPointer()[1]]
                 if colour_index != "outlines":
@@ -563,15 +566,15 @@ class SplitColourTreemodel(QAbstractItemModel):
                 else:
                     return QColor(get_contrast_colour(Brickcolour("24").rgb_values))
 
-    def headerData(self, section, orientation, role):
+    def headerData(self, section: int, orientation: Qt.Orientation, role: int = ...) -> typing.Any:
         if role == Qt.ItemDataRole.DisplayRole:
             if orientation == Qt.Orientation.Horizontal:
                 return "Colour Groups"
 
-    def supportedDropActions(self):
+    def supportedDropActions(self) -> Qt.DropAction:
         return Qt.DropAction.MoveAction
 
-    def flags(self, index: QModelIndex):
+    def flags(self, index: QModelIndex) -> Qt.ItemFlag:
         if index.isValid():
             if index.internalPointer()[1] is None:
                 return Qt.ItemFlag.ItemIsEnabled | Qt.ItemFlag.ItemIsDropEnabled
@@ -580,10 +583,10 @@ class SplitColourTreemodel(QAbstractItemModel):
                     Qt.ItemFlag.ItemIsDragEnabled | Qt.ItemFlag.ItemIsUserCheckable
         return Qt.ItemFlag.ItemIsEnabled
 
-    def mimeTypes(self):
+    def mimeTypes(self) -> list[str]:
         return ['text/plain', "custom/indices"]
 
-    def mimeData(self, indexes):
+    def mimeData(self, indexes) -> QMimeData:
         indexes.sort(key=lambda e: e.internalPointer())
         data = []
         for index in indexes:
@@ -593,11 +596,11 @@ class SplitColourTreemodel(QAbstractItemModel):
         mimedata.setText(data_text)
         return mimedata
 
-    def dropMimeData(self, data, action, row, column, parent):
+    def dropMimeData(self, data: 'QMimeData|None', action: Qt.DropAction, row: int, column: int, parent: QModelIndex) -> bool:
         # Rebuilt 'move from' pointers from string
         from_pointers = [tuple(int(idx_str) for idx_str in ptr_str.split(",")) for ptr_str in data.text().split(";")]
         if row > 0:
-            upper_item = self._data[parent.internalPointer()[0]][row-1]
+            upper_item = self._data[parent.internalPointer()[0]][row - 1]
         values = [self._data[ptr[0]][ptr[1]] for ptr in from_pointers]
         from_pointers.reverse()
         for ptr in from_pointers:
@@ -638,7 +641,7 @@ class SplitColourTreemodel(QAbstractItemModel):
         self.beginResetModel()
         self.endResetModel()
 
-    def get_data(self):
+    def get_data(self) -> list:
         return self._data
 
 

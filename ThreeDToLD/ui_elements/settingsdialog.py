@@ -21,22 +21,24 @@ from ThreeDToLD.brick_data.ldrawObject import LDrawConversionFactor, UpAxis, def
 from ThreeDToLD.config import loadconfig, save_config, config_path
 from ThreeDToLD.ui_elements.brickcolourwidget import BrickcolourDialog, ColourCategoriesDialog
 from ThreeDToLD.brick_data.brickcolour import Brickcolour, get_contrast_colour
+from tomlkit import TOMLDocument
 
 
 class SettingsDialog(QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.config_changed = False
-        self.config, warnings = loadconfig()
+        self.config_changed: bool = False
+        config, warnings = loadconfig()
+        self.config: TOMLDocument = config
         if len(warnings) > 0:
             QMessageBox.critical(self, "Failed to load config", f"An Issue occurred during while loading the config:\n"
                                                                 f"Following warning where returned:\n"
                                                                 f"{warnings}")
 
-        self.has_unsaved_changes = False
+        self.has_unsaved_changes: bool = False
 
         main_layout = QVBoxLayout()
-        self.category_tabs = QTabWidget()
+        self.category_tabs: QTabWidget = QTabWidget()
 
         main_layout.addWidget(self.category_tabs)
 
@@ -56,12 +58,12 @@ class SettingsDialog(QDialog):
         paths_layout.addWidget(model_path_label)
 
         model_path_inputs = QHBoxLayout()
-        self.model_path_line = QLineEdit()
+        self.model_path_line: QLineEdit = QLineEdit()
         self.model_path_line.setReadOnly(True)
         self.model_path_line.setPlaceholderText("Select Working Directory")
         model_path_inputs.addWidget(self.model_path_line)
 
-        self.select_model_path_button = QPushButton("Select")
+        self.select_model_path_button: QPushButton = QPushButton("Select")
         model_path_inputs.addWidget(self.select_model_path_button)
         self.select_model_path_button.clicked.connect(self.select_model_path)
 
@@ -73,18 +75,18 @@ class SettingsDialog(QDialog):
         theme_area = QGroupBox("Theme")
         theme_layout = QFormLayout()
         theme_area.setLayout(theme_layout)
-        self.mode_input = QComboBox()
+        self.mode_input: QComboBox = QComboBox()
         self.mode_input.addItems(["auto", "dark", "light"])
         self.mode_input.currentTextChanged.connect(self.input_changed)
         mode_label = QLabel("Mode ℹ️")
         mode_label.setToolTip("Theme of the application. Requires restart of the application.")
         theme_layout.addRow(mode_label, self.mode_input)
-        self.use_accent_colour_check = QCheckBox()
+        self.use_accent_colour_check: QCheckBox = QCheckBox()
         self.use_accent_colour_check.checkStateChanged.connect(self.input_changed)
         use_accent_colour_label = QLabel("Use Accent Colour ℹ️")
         use_accent_colour_label.setToolTip("Use custom accent colour. If unchecked use auto value.")
         theme_layout.addRow(use_accent_colour_label, self.use_accent_colour_check)
-        self.select_accent_colour_button = QPushButton("Select")
+        self.select_accent_colour_button: QPushButton = QPushButton("Select")
         self.select_accent_colour_button.clicked.connect(self.select_accent_colour)
         accent_colour_label = QLabel("Accent Color ℹ️")
         accent_colour_label.setToolTip("Custom Accent Colour is applied on restart.")
@@ -115,14 +117,14 @@ class SettingsDialog(QDialog):
 
         load_file_inputs = QFormLayout()
         # Enable Multicolour Check
-        self.multicolour_check = QCheckBox()
+        self.multicolour_check: QCheckBox = QCheckBox()
         multicolour_label = QLabel("Multicolour ℹ️")
         multicolour_label.setToolTip("If deactivated all objects are single colour")
         self.multicolour_check.checkStateChanged.connect(self.input_changed)
         load_file_inputs.addRow(multicolour_label, self.multicolour_check)
 
         # Enable Multi Objects Check
-        self.multi_object_check = QCheckBox()
+        self.multi_object_check: QCheckBox = QCheckBox()
         multi_object_label = QLabel("Multiple Objects ℹ️")
         multi_object_label.setToolTip("If deactivated all submodels will be merged\n"
                                       "With multicolour unique colours are applied before merging\n"
@@ -131,7 +133,7 @@ class SettingsDialog(QDialog):
         load_file_inputs.addRow(multi_object_label, self.multi_object_check)
 
         # Unit Selection
-        self.unit_input = QComboBox()
+        self.unit_input: QComboBox = QComboBox()
         self.unit_input.addItems(LDrawConversionFactor.get_membernames_as_string())
         self.unit_input.setInsertPolicy(QComboBox.InsertPolicy.NoInsert)
         category_label = QLabel("Unit ℹ️")
@@ -142,7 +144,7 @@ class SettingsDialog(QDialog):
         load_file_inputs.addRow(category_label, self.unit_input)
 
         # Set Scale
-        self.scale_input = QDoubleSpinBox()
+        self.scale_input: QDoubleSpinBox = QDoubleSpinBox()
         self.scale_input.setValue(1.0)
         self.scale_input.setMaximum(999.999)
         self.scale_input.setMinimum(0.001)
@@ -153,7 +155,7 @@ class SettingsDialog(QDialog):
         load_file_inputs.addRow(scale_label, self.scale_input)
 
         # Choose Up Axis
-        self.orientation_input = QComboBox()
+        self.orientation_input: QComboBox = QComboBox()
         self.orientation_input.addItems(UpAxis.get_membernames_as_string())
         ldraw_rotation_label = QLabel("Up Axis ℹ️")
         ldraw_rotation_label.setToolTip("Choose what the up axis of the model is.\n"
@@ -163,7 +165,7 @@ class SettingsDialog(QDialog):
         load_file_inputs.addRow(ldraw_rotation_label, self.orientation_input)
 
         # Use 3mf Loader Check
-        self.threemfloader_check = QCheckBox()
+        self.threemfloader_check: QCheckBox = QCheckBox()
         threemfloader_label = QLabel("Custom 3mf Loader ℹ️")
         threemfloader_label.setToolTip("Enables color support for 3mf files.\n"
                                        "MMU painting (Slic3r/Prusa/Bambu) not supported.\n"
@@ -177,7 +179,7 @@ class SettingsDialog(QDialog):
         step_quality_layout = QFormLayout()
         step_quality_area.setLayout(step_quality_layout)
 
-        self.tol_linear_input = QDoubleSpinBox()
+        self.tol_linear_input: QDoubleSpinBox = QDoubleSpinBox()
         self.tol_linear_input.setDecimals(3)
         tol_linear_label = QLabel("Tolerance Linear ℹ️")
         tol_linear_label.setToolTip("How large should angular deflection be allowed.\n"
@@ -186,14 +188,14 @@ class SettingsDialog(QDialog):
         self.tol_linear_input.valueChanged.connect(self.input_changed)
         step_quality_layout.addRow(tol_linear_label, self.tol_linear_input)
 
-        self.tol_angular_input = QDoubleSpinBox()
+        self.tol_angular_input: QDoubleSpinBox= QDoubleSpinBox()
         self.tol_angular_input.setDecimals(3)
         tol_angular_label = QLabel("Tolerance Angular ℹ️")
         tol_angular_label.setToolTip("How large should linear deflection be allowed.")
         self.tol_angular_input.valueChanged.connect(self.input_changed)
         step_quality_layout.addRow(tol_angular_label, self.tol_angular_input)
 
-        self.tol_relative_check = QCheckBox()
+        self.tol_relative_check: QCheckBox = QCheckBox()
         tol_relative_label = QLabel("Tolerance Relative ℹ️")
         tol_relative_label.setToolTip("Is tol_linear relative to edge length, or an absolute distance?")
         self.tol_relative_check.checkStateChanged.connect(self.input_changed)
@@ -210,13 +212,13 @@ class SettingsDialog(QDialog):
         third_tab_layout.addRow(QLabel("Here you can set the default Metadata settings.\n"
                                        "Some of these are used at the start of the application."))
 
-        self.name_from_metadata_check = QCheckBox()
+        self.name_from_metadata_check: QCheckBox = QCheckBox()
         name_from_metadata_label = QLabel("Part Name from Metadata ℹ️")
         name_from_metadata_label.setToolTip("Use name from metadata, if non existend or set to false use filename")
         self.name_from_metadata_check.checkStateChanged.connect(self.input_changed)
         third_tab_layout.addRow(name_from_metadata_label, self.name_from_metadata_check)
 
-        self.default_author_line = QLineEdit()
+        self.default_author_line: QLineEdit = QLineEdit()
         self.default_author_line.setPlaceholderText("Your Name/Alias")
         default_author_label = QLabel("Default Author ℹ️")
         default_author_label.setToolTip("'Realname[LDraw username]'\n"
@@ -224,14 +226,14 @@ class SettingsDialog(QDialog):
         self.default_author_line.textChanged.connect(self.input_changed)
         third_tab_layout.addRow(default_author_label, self.default_author_line)
 
-        self.author_from_metadata_check = QCheckBox()
+        self.author_from_metadata_check: QCheckBox = QCheckBox()
         author_from_metadata_label = QLabel("Use Author from Metadata ℹ️")
         author_from_metadata_label.setToolTip("If true the default author is replaced, "
                                               "if another is found in the Metadata.")
         self.author_from_metadata_check.checkStateChanged.connect(self.input_changed)
         third_tab_layout.addRow(author_from_metadata_label, self.author_from_metadata_check)
 
-        self.default_part_license_input = QComboBox()
+        self.default_part_license_input: QComboBox = QComboBox()
         self.default_part_license_input.addItems(default_part_licenses)
         self.default_part_license_input.setInsertPolicy(QComboBox.InsertPolicy.NoInsert)
         self.default_part_license_input.setEditable(True)
@@ -240,7 +242,7 @@ class SettingsDialog(QDialog):
         self.default_part_license_input.currentTextChanged.connect(self.input_changed)
         third_tab_layout.addRow(default_part_license_label, self.default_part_license_input)
 
-        self.license_from_metadata_check = QCheckBox()
+        self.license_from_metadata_check: QCheckBox = QCheckBox()
         license_from_metadata_label = QLabel("Use License from Metadata ℹ️")
         license_from_metadata_label.setToolTip("Default license is replaced if another is found in the Metadata.")
         self.license_from_metadata_check.checkStateChanged.connect(self.input_changed)
@@ -259,7 +261,7 @@ class SettingsDialog(QDialog):
         default_colour_categories_label.setToolTip("List of Colour Categories used for Conversion of LDraw Colours.")
         fourth_tab_layout.addRow(default_colour_categories_label, default_colour_categories_button)
 
-        self.convert_colours_on_load_check = QCheckBox()
+        self.convert_colours_on_load_check: QCheckBox = QCheckBox()
         convert_colours_on_load_label = QLabel("Convert to LDraw Colours on Load ℹ️❗")
         convert_colours_on_load_label.setToolTip("Use default colour categories to convert colours on file import.\n"
                                                  "Not implemented Yet!")
@@ -271,7 +273,7 @@ class SettingsDialog(QDialog):
 
         dialog_inputs = QHBoxLayout()
         dialog_inputs.addStretch()
-        self.save_button = QPushButton("Save")
+        self.save_button: QPushButton = QPushButton("Save")
         close_button = QPushButton("Close")
 
         self.save_button.clicked.connect(self.save_config)

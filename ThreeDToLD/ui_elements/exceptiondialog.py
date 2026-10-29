@@ -22,7 +22,7 @@ class ExceptionDialog(QDialog):
                  traceback_str: str = "No Traceback given"
                  ):
         super().__init__(parent)
-        self.clipboard = clipboard
+        self.clipboard: QClipboard = clipboard
         self.setWindowTitle(title)
         main_layout = QVBoxLayout()
 
@@ -43,14 +43,14 @@ class ExceptionDialog(QDialog):
         main_layout.addWidget(traceback_area)
 
         # Todo: Better Size
-        self.traceback_content = QPlainTextEdit(traceback_str)
+        self.traceback_content: QPlainTextEdit = QPlainTextEdit(traceback_str)
         self.traceback_content.setReadOnly(True)
         traceback_layout.addWidget(self.traceback_content)
 
         if clipboard is None:
             traceback_copy_button = QPushButton("Select Traceback Message")
         else:
-            traceback_copy_button = QPushButton("Copy Traceback")
+            traceback_copy_button: QPushButton = QPushButton("Copy Traceback")
         traceback_copy_button.clicked.connect(self.copy_tracback)
         traceback_layout.addWidget(traceback_copy_button)
 

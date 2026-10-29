@@ -344,14 +344,14 @@ class SubpartTab(QWidget):
         self.map_colours_button.deleteLater()
         self.merge_colours_button.deleteLater()
         self.main_colour_input.label.setText("Subpart Colour")
-        self.main_colour_input.changecolour(self.subpart.main_colour, False)
+        self.main_colour_input.change_colour(self.subpart.main_colour, False)
         self.multicolour_view_enabled = False
 
     def refresh_content(self):
         if not self.subpart.multicolour:
             if self.multicolour_view_enabled:
                 self._change_to_single_colour_view()
-            self.main_colour_input.changecolour(self.subpart.main_colour, send_emit=False, set_text=True)
+            self.main_colour_input.change_colour(self.subpart.main_colour, send_emit=False, set_text=True)
             self.right_info_label.setText(f"{len(self.subpart.mesh.faces)} Triangles")
         elif self.subpart.multicolour:
             self.subpartcolourlist.refresh_data()

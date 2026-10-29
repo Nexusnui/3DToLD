@@ -26,63 +26,65 @@ class PreviewPanel(QWidget):
                  background_color: str = "#ffffff", is_smooth: bool = False,
                  axis_visible: bool = True, grid_visible: bool = True):
         super().__init__()
-        self.main_model = main_model
-        self.current_model = main_model
-        self.background_color = Brickcolour(background_color)
-        self.base_url = QUrl.fromLocalFile(template_html_path)
-        self.is_smooth = is_smooth
-        self.axis_visible = axis_visible
-        self.grid_visible = grid_visible
+        self.main_model: LdrawObject = main_model
+        self.current_model: LdrawObject | Subpart = main_model
+        self.background_color: Brickcolour = Brickcolour(background_color)
+        self.base_url: QUrl = QUrl.fromLocalFile(template_html_path)
+        self.is_smooth: bool = is_smooth
+        self.axis_visible: bool = axis_visible
+        self.grid_visible: bool = grid_visible
+        self.url_parameters: str = ""
+        self.viewer_url: QUrl | None = None
         self.update_url()
 
-        self.main_layout = QVBoxLayout()
+        self.main_layout: QVBoxLayout = QVBoxLayout()
 
-        self.controls_layout = QHBoxLayout()
+        self.controls_layout: QHBoxLayout = QHBoxLayout()
         reload_button = QPushButton()
         reload_button.setIcon(QIcon(os.path.join(basedir, "icons", "reload-icon.svg")))
         reload_button.clicked.connect(self.refresh_model)
         self.controls_layout.addWidget(reload_button)
 
-        self.show_main_model_button = QPushButton("Show Main Part")
+        self.show_main_model_button: QPushButton = QPushButton("Show Main Part")
         self.show_main_model_button.clicked.connect(self.load_main_model)
         self.show_main_model_button.setDisabled(True)
         self.controls_layout.addWidget(self.show_main_model_button)
         self.main_layout.addLayout(self.controls_layout)
 
-        self.settings_layout = QHBoxLayout()
-        self.status_label = QLabel("No Model Loaded")
+        self.settings_layout: QHBoxLayout = QHBoxLayout()
+        self.status_label: QLabel = QLabel("No Model Loaded")
         self.settings_layout.addWidget(self.status_label)
         self.settings_layout.addStretch()
 
-        self.smoothness_check = QCheckBox("Smooth ℹ️")
+        self.smoothness_check: QCheckBox = QCheckBox("Smooth ℹ️")
         self.smoothness_check.setToolTip("Smooth Edges (visually only)\n"
                                          "May look more like Bricklink Studio if set")
         self.smoothness_check.stateChanged.connect(self.toggle_smoothness)
         self.settings_layout.addWidget(self.smoothness_check)
 
-        self.axis_check = QCheckBox("Axis ℹ️")
+        self.axis_check: QCheckBox = QCheckBox("Axis ℹ️")
         self.axis_check.setToolTip("Show LDraw Axis(-Y is Up)\n"
                                    "X-Axis: Red\n -Y-Axis: Blue\n Z-Axis:Green")
         self.axis_check.setChecked(True)
         self.axis_check.stateChanged.connect(self.toggle_axis)
         self.settings_layout.addWidget(self.axis_check)
 
-        self.grid_check = QCheckBox("Grid ℹ️")
+        self.grid_check: QCheckBox = QCheckBox("Grid ℹ️")
         self.grid_check.setToolTip("Show a grid where each cell is a stud")
         self.grid_check.setChecked(True)
         self.grid_check.stateChanged.connect(self.toggle_grid)
         self.settings_layout.addWidget(self.grid_check)
 
-        self.bg_colour_button = QPushButton("BG-Colour")
+        self.bg_colour_button: QPushButton = QPushButton("BG-Colour")
         self.bg_colour_button.clicked.connect(self.on_change_bg_colour)
         self.settings_layout.addWidget(self.bg_colour_button)
 
         self.main_layout.addLayout(self.settings_layout)
 
-        self.web_view = QWebEngineView()
+        self.web_view: QWebEngineView = QWebEngineView()
         self.web_view.setContextMenuPolicy(Qt.ContextMenuPolicy.NoContextMenu)
         self.web_view.setStyleSheet(f"background-color: {background_color};")
-        self.ldraw_handler = LDrawHandler()
+        self.ldraw_handler: LDrawHandler = LDrawHandler()
         self.web_view.page().profile().installUrlSchemeHandler(b"ldraw", self.ldraw_handler)
         if self.main_model is not None:
             self.load_main_model()
@@ -99,7 +101,7 @@ class PreviewPanel(QWidget):
         self.show_main_model_button.setDisabled(False)
         self.refresh_model()
 
-    def set_main_model(self, model: LdrawObject, refresh=False):
+    def set_main_model(self, model: LdrawObject, refresh: bool = False):
         self.main_model = model
         if refresh:
             self.show_main_model_button.setDisabled(True)
@@ -160,9 +162,8 @@ class PreviewPanel(QWidget):
         self.viewer_url = QUrl(f"{self.base_url.toString()}{self.url_parameters}")
 
 
-
 class LDrawHandler(QWebEngineUrlSchemeHandler):
-    def __init__(self, parent= None):
+    def __init__(self, parent=None):
         super().__init__(parent)
         self.file = b""
 

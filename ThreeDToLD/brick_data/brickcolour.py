@@ -10,7 +10,7 @@ class Colourtype(Enum):
     ALPHA = "Transparent Direct"
 
 
-def is_brickcolour(colour_code: str):
+def is_brickcolour(colour_code: str) -> tuple[bool, str | None, str | None]:
     if len(colour_code) < 1 or colour_code is None:
         return False, "No Colour Code", "Empty colour code was provided"
     elif not colour_code.startswith("0x2") and not colour_code.startswith("#"):
@@ -45,11 +45,11 @@ def is_brickcolour(colour_code: str):
                         f"The provided colour '{colour_code}' seems to be a Direct/HTML colour, "
                         f"but contains at least one invalid character: '{char}'.\n"
                         f"Valid characters are 0-9 and A-F(uppercase)")
-    return True,
+    return True, None, None
 
 
 class Brickcolour:
-    def __new__(cls, colour_code: str = "16", values=None):
+    def __new__(cls, colour_code: str = "16", values: list[str] = None):
         if not is_brickcolour(colour_code)[0] and values is None:
             return None
         instance = super().__new__(cls)
@@ -57,12 +57,12 @@ class Brickcolour:
 
     def __init__(self, colour_code: str = "16", values=None):
         if values is None:
-            self.colour_code = colour_code
+            self.colour_code: str = colour_code
             if colour_code.startswith("0x2"):
-                self._colour_type = Colourtype.DIRECT
-                self.rgb_values = f"#{self.colour_code[3:]}"
-                self.rgb_edge = get_contrast_colour(self.rgb_values)
-                self.alpha = "255"
+                self._colour_type: Colourtype = Colourtype.DIRECT
+                self.rgb_values: str = f"#{self.colour_code[3:]}"
+                self.rgb_edge: str = get_contrast_colour(self.rgb_values)
+                self.alpha: str = "255"
                 self._ldrawname = self.colour_code
             elif colour_code.startswith("#"):
                 colour_code = colour_code.upper()
@@ -73,16 +73,16 @@ class Brickcolour:
                     self.rgb_values = colour_code
                     self.colour_code = f"0x2{colour_code[1:]}"
                     self.alpha = "255"
-                    self._ldrawname = self.colour_code
+                    self._ldrawname: str = self.colour_code
                 else:
-                    self._colour_type = Colourtype.ALPHA
-                    self.rgb_values = colour_code[:-2]
-                    self.colour_code = colour_code
-                    self.alpha = str(int(colour_code[7:], 16))
-                    self._ldrawname = f"Trans_Direct_{colour_code[1:]}"
-                self.rgb_edge = get_contrast_colour(self.rgb_values)
-                self.luminance = None
-                self.material = None
+                    self._colour_type: Colourtype = Colourtype.ALPHA
+                    self.rgb_values: str = colour_code[:-2]
+                    self.colour_code: str = colour_code
+                    self.alpha: str = str(int(colour_code[7:], 16))
+                    self._ldrawname: str = f"Trans_Direct_{colour_code[1:]}"
+                self.rgb_edge: str = get_contrast_colour(self.rgb_values)
+                self.luminance: str | None = None
+                self.material: str | None = None
 
             else:
                 self._colour_type = Colourtype.LDRAW
@@ -96,7 +96,7 @@ class Brickcolour:
                     self.legoname, \
                     self.category = get_colour_info_by_colour_code(self.colour_code)
         else:
-            self._colour_type = Colourtype.LDRAW
+            self._colour_type: Colourtype = Colourtype.LDRAW
             self._ldrawname, \
                 self.colour_code, \
                 self.rgb_values, \
@@ -107,6 +107,7 @@ class Brickcolour:
                 self.legoids, \
                 self.legoname, \
                 self.category = values
+        self._hex_rgba: str | None = None
 
     @property
     def colour_type(self):
@@ -118,7 +119,7 @@ class Brickcolour:
 
     @property
     def hex_rgba(self) -> str:
-        if not hasattr(self, "_hex_rgba"):
+        if self._hex_rgba is None:
             self._hex_rgba = f"{self.rgb_values}{'%02x' % int(self.alpha)}"
         return self._hex_rgba
 
@@ -156,12 +157,12 @@ class Brickcolour:
     def __repr__(self):
         return f"brickcolour({self.colour_code})"
 
-    def __eq__(self, other):
+    def __eq__(self, other) -> bool:
         if isinstance(other, Brickcolour):
             return self.colour_code == other.colour_code
         return False
 
-    def get_int_rgba(self):
+    def get_int_rgba(self) -> tuple[int, int, int, int]:
         r = int(self.rgb_values[1:3], 16)
         g = int(self.rgb_values[3:5], 16)
         b = int(self.rgb_values[5:7], 16)
@@ -188,7 +189,7 @@ class Brickcolour:
         return line
 
 
-def get_colour_info_by_colour_code(colour_code: str):
+def get_colour_info_by_colour_code(colour_code: str) -> list[str]:
     # The colour name "Undefined" is for colour codes that are unknown to 3DToLD,
     # but may be used by other LDraw software.
     # These are usually input manually by the user
@@ -211,7 +212,7 @@ def get_colour_info_by_colour_code(colour_code: str):
     return found_colour
 
 
-def get_all_brickcolours(included_color_categories=None):
+def get_all_brickcolours(included_color_categories: list[str] | None = None) -> list[Brickcolour]:
     colour_list = []
     with open(os.path.join(basedir, "colour_definitions.csv"), "r", encoding="utf-8") as source:
         # skip row with column names
@@ -225,12 +226,12 @@ def get_all_brickcolours(included_color_categories=None):
     return colour_list
 
 
-def search_brickcolour_by_rgb_colour(rgb_colour: str, colourlist: [Brickcolour]):
+def search_brickcolour_by_rgb_colour(rgb_colour: str, colourlist: list[Brickcolour]) -> list[Brickcolour]:
     colourlist.sort(key=lambda c: get_hex_colour_weight(rgb_colour, c.hex_rgba))
     return colourlist
 
 
-def search_by_color_name(name: str, colourlist: list):
+def search_by_color_name(name: str, colourlist: list[Brickcolour]) -> list[Brickcolour]:
     name = name.upper().replace(" ", "").replace("_", "")
 
     def matchname(colour: Brickcolour):
@@ -244,7 +245,7 @@ def search_by_color_name(name: str, colourlist: list):
     return search_results
 
 
-def get_closest_brickcolour_by_rgba_colour(rgb_colour: str, colourlist: list):
+def get_closest_brickcolour_by_rgba_colour(rgb_colour: str, colourlist: list[Brickcolour]) -> Brickcolour:
     r_1 = int(rgb_colour[1:3], 16)
     g_1 = int(rgb_colour[3:5], 16)
     b_1 = int(rgb_colour[5:7], 16)
@@ -255,7 +256,7 @@ def get_closest_brickcolour_by_rgba_colour(rgb_colour: str, colourlist: list):
     return min(colourlist, key=lambda c: _get_hex_colour_weight(r_1, g_1, b_1, a_1, c.hex_rgba))
 
 
-def get_contrast_colour(rgb_values: str):
+def get_contrast_colour(rgb_values: str) -> str:
     r = 0 if int(rgb_values[1:3], 16) < 128 else 1
     g = 0 if int(rgb_values[3:5], 16) < 128 else 1
     b = 0 if int(rgb_values[5:7], 16) < 128 else 1
@@ -265,7 +266,7 @@ def get_contrast_colour(rgb_values: str):
         return "#000000"
 
 
-def get_complementary_colour(rgb_values: str):
+def get_complementary_colour(rgb_values: str) -> str:
     red = '%02X' % (255 - int(rgb_values[1:3], 16))
     green = '%02X' % (255 - int(rgb_values[3:5], 16))
     blue = '%02X' % (255 - int(rgb_values[5:7], 16))
