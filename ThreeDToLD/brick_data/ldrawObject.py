@@ -3,6 +3,7 @@ import trimesh
 import trimesh.visual.material
 from trimesh.base import Trimesh
 import os
+import io
 from ThreeDToLD.appexcetions import *
 from ThreeDToLD.brick_data.brickcolour import Brickcolour, get_closest_brickcolour_by_rgba_colour, \
     get_all_brickcolours, Colourtype
@@ -723,10 +724,9 @@ class ResultWriter:
         self.filepath = filepath
 
     def __enter__(self):
+        self._result: list[str] | io.TextIOWrapper = []
         if self._is_file_writer:
             self._result = open(self.filepath, "w", encoding="utf-8")
-        else:
-            self._result = []
         return self
 
     def __exit__(self, *args):
