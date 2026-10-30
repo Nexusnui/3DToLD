@@ -48,13 +48,21 @@ setup(
             '3DToLD = ThreeDToLD.app:run',
         ]
     },
-
     classifiers=[
-        'Development Status :: 2 - Pre-Alpha',
+        'Development Status :: 5 - Production/Stable',
         'Intended Audience :: End Users/Desktop',
         'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
         'Operating System :: OS Independent',
+        'Programming Language :: Python :: 3.10',
+        'Programming Language :: Python :: 3.11',
         'Programming Language :: Python :: 3.12',
+        'Programming Language :: JavaScript',
         'Natural Language :: English',
+        'Topic :: File Formats',
+        'Topic :: Multimedia :: Graphics :: 3D Modeling'
     ],
 )
+'''
+'Development Status :: 4 - Beta' is used for Snapshots
+'Development Status :: 5 - Production/Stable' for full releases
+'''
