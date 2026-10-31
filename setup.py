@@ -1,9 +1,9 @@
 from setuptools import setup
-from ThreeDToLD.about import version
+from ThreeDToLD._version import __version__
 
 setup(
     name='3DToLD',
-    version=version,
+    version=__version__,
     description='This is a graphical Python program for converting various 3D file formats(stl,3mf,obj,stp, etc.) to the LDraw file format (.dat).',
     url='https://github.com/Nexusnui/Convert-To-LDraw',
     author='Nexusnui',
@@ -39,7 +39,7 @@ setup(
                       "PyQt6-WebEngine>=6.11.0,<=6.11.2",
                       "scipy>=1.15.3,<=1.18.1",
                       "trimesh==5.2.0",
-                      "platformdirs>=4.12.4,<=4.13.7",
+                      "platformdirs>=4.12.4,<=4.14.2",
                       "tomlkit==0.15.2",
                       "pyqtdarktheme-fork==2.3.6"
                       ],
