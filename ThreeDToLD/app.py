@@ -42,11 +42,10 @@ from ThreeDToLD.ui_elements.exceptiondialog import ExceptionDialog
 from ThreeDToLD.ui_elements.stepsettingsdialog import StepSettingsDialog
 from ThreeDToLD.ui_elements.settingsdialog import SettingsDialog
 from ThreeDToLD.config import loadconfig
-from ThreeDToLD.about import version
+from ThreeDToLD._version import __version__ as app_version
+from tomlkit import TOMLDocument
 
 basedir = os.path.dirname(__file__)
-
-app_version = version
 
 if platform.system() == "Windows":
     try:
@@ -76,7 +75,7 @@ sys.excepthook = exception_hook
 
 
 class MainWindow(QMainWindow):
-    def __init__(self, clipboard: QClipboard, config):
+    def __init__(self, clipboard: QClipboard, config: TOMLDocument):
         super().__init__()
 
         self.clipboard: QClipboard = clipboard
@@ -86,14 +85,15 @@ class MainWindow(QMainWindow):
         self.line_preset: LinePreset = LinePreset.Low
         self.line_angle: int = LinePreset.Low.value
         self.merge_vertices: bool = False
-        self.config = config
+        self.config: TOMLDocument = config
         self.previous_colour_categories: [str] | None = None
         self.directory_selected: bool = False
+        self.subpart_panel: SubpartPanel | None = None
 
         self.setWindowTitle(f"3DToLD {app_version}")
-        self.loading_stack = QStackedLayout()
-        self.main_layout = QVBoxLayout()
-        self.settings_tabs = QTabWidget()
+        self.loading_stack: QStackedLayout = QStackedLayout()
+        self.main_layout: QVBoxLayout = QVBoxLayout()
+        self.settings_tabs: QTabWidget = QTabWidget()
 
         top_layout = QHBoxLayout()
 
@@ -108,14 +108,14 @@ class MainWindow(QMainWindow):
 
     # Input File Selection
         # Enable Multicolour Check
-        self.multicolour_check = QCheckBox()
+        self.multicolour_check: QCheckBox = QCheckBox()
         multicolour_label = QLabel("Multicolour ℹ️")
         multicolour_label.setToolTip("If deactivated all objects are single colour")
         load_file_inputs.addRow(multicolour_label, self.multicolour_check)
         self.multicolour_check.setChecked(self.config["Import_Settings"]["multicolour"])
 
         # Enable Multi Objects Check
-        self.multi_object_check = QCheckBox()
+        self.multi_object_check: QCheckBox = QCheckBox()
         multi_object_label = QLabel("Multiple Objects ℹ️")
         multi_object_label.setToolTip("If deactivated all submodels will be merged\n"
                                       "With multicolour unique colours are applied before merging\n"
@@ -124,7 +124,7 @@ class MainWindow(QMainWindow):
         self.multi_object_check.setChecked(self.config["Import_Settings"]["multiple_objects"])
 
         # Unit Selection
-        self.unit_input = QComboBox()
+        self.unit_input: QComboBox = QComboBox()
         self.unit_input.addItems(LDrawConversionFactor.get_membernames_as_string())
         self.unit_input.setInsertPolicy(QComboBox.InsertPolicy.NoInsert)
         category_label = QLabel("Unit ℹ️")
@@ -135,7 +135,7 @@ class MainWindow(QMainWindow):
         load_file_inputs.addRow(category_label, self.unit_input)
 
         # Set Scale
-        self.scale_input = QDoubleSpinBox()
+        self.scale_input: QDoubleSpinBox = QDoubleSpinBox()
         self.scale_input.setValue(self.config["Import_Settings"]["scale"])
         self.scale_input.setMaximum(999.999)
         self.scale_input.setMinimum(0.001)
@@ -145,7 +145,7 @@ class MainWindow(QMainWindow):
         load_file_inputs.addRow(scale_label, self.scale_input)
 
         # Choose Up Axis
-        self.orientation_input = QComboBox()
+        self.orientation_input:QCheckBox = QComboBox()
         self.orientation_input.addItems(UpAxis.get_membernames_as_string())
         ldraw_rotation_label = QLabel("Up Axis ℹ️")
         ldraw_rotation_label.setToolTip("Choose what the up axis of the model is.\n"
@@ -155,7 +155,7 @@ class MainWindow(QMainWindow):
         load_file_inputs.addRow(ldraw_rotation_label, self.orientation_input)
 
         # Use 3mf Loader Check
-        self.threemfloader_check = QCheckBox()
+        self.threemfloader_check: QCheckBox = QCheckBox()
         threemfloader_label = QLabel("Custom 3mf Loader ℹ️")
         threemfloader_label.setToolTip("Enables color support for 3mf files.\n"
                                        "MMU painting (Slic3r/Prusa/Bambu) not supported.\n"
@@ -164,11 +164,11 @@ class MainWindow(QMainWindow):
         self.threemfloader_check.setChecked(self.config["Import_Settings"]["custom_3mf_loader"])
 
         # Step Quality Settings
-        self.step_quality_button = QPushButton("Step Mesh Quality")
+        self.step_quality_button: QPushButton = QPushButton("Step Mesh Quality")
         self.tol_linear = self.config["Import_Settings"]["Step_Settings"]["tol_linear"]
         self.tol_angular = self.config["Import_Settings"]["Step_Settings"]["tol_angular"]
         self.tol_relative = self.config["Import_Settings"]["Step_Settings"]["tol_relative"]
-        self.step_quality_button.clicked.connect(self.set_step_vallues)
+        self.step_quality_button.clicked.connect(self.set_step_values)
         load_file_inputs.addRow(self.step_quality_button)
 
         # File loading
@@ -176,19 +176,19 @@ class MainWindow(QMainWindow):
         load_file_inputs.addRow(input_label)
         input_layout = QHBoxLayout()
 
-        self.input_file_line = QLineEdit()
+        self.input_file_line: QLineEdit = QLineEdit()
         self.input_file_line.setPlaceholderText("Select file to load")
         self.input_file_line.setReadOnly(True)
         input_layout.addWidget(self.input_file_line)
 
-        self.load_input_button = QPushButton("Load File")
+        self.load_input_button: QPushButton = QPushButton("Load File")
         input_layout.addWidget(self.load_input_button)
         self.load_input_button.clicked.connect(self.load_file)
 
         load_file_inputs.addRow(input_layout)
 
         # Reload Button
-        self.reload_button = QPushButton("Reload Model")
+        self.reload_button: QPushButton = QPushButton("Reload Model")
         self.reload_button.setIcon(QIcon(os.path.join(basedir, "icons", "reload-icon.svg")))
         self.reload_button.setToolTip("Reload model with current settings")
         self.reload_button.clicked.connect(lambda a: self.load_file(True))
@@ -201,12 +201,12 @@ class MainWindow(QMainWindow):
         save_file_inputs.addRow(output_label)
         output_layout = QHBoxLayout()
 
-        self.output_file_line = QLineEdit()
+        self.output_file_line: QLineEdit = QLineEdit()
         self.output_file_line.setReadOnly(True)
         self.output_file_line.setPlaceholderText("Select output file")
         output_layout.addWidget(self.output_file_line)
 
-        self.select_output_button = QPushButton("Select")
+        self.select_output_button: QPushButton = QPushButton("Select")
         output_layout.addWidget(self.select_output_button)
         self.select_output_button.clicked.connect(self.select_output_file)
 
@@ -227,14 +227,14 @@ class MainWindow(QMainWindow):
     # Part Settings Area:
 
         # Partname Input
-        self.partname_line = QLineEdit()
+        self.partname_line: QLineEdit = QLineEdit()
         self.partname_line.setPlaceholderText("UntitledModel")
         partname_label = QLabel("Descriptive Part Name ℹ️")
         partname_label.setToolTip("This shows up as the Partname in Editors")
         part_settings_inputs.addRow(partname_label, self.partname_line)
 
         # Bricklink Number Input
-        self.bl_number_line = QLineEdit()
+        self.bl_number_line: QLineEdit = QLineEdit()
         self.bl_number_line.setPlaceholderText("Bricklinknumber")
         bl_number_label = QLabel("BL Number(Optional) ℹ️")
         bl_number_label.setToolTip("Bricklink Studio uses this to identify a piece\n"
@@ -242,7 +242,7 @@ class MainWindow(QMainWindow):
         part_settings_inputs.addRow(bl_number_label, self.bl_number_line)
 
         # Author Input
-        self.author_line = QLineEdit()
+        self.author_line: QLineEdit = QLineEdit()
         self.author_line.setPlaceholderText("Your Name/Alias")
         author_label = QLabel("Author (Optional)ℹ️")
         author_label.setToolTip("'Realname[LDraw username]'\n"
@@ -252,7 +252,7 @@ class MainWindow(QMainWindow):
         part_settings_inputs.addRow(author_label, self.author_line)
 
         # Category Selection
-        self.part_category_input = QComboBox()
+        self.part_category_input: QComboBox = QComboBox()
         self.part_category_input.addItems(brick_categories)
         self.part_category_input.setInsertPolicy(QComboBox.InsertPolicy.NoInsert)
         self.part_category_input.setEditable(True)
@@ -262,7 +262,7 @@ class MainWindow(QMainWindow):
         part_settings_inputs.addRow(category_label, self.part_category_input)
 
         # Keywords Input
-        self.keywords_line = QLineEdit()
+        self.keywords_line: QLineEdit = QLineEdit()
         self.keywords_line.setPlaceholderText("comma seperated: Wheel, Tire, Car")
         keywords_label = QLabel("Keywords (Optional) ℹ️")
         keywords_label.setToolTip("Keywords make a part easier to search.\n"
@@ -270,7 +270,7 @@ class MainWindow(QMainWindow):
         part_settings_inputs.addRow(keywords_label, self.keywords_line)
 
         # License Input
-        self.part_license_input = QComboBox()
+        self.part_license_input: QComboBox = QComboBox()
         self.part_license_input.addItems(default_part_licenses)
         self.part_license_input.setInsertPolicy(QComboBox.InsertPolicy.NoInsert)
         self.part_license_input.setEditable(True)
@@ -281,33 +281,33 @@ class MainWindow(QMainWindow):
         part_settings_inputs.addRow(part_license_label, self.part_license_input)
 
         # Convert Button
-        self.convert_button = QPushButton("Convert File")
+        self.convert_button: QPushButton = QPushButton("Convert File")
         self.convert_button.clicked.connect(self.convert_file)
 
     # Part Edit Area
 
-        self.generate_outlines_button = QPushButton("Generate All Subpart Outlines")
+        self.generate_outlines_button: QPushButton = QPushButton("Generate All Subpart Outlines")
         self.generate_outlines_button.clicked.connect(self.generate_outlines)
         part_edit_inputs.addRow(self.generate_outlines_button)
 
-        self.map_colours_button = QPushButton("Convert direct/html colours to LDraw colours")
+        self.map_colours_button: QPushButton = QPushButton("Convert direct/html colours to LDraw colours")
         self.map_colours_button.clicked.connect(self.map_to_ldraw_colours)
         part_edit_inputs.addRow(self.map_colours_button)
 
     # Loaded File Status Label
 
-        self.loaded_file_status_label = QLabel("No file loaded")
+        self.loaded_file_status_label: QLabel = QLabel("No file loaded")
         self.loaded_file_status_label.setAlignment(Qt.AlignmentFlag.AlignVCenter | Qt.AlignmentFlag.AlignRight)
 
     # Subpart and Color Editor Panel
         subpart_area = QWidget()
-        self.subpart_area_layout = QVBoxLayout()
+        self.subpart_area_layout: QVBoxLayout = QVBoxLayout()
         subpart_area.setLayout(self.subpart_area_layout)
 
     # Preview Panel
         hex_bg_color = self.get_current_background_colour()
 
-        self.preview_panel = PreviewPanel(background_color=hex_bg_color)
+        self.preview_panel: PreviewPanel = PreviewPanel(background_color=hex_bg_color)
 
     # Loading Animation
         loading_widget = QGroupBox("Loading Screen")
@@ -318,7 +318,7 @@ class MainWindow(QMainWindow):
         loading_symbol_label.setPixmap(loading_pixmap)
         loading_symbol_label.setAlignment(Qt.AlignmentFlag.AlignBottom | Qt.AlignmentFlag.AlignHCenter)
         loading_layout.addWidget(loading_symbol_label)
-        self.loading_label = QLabel("Loading...")
+        self.loading_label: QLabel = QLabel("Loading...")
         label_font = self.loading_label.font()
         label_font.setPointSize(label_font.pointSize()*2)
         self.loading_label.setFont(label_font)
@@ -349,7 +349,7 @@ class MainWindow(QMainWindow):
         self.main_layout.addWidget(self.loaded_file_status_label)
         widget = QWidget()
         widget.setLayout(self.loading_stack)
-        self.main_widget = QWidget()
+        self.main_widget: QWidget = QWidget()
         self.main_widget.setLayout(self.main_layout)
         self.main_widget.setObjectName("main_widget")
         self.main_widget.setStyleSheet(f"QWidget#main_widget {{background-color:{hex_bg_color};}}")
@@ -360,7 +360,7 @@ class MainWindow(QMainWindow):
         self.enable_load_settings()
         self.setCentralWidget(widget)
 
-    def load_file(self, reload=False):
+    def load_file(self, reload: bool=False):
         filepath = self.input_file_line.text()
         filename = os.path.basename(filepath)
         self.show_loading_screen("Loading File ...")
@@ -502,7 +502,6 @@ class MainWindow(QMainWindow):
 
     def select_output_file(self):
         current_path = self.output_file_line.text()
-        current_filename = os.path.basename(current_path)
         current_base_dir = os.path.dirname(current_path)
         default_filename = ""
         if len(current_path) > 0 and os.path.isdir(current_base_dir):
@@ -575,7 +574,11 @@ class MainWindow(QMainWindow):
             answer = QMessageBox.warning(
                 self,
                 "Contains Transparent Direct Colours",
-                f"The part has Transparent Direct Colours. They are an intermediate colours not supported in other LDraw software. Please change them to LDraw colours or set the alpha value to '255'.\n\nConvert anyway?",
+                "The part has Transparent Direct Colours. "
+                "They are an intermediate colours not supported in other LDraw software. "
+                "Please change them to LDraw colours or set the alpha value to '255'."
+                "\n"
+                "\nConvert anyway?",
                 QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
             )
             if answer == QMessageBox.StandardButton.No:
@@ -651,7 +654,7 @@ class MainWindow(QMainWindow):
             )
             exception_info.exec()
         else:
-            QMessageBox.information(self, "Conversion Successfull", f"Model was saved to {filepath}")
+            QMessageBox.information(self, "Conversion Successful", f"Model was saved to {filepath}")
         self.disable_settings(False)
 
     def generate_outlines(self):
@@ -689,7 +692,7 @@ class MainWindow(QMainWindow):
             self.enable_reload()
         self.hide_loading_screen()
 
-    def set_step_vallues(self):
+    def set_step_values(self):
         step_dialog = StepSettingsDialog(self, self.tol_linear, self.tol_angular, self.tol_relative)
         if step_dialog.exec():
             self.tol_linear = step_dialog.tol_linear
@@ -720,7 +723,7 @@ class MainWindow(QMainWindow):
         return background_colour
 
 
-def ldu_float_to_string(number: float | int):
+def ldu_float_to_string(number: float | int) -> str:
     number *= 0.4
     if number >= 1000:
         return f"{(number / 1000):.2f}m"

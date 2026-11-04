@@ -10,7 +10,7 @@ __appdirs__ = PlatformDirs("3DToLD", "Nexusnui")
 config_path = os.path.join(__appdirs__.user_config_dir, "config.toml")
 
 
-def validate_value(key, value) -> bool:
+def validate_value(key: str, value) -> bool:
     if isinstance(value, bool):
         return True
     if isinstance(value, int) or isinstance(value, float):
@@ -35,13 +35,13 @@ def validate_value(key, value) -> bool:
 
 
 def loadconfig(reset_config=False) -> (tomlkit.TOMLDocument, dict):
-    warning_messages = {}
+    warning_messages: dict = {}
     config: tomlkit.TOMLDocument
-    is_user_config = False
-    update_user_config = False
+    is_user_config: bool = False
+    update_user_config: bool = False
 
     with open(os.path.join(__basedir__, "default_config.toml"), "r", encoding="utf-8") as source:
-        default_config = tomlkit.load(source)
+        default_config: tomlkit.TOMLDocument = tomlkit.load(source)
     if not os.path.exists(config_path) or reset_config:
         update_user_config = True
     else:

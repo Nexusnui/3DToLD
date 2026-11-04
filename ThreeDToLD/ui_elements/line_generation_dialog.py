@@ -39,27 +39,27 @@ class LineGenerationDialog(QDialog):
         else:
             self.setWindowTitle("Generate Outlines")
 
-        self.merge_vertices = merge_vertices
+        self.merge_vertices: bool = merge_vertices
 
-        self.preset = initial_preset
-        self.delete_flag = False
+        self.preset: LinePreset = initial_preset
+        self.delete_flag: bool = False
         if self.preset == LinePreset.Custom:
-            self.angle = initial_angle
+            self.angle: float = initial_angle
         else:
-            self.angle = self.preset.value
+            self.angle: float = self.preset.value
 
         main_layout = QVBoxLayout()
 
         main_inputs = QFormLayout()
 
-        self.preset_selection = QComboBox()
+        self.preset_selection: QComboBox = QComboBox()
         self.preset_selection.addItems(preset_names)
         self.preset_selection.setCurrentIndex(preset_names.index(self.preset.name))
         self.preset_selection.currentIndexChanged.connect(self.preset_changed)
 
         main_inputs.addRow("Sensitivity", self.preset_selection)
 
-        self.angle_input = QDoubleSpinBox()
+        self.angle_input: QDoubleSpinBox = QDoubleSpinBox()
         self.angle_input.valueChanged.connect(self.angle_changed)
         self.angle_input.setMaximum(180)
         self.angle_input.setMinimum(0)
@@ -100,7 +100,7 @@ class LineGenerationDialog(QDialog):
 
         self.setLayout(main_layout)
 
-    def angle_changed(self, angle):
+    def angle_changed(self, angle: float):
         self.angle = angle
 
     def preset_changed(self, index):

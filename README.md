@@ -46,10 +46,10 @@ I cannot guaranty that all possible variations/features of these filetypes work.
 - The preview may not show objects properly if they are larger the 20 meters(for what could you need a piece that big anyway?).
 - On MacOS: Terminal window in the background, since pipx uses it to run a virtual environment
 ---
-Prior to release 1.6.0 this software was called "Convert To LDraw" (the repo will be renamed too).  
-This was originally a fork of a [python script of Hazen Babcock](https://github.com/HazenBabcock/stl-to-dat).  
-The code that was used from that script was completely rewritten for the 1.0 release of this software.  
+Prior to release 1.6.0 this software was called "Convert To LDraw".  
+This was originally a fork of a [python script by Hazen Babcock](https://github.com/HazenBabcock/stl-to-dat).  
+The code used from that script was completely rewritten for the 1.0 release of this software.  
 This application was also renamed from "stlToDat" to "Convert To LDraw" to reflect the added capabilities of the new version.
-The repository was unlinked as a fork of "stlToDat" for the release of version 1.3.0, as it is a standalone project. 
+The repository was unlinked as a fork of "stlToDat" for the release of version 1.3.0, as it is a standalone project now. 
 
 This uses a modified version of the [PyQt Color Picker](https://github.com/nlfmt/pyqt-colorpicker-widget) by nlfmt(Tom F).

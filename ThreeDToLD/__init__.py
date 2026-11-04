@@ -1,2 +1,2 @@
-__version__ = "1.3.0"
+from ThreeDToLD._version import __version__
 __author__ = 'Nexusnui'

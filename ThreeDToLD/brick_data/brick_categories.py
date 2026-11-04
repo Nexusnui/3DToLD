@@ -1,4 +1,4 @@
-brick_categories = [
+brick_categories: list[str] = [
     "Animal",
     "Antenna",
     "Arch",
