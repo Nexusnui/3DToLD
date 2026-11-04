@@ -42,7 +42,7 @@ from ThreeDToLD.ui_elements.exceptiondialog import ExceptionDialog
 from ThreeDToLD.ui_elements.stepsettingsdialog import StepSettingsDialog
 from ThreeDToLD.ui_elements.settingsdialog import SettingsDialog
 from ThreeDToLD.config import loadconfig
-from ThreeDToLD.about import version as app_version
+from ThreeDToLD._version import __version__ as app_version
 from tomlkit import TOMLDocument
 
 basedir = os.path.dirname(__file__)
