@@ -513,9 +513,13 @@ class Subpart:
                 else:
                     self.main_colour = main_colour
                     if self.main_colour:
-                        if self.main_colour.colour_type == Colourtype.LDRAW and self.main_colour.ldrawname != "Undefined":
+                        if self.main_colour.colour_type in (Colourtype.LDRAW, Colourtype.ALPHA) and self.main_colour.ldrawname != "Undefined":
                             self.cached_colour_definitions[
                                 self.main_colour.colour_code] = self.main_colour.get_ldraw_line()
+                for colour in self.colours.values():
+                    if colour[0].colour_type in (Colourtype.LDRAW, Colourtype.ALPHA):
+                        self.cached_colour_definitions[
+                            colour[0].colour_code] = colour[0].get_ldraw_line()
             else:
                 if main_colour is not None:
                     if main_colour.colour_type == Colourtype.ALPHA and int(main_colour.alpha) == 0:
