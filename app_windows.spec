@@ -10,6 +10,7 @@ datas=[('ThreeDToLD\\icons\\3DToLD_icon.ico','icons'),
            ('LICENSE','.'),
            ('ThreeDToLD\\ui_elements\\viewer_template.html','ThreeDToLD\\ui_elements'),
            ('ThreeDToLD\\ui_elements\\js-libraries\\*','ThreeDToLD\\ui_elements\\js-libraries'),
+           ('ThreeDToLD\\ui_elements\\environment\\*','ThreeDToLD\\ui_elements\\environment'),
            ('ThreeDToLD\\default_config.toml','ThreeDToLD')
 ]
 datas += collect_data_files('collada')

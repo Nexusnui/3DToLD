@@ -164,6 +164,15 @@
 		show_load_animation();
 		scene=new THREE.Scene();
 		scene.background=new THREE.Color(bg_color);
+        const environmentMap = new THREE.CubeTextureLoader().load([
+                './environment/px.png',
+                './environment/nx.png',
+                './environment/py.png',
+                './environment/ny.png',
+                './environment/pz.png',
+                './environment/nz.png'
+        ])
+        scene.environment = environmentMap;
 		tracklight=new THREE.DirectionalLight(0xffffff,3.25);
 		scene.add(tracklight);
 		renderer=new THREE.WebGLRenderer({antialias:true});
