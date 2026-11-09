@@ -56,7 +56,6 @@
 	import { LDrawConditionalLineMaterial } from './js-libraries/LDrawConditionalLineMaterial.js';
 	import { TrackballControls } from './js-libraries/TrackballControls.js';
 	var scene;
-	var tracklight;
 	var renderer;
 	var camera;
 	var controls;
@@ -129,7 +128,6 @@
 		controls.target.set(boundingSphere.center.x,boundingSphere.center.y,boundingSphere.center.z);
 		//Setup Camera to look at object
 		let center = boundingBox.getCenter(new THREE.Vector3(0,0,0));
-		tracklight.target.position.copy(center);
 		let size = boundingBox.getSize(new THREE.Vector3(0,0,0));
 		let distance = Math.max(size.x,size.y)*1.45;
 		camera.lookAt(center);
@@ -164,8 +162,15 @@
 		show_load_animation();
 		scene=new THREE.Scene();
 		scene.background=new THREE.Color(bg_color);
-		tracklight=new THREE.DirectionalLight(0xffffff,3.25);
-		scene.add(tracklight);
+        const environmentMap = new THREE.CubeTextureLoader().load([
+                './environment/px.png',
+                './environment/nx.png',
+                './environment/py.png',
+                './environment/ny.png',
+                './environment/pz.png',
+                './environment/nz.png'
+        ])
+        scene.environment = environmentMap;
 		renderer=new THREE.WebGLRenderer({antialias:true});
 		renderer.setPixelRatio(window.devicePixelRatio);
 		renderer.setSize(window.innerWidth,window.innerHeight);
@@ -211,8 +216,6 @@
 	}
 	
 	function render(){
-		tracklight.position.copy(camera.position);
-		tracklight.target.updateMatrixWorld();
 		renderer.render(scene,camera);
 	}
 	init();
