@@ -25,7 +25,7 @@ class AboutPage(QDialog):
             f"Installation Method: {install_info}\n"
             f"Python Version: {platform.python_version()}\n"
             f"Platform: {platform.platform()}\n"
-            f"Installation Path:\n{install_path}\n"
+            f"Installation Path:\n'{install_path}'\n"
             f"Config Path:\n'{config_path}'"
         )
         self.info_widget.setReadOnly(True)
