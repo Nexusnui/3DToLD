@@ -48,12 +48,12 @@ or [downloadable here](https://github.com/Nexusnui/3DToLD/raw/master/ThreeDToLD/
 Use the .desktop file on Linux:  
 1. [Download the Icon](https://github.com/Nexusnui/3DToLD/raw/master/ThreeDToLD/icons/3DToLD_icon_256x256.png)
 and move it to "~/.local/share/icons" (you may need to create that one) or another appropriate location for icons.
-2. [Download ConvertToLDraw.desktop](https://github.com/Nexusnui/3DToLD/raw/master/build-stuff/3DToLD.desktop) and move it to "~/.local/share/applications"
+2. [Download ConvertToLDraw.desktop](https://github.com/Nexusnui/3DToLD/raw/master/build-resources/3DToLD.desktop) and move it to "~/.local/share/applications"
 or another appropriate location for .desktop files.
 3. Make sure the .desktop file has the appropriate permissions to be executable
 
 
 Alias on Mac:
 - pipx creates an alias in  "/Users/{YourUserName}/.local/bin/"
-- you can copy or create another alias to in your application folder
+- you can copy or create another alias in your application folder
 - icons can be found [here](ThreeDToLD/icons)
