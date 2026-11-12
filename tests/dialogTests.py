@@ -94,4 +94,3 @@ if __name__ == "__main__":
     settings_dialog_test()
     split_colour_dialog_test()
     step_settings_dialog_test()
-    '''
