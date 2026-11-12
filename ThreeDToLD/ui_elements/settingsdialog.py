@@ -1,5 +1,4 @@
 from PyQt6.QtWidgets import (
-    QApplication,
     QDialog,
     QTabWidget,
     QVBoxLayout,
@@ -415,10 +414,3 @@ class SettingsDialog(QDialog):
         self.has_unsaved_changes = True
         self.save_button.setEnabled(True)
         self.setWindowTitle("Settings*")
-
-
-if __name__ == "__main__":
-    app = QApplication([])
-
-    settings_dia = SettingsDialog()
-    settings_dia.exec()

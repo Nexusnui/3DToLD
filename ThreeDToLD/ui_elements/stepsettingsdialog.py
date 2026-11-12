@@ -1,6 +1,5 @@
 from PyQt6.QtWidgets import (
     QHBoxLayout,
-    QApplication,
     QVBoxLayout,
     QDialog,
     QDialogButtonBox,
@@ -98,14 +97,3 @@ class StepSettingsDialog(QDialog):
         self.tol_angular_input .setValue(self.tol_angular)
         self.tol_relative_check.setChecked(False)
         self.tol_relative = False
-
-
-if __name__ == "__main__":
-    app = QApplication([])
-
-    line_dia = StepSettingsDialog()
-    line_dia.exec()
-
-    print(f"{line_dia.tol_linear=}\n"
-          f"{line_dia.tol_angular=}\n"
-          f"{line_dia.tol_relative}\n")

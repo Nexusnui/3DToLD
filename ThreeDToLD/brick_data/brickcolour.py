@@ -49,13 +49,17 @@ def is_brickcolour(colour_code: str) -> tuple[bool, str | None, str | None]:
 
 
 class Brickcolour:
-    def __new__(cls, colour_code: str = "16", values: list[str] = None):
+    def __new__(cls, colour_code: str | int = "16", values: list[str] = None):
+        if isinstance(colour_code, int):
+            colour_code = str(colour_code)
         if not is_brickcolour(colour_code)[0] and values is None:
             return None
         instance = super().__new__(cls)
         return instance
 
-    def __init__(self, colour_code: str = "16", values=None):
+    def __init__(self, colour_code: str | int = "16", values=None):
+        if isinstance(colour_code, int):
+            colour_code = str(colour_code)
         if values is None:
             self.colour_code: str = colour_code
             if colour_code.startswith("0x2"):

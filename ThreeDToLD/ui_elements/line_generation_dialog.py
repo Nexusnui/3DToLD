@@ -1,6 +1,5 @@
 from PyQt6.QtWidgets import (
     QHBoxLayout,
-    QApplication,
     QVBoxLayout,
     QComboBox,
     QDialog,
@@ -121,20 +120,3 @@ class LineGenerationDialog(QDialog):
         if answer == QMessageBox.StandardButton.Yes:
             self.delete_flag = True
             self.accept()
-
-
-if __name__ == "__main__":
-    app = QApplication([])
-
-    line_dia = LineGenerationDialog(
-        initial_preset=LinePreset.Custom,
-        initial_angle=45,
-        merge_vertices=True,
-        is_edit=True
-    )
-    line_dia.exec()
-
-    print(f"{line_dia.preset=}\n"
-          f"{line_dia.angle=}\n"
-          f"{line_dia.merge_vertices}\n"
-          f"{line_dia.delete_flag=}")
