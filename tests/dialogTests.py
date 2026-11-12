@@ -1,7 +1,11 @@
+import os
 from collections import OrderedDict
 
+import qdarktheme
 from PyQt6.QtWidgets import QApplication
+from PyQt6.QtGui import QIcon
 
+from ThreeDToLD.config import loadconfig
 from ThreeDToLD.brick_data.brickcolour import Brickcolour
 
 from ThreeDToLD.ui_elements.aboutPage import AboutPage
@@ -71,7 +75,16 @@ def step_settings_dialog_test():
 
 
 if __name__ == "__main__":
-    app = QApplication([])
+    config, _ = loadconfig()
+    basedir = os.path.dirname(__file__)
+    basedir = basedir.removesuffix("tests")
+    print(basedir)
+    app = QApplication([0])
+    if config["Theme"]["use_accent_colour"]:
+        qdarktheme.setup_theme(config["Theme"]["mode"], custom_colors={"primary": config["Theme"]["accent_colour"]})
+    else:
+        qdarktheme.setup_theme(config["Theme"]["mode"])
+    app.setWindowIcon(QIcon(os.path.join(basedir, "ThreeDToLD","icons", "3DToLD_icon.ico")))
 
     about_page_test()
     brick_colour_dialog_test()
