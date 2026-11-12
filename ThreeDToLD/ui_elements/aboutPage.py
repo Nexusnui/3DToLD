@@ -32,7 +32,6 @@ class AboutPage(QDialog):
         font_size = self.info_widget.fontMetrics().lineSpacing()
         self.info_widget.setFixedHeight(font_size*9)
         self.info_widget.setMinimumWidth(font_size * 30)
-        print(self.info_widget.fontMetrics().height())
         main_layout.addWidget(self.info_widget)
         self.setLayout(main_layout)
         main_layout.setSizeConstraint(QLayout.SizeConstraint.SetFixedSize)
