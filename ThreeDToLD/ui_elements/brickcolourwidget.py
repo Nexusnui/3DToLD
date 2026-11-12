@@ -471,6 +471,7 @@ class SplitColourDialog(QDialog):
         self.splitview.expandAll()
 
     def dialog_accepted(self):
+        self.splitcoloursmodel.remove_empty_groups()
         self.colour_groups = self.splitcoloursmodel.get_data()
         self.accept()
 
@@ -651,10 +652,3 @@ if __name__ == "__main__":
     colourwidget.show()
 
     app.exec()
-
-    colour_cat_dia = ColourCategoriesDialog()
-    colour_cat_dia.exec()
-    print(colour_cat_dia.get_selected_items())
-
-    colour_dia = BrickcolourDialog()
-    colour_dia.exec()

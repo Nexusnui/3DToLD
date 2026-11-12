@@ -1,5 +1,4 @@
 from PyQt6.QtWidgets import (
-    QApplication,
     QHBoxLayout,
     QVBoxLayout,
     QDialog,
@@ -64,11 +63,3 @@ class ExceptionDialog(QDialog):
         self.traceback_content.selectAll()
         if self.clipboard is not None:
             self.clipboard.setText(self.traceback_content.toPlainText())
-
-
-if __name__ == "__main__":
-    app = QApplication([])
-
-    exc_dia = ExceptionDialog(clipboard=app.clipboard())
-    exc_dia.exec()
-
