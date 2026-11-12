@@ -16,8 +16,8 @@ from ThreeDToLD.ui_elements.settingsdialog import SettingsDialog
 from ThreeDToLD.ui_elements.stepsettingsdialog import StepSettingsDialog
 
 
-def about_page_test():
-    about_page = AboutPage()
+def about_page_test(test_config):
+    about_page = AboutPage(test_config)
     about_page.exec()
 
 def brick_colour_dialog_test():
@@ -86,7 +86,7 @@ if __name__ == "__main__":
         qdarktheme.setup_theme(config["Theme"]["mode"])
     app.setWindowIcon(QIcon(os.path.join(basedir, "ThreeDToLD","icons", "3DToLD_icon.ico")))
 
-    about_page_test()
+    about_page_test(config)
     brick_colour_dialog_test()
     color_category_dialog_test()
     exception_dialog_test()
@@ -94,3 +94,4 @@ if __name__ == "__main__":
     settings_dialog_test()
     split_colour_dialog_test()
     step_settings_dialog_test()
+    '''
