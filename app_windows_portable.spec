@@ -11,7 +11,8 @@ datas=[('ThreeDToLD\\icons\\3DToLD_icon.ico','icons'),
            ('ThreeDToLD\\ui_elements\\viewer_template.html','ThreeDToLD\\ui_elements'),
            ('ThreeDToLD\\ui_elements\\js-libraries\\*','ThreeDToLD\\ui_elements\\js-libraries'),
            ('ThreeDToLD\\ui_elements\\environment\\*','ThreeDToLD\\ui_elements\\environment'),
-           ('ThreeDToLD\\default_config.toml','ThreeDToLD')
+           ('ThreeDToLD\\default_config.toml','ThreeDToLD'),
+           ('build-resources\\windows_portable\\install_info','ThreeDToLD')
 ]
 datas += collect_data_files('collada')
 datas += collect_data_files('trimesh')
