@@ -1,4 +1,4 @@
-build_date = "2026-11-13"
+build_date = 2026-11-18
 
 [colours]
 "Bricklink:Glow in Dark(Render Only)" = [["Glow_in_Dark_Red", "1009008", "#E0685C", "#1B2A34", "250", "", "", ""], ["Glow_in_Dark_Orange", "1009009", "#F0AB59", "#1B2A34", "250", "", "", ""], ["Glow_in_Dark_Green", "1009010", "#77BF90", "#1B2A34", "250", "", "", ""], ["Glow_in_Dark_Blue", "1009011", "#8C9DE6", "#1B2A34", "250", "", "", ""], ["Glow_in_Dark_Purple", "1009012", "#C38AD1", "#1B2A34", "250", "", "", ""]]

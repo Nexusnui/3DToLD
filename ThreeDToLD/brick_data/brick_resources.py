@@ -2,6 +2,38 @@ import re
 from enum import Enum
 import tomlkit
 import os
+from platformdirs import PlatformDirs
+from importlib import resources
+import datetime
+__appdirs__ = PlatformDirs("3DToLD", "Nexusnui")
+user_brick_resources_filepath = os.path.join(__appdirs__.user_data_dir, "brick_resources.toml")
+
+__initialised = False
+__ldraw_resources: tomlkit.TOMLDocument
+__bl_studio_resources: tomlkit.TOMLDocument
+
+def init():
+    global __initialised
+    if not __initialised:
+        load_resources()
+        __initialised = True
+
+def load_resources():
+    global __initialised
+    if not __initialised:
+        global __bl_studio_resources
+        bl_studio_resources_reference = resources.files("ThreeDToLD.brick_data") / "bl_studio_brick_resources.toml"
+        with bl_studio_resources_reference.open(mode="r", encoding="utf-8") as source:
+            __bl_studio_resources = tomlkit.load(source)
+    global __ldraw_resources
+    ldraw_resources_reference = resources.files("ThreeDToLD.brick_data") / "default_brick_resources.toml"
+    with ldraw_resources_reference.open(mode="r", encoding="utf-8") as source:
+        __ldraw_resources = tomlkit.load(source)
+    if os.path.exists(user_brick_resources_filepath):
+        with open(user_brick_resources_filepath, "r", encoding="utf-8") as source:
+            user_brick_resources = tomlkit.load(source)
+        if user_brick_resources["build_date"] > __ldraw_resources["build_date"]:
+            __ldraw_resources = user_brick_resources
 
 
 class ConfigSection(Enum):
@@ -10,8 +42,9 @@ class ConfigSection(Enum):
     AVATARS = 2
 
 
-def get_brick_resources_from_ldconfig(ldconfig_path, build_date: str = "")-> tuple[str, list[tuple],list[str], list[str]]:
+def get_brick_resources_from_ldconfig(ldconfig_path)-> tuple[str, list[tuple],list[str], list[str]]:
     current_section = ConfigSection.HEADER
+    build_date = datetime.date.today()
     brick_resources={
         "build_date": build_date,
         "config_update":"",
@@ -24,7 +57,8 @@ def get_brick_resources_from_ldconfig(ldconfig_path, build_date: str = "")-> tup
         for line in source:
             if current_section == ConfigSection.HEADER:
                 if line.startswith("0 !LDRAW_ORG Configuration UPDATE "):
-                    brick_resources["config_update"] = line.split(" ")[-1].strip("\n")
+                    date_str: str = line.split(" ")[-1].strip("\n")
+                    brick_resources["config_update"] = datetime.datetime.strptime(date_str, "%Y-%m-%d").date()
                 if line == "0 // Colour definitions\n":
                     current_section = ConfigSection.COLOURS
 
@@ -88,3 +122,16 @@ def save_brick_resources(brick_resources: tomlkit.TOMLDocument | dict, path, fil
     except (OSError, PermissionError) as e:
         return False
     return True
+
+
+def get_brick_categories() -> list:
+    init()
+    return __ldraw_resources["brick_categories"].copy()
+
+def get_brick_colours() -> dict:
+    init()
+    return __ldraw_resources["colours"] | __bl_studio_resources["colours"]
+
+def get_colour_categories() -> list:
+    init()
+    return __ldraw_resources["colours"].keys() + __bl_studio_resources["colours"].keys()

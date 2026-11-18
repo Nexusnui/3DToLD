@@ -4,6 +4,7 @@
 # ThreeDToLD/brick_data/bl_studio_brick_resources.toml
 # (Paths are Windows based)
 from ThreeDToLD.brick_data.brick_resources import get_brick_resources_from_ldconfig, save_brick_resources
+import datetime
 
 
 def get_bl_studio_resources(definition_path, buid_date:str) -> dict:
@@ -33,11 +34,11 @@ def get_bl_studio_resources(definition_path, buid_date:str) -> dict:
 if __name__ == "__main__":
 
     # Manually change date
-    build_date = "2026-11-13"
+    build_date = datetime.date.today()
     # This file is in your LDraw library folder
     ldraw_config = "Path/To/Your/LDConfig.ldr"
     brick_resources_path = f"{__file__.split("build-resources")[0]}ThreeDToLD\\brick_data"
-    default_brick_resources = get_brick_resources_from_ldconfig(ldraw_config, build_date)
+    default_brick_resources = get_brick_resources_from_ldconfig(ldraw_config)
     save_brick_resources(default_brick_resources,brick_resources_path, "default_brick_resources.toml")
 
     bl_studio_custom_color_definition = "C:/Program Files/Studio 2.0/data/CustomColors/CustomColorDefinition.txt"
