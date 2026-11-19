@@ -33,7 +33,7 @@ from ThreeDToLD.appexcetions import *
 from ThreeDToLD.model_loaders.trimeshloader import Trimeshloader
 from ThreeDToLD.model_loaders.threemfloader import Threemfloader
 from ThreeDToLD.brick_data.ldrawObject import LdrawObject, Subpart, default_part_licenses, LDrawConversionFactor, UpAxis
-from ThreeDToLD.brick_data.brick_categories import brick_categories
+from ThreeDToLD.brick_data.brick_resources import get_brick_categories
 from ThreeDToLD.ui_elements.subpartPanel import SubpartPanel
 from ThreeDToLD.ui_elements.previewPanel import PreviewPanel, register_scheme
 from ThreeDToLD.ui_elements.line_generation_dialog import LineGenerationDialog, LinePreset
@@ -254,7 +254,7 @@ class MainWindow(QMainWindow):
 
         # Category Selection
         self.part_category_input: QComboBox = QComboBox()
-        self.part_category_input.addItems(brick_categories)
+        self.part_category_input.addItems(get_brick_categories())
         self.part_category_input.setInsertPolicy(QComboBox.InsertPolicy.NoInsert)
         self.part_category_input.setEditable(True)
         category_label = QLabel("Part Category (Recommended) ℹ️")
@@ -470,6 +470,8 @@ class MainWindow(QMainWindow):
                         self.part_license_input.setCurrentText(self.ldraw_object.part_license)
                     else:
                         self.part_license_input.setCurrentText(self.config["Metadata"]["default_license"])
+                self.part_category_input.clear()
+                self.part_category_input.addItems(get_brick_categories())
 
                 filedir = os.path.dirname(filepath)
                 if not reload:
@@ -600,7 +602,7 @@ class MainWindow(QMainWindow):
                 self.disable_settings(False)
                 return
         category = self.part_category_input.currentText()
-        if category not in brick_categories and len(category) > 0:
+        if category not in get_brick_categories() and len(category) > 0:
             answer = QMessageBox.warning(
                 self,
                 "Unofficial Category",
