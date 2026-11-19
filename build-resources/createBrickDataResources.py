@@ -28,7 +28,7 @@ def get_bl_studio_resources(definition_path, buid_date:str) -> dict:
                 category = f"Bricklink:{values[15].split("\n")[0]}"
                 if not category in brick_resources["colours"].keys():
                     brick_resources["colours"][category] = []
-                brick_resources["colours"][category].append((name, code, rgb_values, edge_values, alpha, "", "", ""))
+                brick_resources["colours"][category].append((name, code, rgb_values, edge_values, alpha, "", "", "", ""))
         return brick_resources
 
 
