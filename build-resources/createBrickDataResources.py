@@ -34,7 +34,6 @@ def get_bl_studio_resources(definition_path, buid_date:str) -> dict:
 
 if __name__ == "__main__":
 
-    brick_resources_path = f"{__file__.split("build-resources")[0]}ThreeDToLD\\brick_data"
     brick_resources_path = resources.files("ThreeDToLD.brick_data")
     for msg in update_brick_resources(brick_resources_path, "default_brick_resources.toml"):
         print(msg)
