@@ -192,7 +192,10 @@ def get_brick_colours() -> dict:
 
 def get_colour_categories() -> list:
     init()
-    return __ldraw_resources["colours"].keys() + __bl_studio_resources["colours"].keys()
+    colour_categories = []
+    colour_categories.extend(__ldraw_resources["colours"].keys())
+    colour_categories.extend(__bl_studio_resources["colours"].keys())
+    return colour_categories
 
 
 class ConfigReader:
