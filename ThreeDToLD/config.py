@@ -3,7 +3,7 @@ from platformdirs import PlatformDirs
 import tomlkit
 import tomlkit.items
 import re
-from ThreeDToLD.brick_data.colour_categories import colour_categories
+from ThreeDToLD.brick_data.brick_resources import get_colour_categories
 
 __basedir__ = os.path.dirname(__file__)
 __appdirs__ = PlatformDirs("3DToLD", "Nexusnui")
@@ -23,7 +23,7 @@ def validate_value(key: str, value) -> bool:
         return False
     elif key == "default_colour_categories":
         for category in value:
-            if category not in colour_categories:
+            if category not in get_colour_categories():
                 return False
     elif key == "model_path":
         return os.path.isdir(value)
