@@ -42,6 +42,7 @@ from ThreeDToLD.ui_elements.exceptiondialog import ExceptionDialog
 from ThreeDToLD.ui_elements.stepsettingsdialog import StepSettingsDialog
 from ThreeDToLD.ui_elements.settingsdialog import SettingsDialog
 from ThreeDToLD.ui_elements.aboutPage import AboutPage
+from ThreeDToLD.ui_elements.updateDialog import UpdateDialog
 from ThreeDToLD.config import loadconfig
 from ThreeDToLD._version import __version__ as app_version
 from tomlkit import TOMLDocument
@@ -330,6 +331,8 @@ class MainWindow(QMainWindow):
     # Setup Menubar
         open_settings_action = self.menuBar().addAction("Settings")
         open_settings_action.triggered.connect(self.open_settings)
+        open_update_action = self.menuBar().addAction("Updates")
+        open_update_action.triggered.connect(self.open_update)
         open_about_action = self.menuBar().addAction("About")
         open_about_action.triggered.connect(self.open_about)
 
@@ -725,6 +728,10 @@ class MainWindow(QMainWindow):
     def open_about(self):
         about_page = AboutPage(self)
         about_page.exec()
+
+    def open_update(self):
+        update_dialog = UpdateDialog(self)
+        update_dialog.exec()
 
     def get_current_background_colour(self):
         current_palette = qdarktheme.load_palette(self.config["Theme"]["mode"])
