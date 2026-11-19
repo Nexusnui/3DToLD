@@ -1,12 +1,16 @@
 import re
 from enum import Enum
+
 import tomlkit
 import os
 from platformdirs import PlatformDirs
 from importlib import resources
 import datetime
+import requests
 __appdirs__ = PlatformDirs("3DToLD", "Nexusnui")
-user_brick_resources_filepath = os.path.join(__appdirs__.user_data_dir, "brick_resources.toml")
+__user_brick_resources_path = __appdirs__.user_data_dir
+__user_brick_resources_filename = "brick_resources.toml"
+user_brick_resources_filepath = os.path.join(__user_brick_resources_path, __user_brick_resources_filename)
 
 __initialised = False
 __ldraw_resources: tomlkit.TOMLDocument
@@ -42,7 +46,7 @@ class ConfigSection(Enum):
     AVATARS = 2
 
 
-def get_brick_resources_from_ldconfig(ldconfig_path)-> tuple[str, list[tuple],list[str], list[str]]:
+def get_brick_resources_from_ldconfig(ldconfig: str | requests.models.Response)-> tuple[str, list[tuple],list[str], list[str]]:
     current_section = ConfigSection.HEADER
     build_date = datetime.date.today()
     brick_resources={
@@ -51,7 +55,7 @@ def get_brick_resources_from_ldconfig(ldconfig_path)-> tuple[str, list[tuple],li
         "colours":{},
         "brick_categories":[],
     }
-    with open(ldconfig_path, "r", encoding="utf-8") as source:
+    with ConfigReader(ldconfig) as source:
         additional_info = ""
         current_category = ""
         for line in source:
@@ -123,6 +127,60 @@ def save_brick_resources(brick_resources: tomlkit.TOMLDocument | dict, path, fil
         return False
     return True
 
+def update_brick_resources(path= __user_brick_resources_path, filename = __user_brick_resources_filename):
+    init()
+    config_url = "https://library.ldraw.org/library/official/LDConfig.ldr?app=3DToLD"
+    global  __ldraw_resources
+    update_resources = False
+    yield "Start Downloading LDConfig from ldraw.org..."
+    response = requests.get(config_url)
+    if response.status_code == 200:
+        yield "Processing LDConfig Content..."
+        new_brick_resources = get_brick_resources_from_ldconfig(response)
+        if new_brick_resources["config_update"] > __ldraw_resources["build_date"]:
+            update_resources = True
+            yield "Build date of current Brick Resources is older than LDConfig..."
+        elif new_brick_resources["config_update"] >= __ldraw_resources["config_update"]:
+            if len(new_brick_resources["brick_categories"]) != len(__ldraw_resources["brick_categories"]):
+                update_resources = True
+                yield "Brick Categories changed in LDConfig..."
+            if len(new_brick_resources["colours"].keys()) != len(__ldraw_resources["colours"].keys()):
+                update_resources = True
+                yield "Colour Categories changed in LDConfig..."
+            if not update_resources:
+                for category in new_brick_resources["colours"].keys():
+                    if not category in __ldraw_resources["colours"].keys():
+                        update_resources = True
+                        yield "New/Renamed colour category in LDConfig..."
+                        break
+                    new_colour = False
+                    if len(new_brick_resources["colours"][category]) != len(__ldraw_resources["colours"][category]):
+                        update_resources = True
+                        yield "Colours changed in LDConfig..."
+                        break
+                    else:
+                        for colour_index, colour in enumerate(new_brick_resources["colours"][category]):
+                            for value_index, value in enumerate(colour):
+                                if value != __ldraw_resources["colours"][category][colour_index][value_index]:
+                                    update_resources = True
+                                    yield "New/Changed colour in LDConfig..."
+                                    new_colour = True
+                                    break
+                    if new_colour:
+                        break
+    else:
+        yield f"LDConfig failed with response code: {response.status_code}..."
+        return
+    if update_resources:
+        if save_brick_resources(new_brick_resources, path, filename):
+            load_resources()
+            yield f"Brick Resources updated successfully..."
+        else:
+            yield f"Failed to save Brick Resources..."
+    else:
+        yield "Brick resources are already up to date..."
+
+
 
 def get_brick_categories() -> list:
     init()
@@ -135,3 +193,30 @@ def get_brick_colours() -> dict:
 def get_colour_categories() -> list:
     init()
     return __ldraw_resources["colours"].keys() + __bl_studio_resources["colours"].keys()
+
+
+class ConfigReader:
+    def __init__(self, config: str | requests.models.Response):
+        self.is_request_reader = isinstance(config, requests.models.Response)
+
+        self._config = config
+
+    def __enter__(self):
+        if self.is_request_reader:
+            self._lines = iter(self._config.text.splitlines(True))
+        else:
+            self._reader = open(file=self._config, mode="r", encoding="utf-8")
+        return self
+
+    def __exit__(self, *args):
+        if not self.is_request_reader:
+            self._reader.close()
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        if self.is_request_reader:
+            return next(iter(self._lines))
+        else:
+            return next(self._reader)
