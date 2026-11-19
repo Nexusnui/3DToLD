@@ -35,7 +35,7 @@ def get_bl_studio_resources(definition_path, buid_date:str) -> dict:
 if __name__ == "__main__":
 
     brick_resources_path = resources.files("ThreeDToLD.brick_data")
-    for msg in update_brick_resources(brick_resources_path, "default_brick_resources.toml"):
+    for msg in update_brick_resources(brick_resources_path, "default_brick_resources.toml", True):
         print(msg)
 
     bl_studio_custom_color_definition = "C:/Program Files/Studio 2.0/data/CustomColors/CustomColorDefinition.txt"

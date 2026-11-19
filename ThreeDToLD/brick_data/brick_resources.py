@@ -127,11 +127,11 @@ def save_brick_resources(brick_resources: tomlkit.TOMLDocument | dict, path, fil
         return False
     return True
 
-def update_brick_resources(path= __user_brick_resources_path, filename = __user_brick_resources_filename):
+def update_brick_resources(path= __user_brick_resources_path, filename = __user_brick_resources_filename, force = False):
     init()
     config_url = "https://library.ldraw.org/library/official/LDConfig.ldr?app=3DToLD"
     global  __ldraw_resources
-    update_resources = False
+    update_resources = force
     yield "Start Downloading LDConfig from ldraw.org..."
     response = requests.get(config_url)
     if response.status_code == 200:
@@ -172,11 +172,12 @@ def update_brick_resources(path= __user_brick_resources_path, filename = __user_
         yield f"LDConfig failed with response code: {response.status_code}..."
         return
     if update_resources:
+        yield f"Save Brick Resources..."
         if save_brick_resources(new_brick_resources, path, filename):
             load_resources()
-            yield f"Brick Resources updated successfully..."
+            yield "Brick Resources updated successfully..."
         else:
-            yield f"Failed to save Brick Resources..."
+            yield "Failed to save Brick Resources..."
     else:
         yield "Brick resources are already up to date..."
 
@@ -196,6 +197,10 @@ def get_colour_categories() -> list:
     colour_categories.extend(__ldraw_resources["colours"].keys())
     colour_categories.extend(__bl_studio_resources["colours"].keys())
     return colour_categories
+
+def get_update_date():
+    init()
+    return __ldraw_resources["build_date"]
 
 
 class ConfigReader:
