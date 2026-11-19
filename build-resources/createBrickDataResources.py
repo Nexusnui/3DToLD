@@ -2,7 +2,7 @@
 # ThreeDToLD/brick_data/default_brick_resources.toml
 # and
 # ThreeDToLD/brick_data/bl_studio_brick_resources.toml
-# (Paths are Windows based)
+# (BL Studio Paths are Windows based)
 from ThreeDToLD.brick_data.brick_resources import update_brick_resources, save_brick_resources
 import datetime
 from importlib import resources
