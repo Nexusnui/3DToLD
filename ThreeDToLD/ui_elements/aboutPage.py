@@ -18,7 +18,7 @@ class AboutPage(QDialog):
         self.setWindowTitle("About 3DToLD")
         main_layout = QVBoxLayout()
 
-        install_path = __file__.split('ui_elements')[0]
+        install_path = resources.files('ThreeDToLD')
 
         install_info = resources.read_text("ThreeDToLD", "install_info")
         self.info_widget: QPlainTextEdit = QPlainTextEdit(

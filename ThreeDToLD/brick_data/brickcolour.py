@@ -1,8 +1,5 @@
-import os
 from enum import Enum
 from ThreeDToLD.brick_data.brick_resources import get_brick_colours
-
-basedir = os.path.dirname(__file__)
 
 
 class Colourtype(Enum):

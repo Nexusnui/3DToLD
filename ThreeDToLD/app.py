@@ -46,8 +46,9 @@ from ThreeDToLD.ui_elements.updateDialog import UpdateDialog
 from ThreeDToLD.config import loadconfig
 from ThreeDToLD._version import __version__ as app_version
 from tomlkit import TOMLDocument
+from importlib import resources
 
-basedir = os.path.dirname(__file__)
+basedir = resources.files("ThreeDToLD")
 
 if platform.system() == "Windows":
     try:
@@ -191,7 +192,7 @@ class MainWindow(QMainWindow):
 
         # Reload Button
         self.reload_button: QPushButton = QPushButton("Reload Model")
-        self.reload_button.setIcon(QIcon(os.path.join(basedir, "icons", "reload-icon.svg")))
+        self.reload_button.setIcon(QIcon(str(basedir/"icons"/"reload-icon.svg")))
         self.reload_button.setToolTip("Reload model with current settings")
         self.reload_button.clicked.connect(lambda a: self.load_file(True))
         load_file_inputs.addRow(self.reload_button)
@@ -315,7 +316,7 @@ class MainWindow(QMainWindow):
         loading_widget = QGroupBox("Loading Screen")
         loading_widget.setStyleSheet("background-color:rgba(128, 128, 128, 0.1);")
         loading_layout = QVBoxLayout()
-        loading_pixmap = QPixmap(os.path.join(basedir, "icons", "Loading_Symbol.png"))
+        loading_pixmap = QPixmap(str(basedir/"icons"/"Loading_Symbol.png"))
         loading_symbol_label = QLabel()
         loading_symbol_label.setPixmap(loading_pixmap)
         loading_symbol_label.setAlignment(Qt.AlignmentFlag.AlignBottom | Qt.AlignmentFlag.AlignHCenter)
@@ -756,7 +757,7 @@ def run():
         qdarktheme.setup_theme(config["Theme"]["mode"], custom_colors={"primary": config["Theme"]["accent_colour"]})
     else:
         qdarktheme.setup_theme(config["Theme"]["mode"])
-    app.setWindowIcon(QIcon(os.path.join(basedir, "icons", "3DToLD_icon.ico")))
+    app.setWindowIcon(QIcon(str(basedir/"icons"/"3DToLD_icon.ico")))
 
     window = MainWindow(app.clipboard(), config)
 

@@ -15,10 +15,10 @@ from PyQt6.QtCore import QBuffer, QIODevice, QUrl, Qt
 from ThreeDToLD.brick_data.ldrawObject import LdrawObject, Subpart
 from ThreeDToLD.brick_data.brickcolour import Brickcolour
 from ThreeDToLD.ui_elements.brickcolourwidget import BrickcolourDialog
+from importlib import resources
 
-basedir = os.path.dirname(__file__).strip("ui_elements")
-template_html_path = os.path.join(os.path.dirname(__file__), "viewer_template.html")
-
+basedir = resources.files("ThreeDToLD")
+template_html_path = str(resources.files("ThreeDToLD.ui_elements")/"viewer_template.html")
 
 class PreviewPanel(QWidget):
 
@@ -41,7 +41,7 @@ class PreviewPanel(QWidget):
 
         self.controls_layout: QHBoxLayout = QHBoxLayout()
         reload_button = QPushButton()
-        reload_button.setIcon(QIcon(os.path.join(basedir, "icons", "reload-icon.svg")))
+        reload_button.setIcon(QIcon(str(basedir/"icons"/"reload-icon.svg")))
         reload_button.clicked.connect(self.refresh_model)
         self.controls_layout.addWidget(reload_button)
 

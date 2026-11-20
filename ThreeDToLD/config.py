@@ -4,8 +4,9 @@ import tomlkit
 import tomlkit.items
 import re
 from ThreeDToLD.brick_data.brick_resources import get_colour_categories
+from importlib import resources
 
-__basedir__ = os.path.dirname(__file__)
+__basedir__ = resources.files("ThreeDToLD")
 __appdirs__ = PlatformDirs("3DToLD", "Nexusnui")
 config_path = os.path.join(__appdirs__.user_config_dir, "config.toml")
 
@@ -40,7 +41,7 @@ def loadconfig(reset_config=False) -> (tomlkit.TOMLDocument, dict):
     is_user_config: bool = False
     update_user_config: bool = False
 
-    with open(os.path.join(__basedir__, "default_config.toml"), "r", encoding="utf-8") as source:
+    with open(__basedir__/"default_config.toml", "r", encoding="utf-8") as source:
         default_config: tomlkit.TOMLDocument = tomlkit.load(source)
     if not os.path.exists(config_path) or reset_config:
         update_user_config = True
