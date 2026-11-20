@@ -14,6 +14,7 @@ from ThreeDToLD.ui_elements.exceptiondialog import ExceptionDialog
 from ThreeDToLD.ui_elements.line_generation_dialog import LineGenerationDialog, LinePreset
 from ThreeDToLD.ui_elements.settingsdialog import SettingsDialog
 from ThreeDToLD.ui_elements.stepsettingsdialog import StepSettingsDialog
+from ThreeDToLD.ui_elements.updateDialog import UpdateDialog
 
 
 def about_page_test(test_config):
@@ -73,6 +74,9 @@ def step_settings_dialog_test():
           f"{line_dia.tol_angular=}\n"
           f"{line_dia.tol_relative=}\n")
 
+def update_dialog_test():
+    update_dialog = UpdateDialog()
+    update_dialog.exec()
 
 if __name__ == "__main__":
     config, _ = loadconfig()
@@ -94,3 +98,4 @@ if __name__ == "__main__":
     settings_dialog_test()
     split_colour_dialog_test()
     step_settings_dialog_test()
+    update_dialog_test()

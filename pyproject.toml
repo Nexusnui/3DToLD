@@ -33,6 +33,7 @@ dependencies = [
   "pycollada==0.9.3",
   "PyQt6==6.12.0",
   "PyQt6-WebEngine==6.140.0",
+  "requests==2.34.2",
   "scipy==1.18.1",
   "trimesh==5.2.0",
   "platformdirs==4.14.2",
@@ -56,7 +57,7 @@ where = ["."]
 include = ["ThreeDToLD*", "colorpicker*"]
 
 [tool.setuptools.package-data]
-"ThreeDToLD.brick_data" = ['colour_definitions.csv']
+"ThreeDToLD.brick_data" = ['*_brick_resources.toml']
 "ThreeDToLD.icons" = [
     '3DToLD_icon.ico',
     '3DToLD_icon*.png',

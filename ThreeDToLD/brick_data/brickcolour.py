@@ -1,5 +1,6 @@
 import os
 from enum import Enum
+from ThreeDToLD.brick_data.brick_resources import get_brick_colours
 
 basedir = os.path.dirname(__file__)
 
@@ -198,19 +199,17 @@ def get_colour_info_by_colour_code(colour_code: str) -> list[str]:
     # but may be used by other LDraw software.
     # These are usually input manually by the user
     found_colour = ["Undefined", colour_code, "#FFFFFF", "000000", "255", "", "", "", "", ""]
-    with open(os.path.join(basedir, "colour_definitions.csv"), "r", encoding="utf-8") as source:
-        # skip row with column names
-        source.readline()
-        for line in source:
-            values = line.split(";")
-            if values[1] == colour_code:
-                for i in range(len(values)):
-                    # replace empty values with None
-                    if len(values[i]) == 0:
-                        values[i] = None
-                found_colour = values
-                # remove line break character from last value
-                found_colour[-1] = found_colour[-1][:-1]
+    brick_colours_and_categories = get_brick_colours()
+    colour_exists = False
+    for category in brick_colours_and_categories:
+        for colour in brick_colours_and_categories[category]:
+            if colour_code == colour[1]:
+                found_colour = []
+                found_colour.extend(colour)
+                found_colour.append(category)
+                colour_exists = True
+                break
+            if colour_exists:
                 break
 
     return found_colour
@@ -218,14 +217,13 @@ def get_colour_info_by_colour_code(colour_code: str) -> list[str]:
 
 def get_all_brickcolours(included_color_categories: list[str] | None = None) -> list[Brickcolour]:
     colour_list = []
-    with open(os.path.join(basedir, "colour_definitions.csv"), "r", encoding="utf-8") as source:
-        # skip row with column names
-        source.readline()
-        for line in source:
-            values = line.split(";")
-            # remove line break character from last value
-            values[-1] = values[-1][:-1]
-            if included_color_categories is None or values[9] in included_color_categories:
+    brick_colours_and_categories = get_brick_colours()
+    for category in brick_colours_and_categories:
+        if included_color_categories is None or category in included_color_categories:
+            for colour in brick_colours_and_categories[category]:
+                values = []
+                values.extend(colour)
+                values.append(category)
                 colour_list.append(Brickcolour(values=values))
     return colour_list
 

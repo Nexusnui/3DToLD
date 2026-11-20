@@ -33,7 +33,7 @@ from ThreeDToLD.appexcetions import *
 from ThreeDToLD.model_loaders.trimeshloader import Trimeshloader
 from ThreeDToLD.model_loaders.threemfloader import Threemfloader
 from ThreeDToLD.brick_data.ldrawObject import LdrawObject, Subpart, default_part_licenses, LDrawConversionFactor, UpAxis
-from ThreeDToLD.brick_data.brick_categories import brick_categories
+from ThreeDToLD.brick_data.brick_resources import get_brick_categories
 from ThreeDToLD.ui_elements.subpartPanel import SubpartPanel
 from ThreeDToLD.ui_elements.previewPanel import PreviewPanel, register_scheme
 from ThreeDToLD.ui_elements.line_generation_dialog import LineGenerationDialog, LinePreset
@@ -42,6 +42,7 @@ from ThreeDToLD.ui_elements.exceptiondialog import ExceptionDialog
 from ThreeDToLD.ui_elements.stepsettingsdialog import StepSettingsDialog
 from ThreeDToLD.ui_elements.settingsdialog import SettingsDialog
 from ThreeDToLD.ui_elements.aboutPage import AboutPage
+from ThreeDToLD.ui_elements.updateDialog import UpdateDialog
 from ThreeDToLD.config import loadconfig
 from ThreeDToLD._version import __version__ as app_version
 from tomlkit import TOMLDocument
@@ -254,7 +255,7 @@ class MainWindow(QMainWindow):
 
         # Category Selection
         self.part_category_input: QComboBox = QComboBox()
-        self.part_category_input.addItems(brick_categories)
+        self.part_category_input.addItems(get_brick_categories())
         self.part_category_input.setInsertPolicy(QComboBox.InsertPolicy.NoInsert)
         self.part_category_input.setEditable(True)
         category_label = QLabel("Part Category (Recommended) ℹ️")
@@ -330,6 +331,8 @@ class MainWindow(QMainWindow):
     # Setup Menubar
         open_settings_action = self.menuBar().addAction("Settings")
         open_settings_action.triggered.connect(self.open_settings)
+        open_update_action = self.menuBar().addAction("Updates")
+        open_update_action.triggered.connect(self.open_update)
         open_about_action = self.menuBar().addAction("About")
         open_about_action.triggered.connect(self.open_about)
 
@@ -470,6 +473,8 @@ class MainWindow(QMainWindow):
                         self.part_license_input.setCurrentText(self.ldraw_object.part_license)
                     else:
                         self.part_license_input.setCurrentText(self.config["Metadata"]["default_license"])
+                self.part_category_input.clear()
+                self.part_category_input.addItems(get_brick_categories())
 
                 filedir = os.path.dirname(filepath)
                 if not reload:
@@ -600,7 +605,7 @@ class MainWindow(QMainWindow):
                 self.disable_settings(False)
                 return
         category = self.part_category_input.currentText()
-        if category not in brick_categories and len(category) > 0:
+        if category not in get_brick_categories() and len(category) > 0:
             answer = QMessageBox.warning(
                 self,
                 "Unofficial Category",
@@ -723,6 +728,10 @@ class MainWindow(QMainWindow):
     def open_about(self):
         about_page = AboutPage(self)
         about_page.exec()
+
+    def open_update(self):
+        update_dialog = UpdateDialog(self)
+        update_dialog.exec()
 
     def get_current_background_colour(self):
         current_palette = qdarktheme.load_palette(self.config["Theme"]["mode"])

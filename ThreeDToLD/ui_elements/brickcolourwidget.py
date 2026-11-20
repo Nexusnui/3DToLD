@@ -11,7 +11,7 @@ from ThreeDToLD.brick_data.brickcolour import (
     Colourtype
 )
 
-from ThreeDToLD.brick_data.colour_categories import colour_categories
+from ThreeDToLD.brick_data.brick_resources import get_colour_categories
 
 from colorpicker import ColorPicker
 
@@ -332,7 +332,7 @@ class ColourCategoriesDialog(QDialog):
         message_label = QLabel(message)
         self.list_widget: QListWidget = QListWidget()
         self.items: list[QListWidgetItem] = []
-        for category in colour_categories:
+        for category in get_colour_categories():
             item = QListWidgetItem(category)
             if category in checked_categories:
                 item.setCheckState(Qt.CheckState.Checked)
