@@ -13,7 +13,8 @@ from PyQt6.QtWidgets import (
     QCheckBox,
     QDoubleSpinBox,
     QFileDialog,
-    QMessageBox
+    QMessageBox,
+    QSpinBox
 )
 
 from ThreeDToLD.brick_data.ldrawObject import LDrawConversionFactor, UpAxis, default_part_licenses
@@ -174,6 +175,45 @@ class SettingsDialog(QDialog):
 
         second_tab_layout.addLayout(load_file_inputs)
 
+        mesh_simplification_area = QGroupBox("Mesh Simplification")
+        mesh_simplification_layout = QFormLayout()
+        mesh_simplification_area.setLayout(mesh_simplification_layout)
+
+        self.apply_mesh_simplification_check: QCheckBox = QCheckBox()
+        self.apply_mesh_simplification_check.checkStateChanged.connect(self.input_changed)
+        apply_mesh_simplification_label = QLabel("Apply Mesh Simplification")
+        apply_mesh_simplification_label.setToolTip("Apply mesh simplification to all meshes.\n"
+                                                   "Colour information will be lost.")
+        mesh_simplification_layout.addRow(apply_mesh_simplification_label, self.apply_mesh_simplification_check)
+
+        self.use_percentage_check: QCheckBox = QCheckBox()
+        self.use_percentage_check.checkStateChanged.connect(self.input_changed)
+        use_percentage_label = QLabel("Use Percentage ℹ️")
+        use_percentage_label.setToolTip("Use percentage for mesh simplification.\n"
+                                        "If false face count is used.")
+        mesh_simplification_layout.addRow(use_percentage_label, self.use_percentage_check)
+
+        self.simplification_percentage_input: QDoubleSpinBox = QDoubleSpinBox()
+        self.simplification_percentage_input.setDecimals(4)
+        self.simplification_percentage_input.setMaximum(1)
+        self.simplification_percentage_input.setMinimum(0.0001)
+        self.simplification_percentage_input.setSingleStep(0.1)
+        self.simplification_percentage_input.valueChanged.connect(self.input_changed)
+        simplification_percentage_label: QLabel = QLabel("Percentage ℹ️")
+        simplification_percentage_label.setToolTip("Amount by which all meshes is simplified.\n"
+                                                   "For example 0.7 -> Reduces meshes by 70%")
+        mesh_simplification_layout.addRow(simplification_percentage_label, self.simplification_percentage_input)
+
+        self.simplification_face_count_input: QSpinBox = QSpinBox()
+        self.simplification_face_count_input.setMinimum(1)
+        self.simplification_face_count_input.setMaximum(16777215)
+        self.simplification_face_count_input.valueChanged.connect(self.input_changed)
+        simplification_face_count_label = QLabel("Face Count ℹ️")
+        simplification_face_count_label.setToolTip("Minimum amount of faces meshes have after simplification.")
+        mesh_simplification_layout.addRow(simplification_face_count_label, self.simplification_face_count_input)
+
+        second_tab_layout.addWidget(mesh_simplification_area)
+
         step_quality_area = QGroupBox("Step Mesh Quality")
         step_quality_layout = QFormLayout()
         step_quality_area.setLayout(step_quality_layout)
@@ -298,6 +338,10 @@ class SettingsDialog(QDialog):
         self.config["Import_Settings"]["unit"] = self.unit_input.currentText()
         self.config["Import_Settings"]["scale"] = self.scale_input.value()
         self.config["Import_Settings"]["up_axis"] = self.orientation_input.currentText()
+        self.config["Import_Settings"]["Simplify"]["apply_mesh_simplification"] = self.apply_mesh_simplification_check.isChecked()
+        self.config["Import_Settings"]["Simplify"]["use_percentage"] = self.use_percentage_check.isChecked()
+        self.config["Import_Settings"]["Simplify"]["simplification_percentage"] = self.simplification_percentage_input.value()
+        self.config["Import_Settings"]["Simplify"]["simplification_face_count"] = self.simplification_face_count_input.value()
         self.config["Import_Settings"]["custom_3mf_loader"] = self.threemfloader_check.isChecked()
         self.config["Import_Settings"]["Step_Settings"]["tol_linear"] = self.tol_linear_input.value()
         self.config["Import_Settings"]["Step_Settings"]["tol_angular"] = self.tol_angular_input.value()
@@ -379,6 +423,10 @@ class SettingsDialog(QDialog):
         self.scale_input.setValue(self.config["Import_Settings"]["scale"])
         self.orientation_input.setCurrentText(self.config["Import_Settings"]["up_axis"])
         self.threemfloader_check.setChecked(self.config["Import_Settings"]["custom_3mf_loader"])
+        self.apply_mesh_simplification_check.setChecked(self.config["Import_Settings"]["Simplify"]["apply_mesh_simplification"])
+        self.use_percentage_check.setChecked(self.config["Import_Settings"]["Simplify"]["use_percentage"])
+        self.simplification_percentage_input.setValue(self.config["Import_Settings"]["Simplify"]["simplification_percentage"])
+        self.simplification_face_count_input.setValue(self.config["Import_Settings"]["Simplify"]["simplification_face_count"])
         self.tol_linear_input.setValue(self.config["Import_Settings"]["Step_Settings"]["tol_linear"])
         self.tol_angular_input.setValue(self.config["Import_Settings"]["Step_Settings"]["tol_angular"])
         self.tol_relative_check.setChecked(self.config["Import_Settings"]["Step_Settings"]["tol_relative"])

@@ -10,6 +10,7 @@ from ThreeDToLD.brick_data.brickcolour import Brickcolour, get_closest_brickcolo
 import numpy as np
 from collections import OrderedDict
 from ThreeDToLD.model_loaders.modelloader import Modelloader
+from ThreeDToLD.model_loaders.threemfloader import Threemfloader
 from ThreeDToLD.model_loaders.autoloader import Autoloader
 from ThreeDToLD.matrix_functions import is_identity_matrix
 from enum import Enum
@@ -128,7 +129,9 @@ class LdrawObject:
     def load_scene(self, filepath: str, scale: int | float = 1, multi_object: bool = True, multicolour: bool = True,
                    orientation: UpAxis = UpAxis.posZ, override_metadata: bool = True,
                    loader: Modelloader = Autoloader(),
-                   unit_conversion: LDrawConversionFactor = LDrawConversionFactor.Auto
+                   unit_conversion: LDrawConversionFactor = LDrawConversionFactor.Auto,
+                   apply_simplification: bool = False, use_percentage_simplification: bool = True,
+                   simplification_factor: float | int = 0.5,
                    ):
 
         _, file_extension = os.path.splitext(filepath)
@@ -273,6 +276,12 @@ class LdrawObject:
             scene = scene.scaled(scale)
 
         self.size = scene.extents
+
+        if apply_simplification:
+            if use_percentage_simplification:
+                scene.simplify_quadric_decimation(percent=simplification_factor)
+            else:
+                scene.simplify_quadric_decimation(face_count=simplification_factor)
 
         scene_graph = scene.graph.transforms
         for node in scene_graph.nodes:
