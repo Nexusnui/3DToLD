@@ -12,8 +12,8 @@ from ThreeDToLD.ui_elements.aboutPage import AboutPage
 from ThreeDToLD.ui_elements.brickcolourwidget import BrickcolourDialog, ColourCategoriesDialog, SplitColourDialog
 from ThreeDToLD.ui_elements.exceptiondialog import ExceptionDialog
 from ThreeDToLD.ui_elements.line_generation_dialog import LineGenerationDialog, LinePreset
+from ThreeDToLD.ui_elements.meshqualitydialog import MeshQualityDialog
 from ThreeDToLD.ui_elements.settingsdialog import SettingsDialog
-from ThreeDToLD.ui_elements.stepsettingsdialog import StepSettingsDialog
 from ThreeDToLD.ui_elements.updateDialog import UpdateDialog
 
 
@@ -49,6 +49,21 @@ def line_generation_dialog_test():
           f"{line_dia.delete_flag=}")
 
 
+def mesh_quality_dialog_test():
+    mesh_dia = MeshQualityDialog()
+    mesh_dia.exec()
+
+    print(
+          f"{mesh_dia.apply_mesh_simplification=}\n"
+          f"{mesh_dia.use_percentage=}\n"
+          f"{mesh_dia.simplification_percentage=}\n"
+          f"{mesh_dia.simplification_face_count=}\n"
+          f"{mesh_dia.tol_linear=}\n"
+          f"{mesh_dia.tol_angular=}\n"
+          f"{mesh_dia.tol_relative=}"
+    )
+
+
 def settings_dialog_test():
     settings_dialog = SettingsDialog()
     settings_dialog.exec()
@@ -65,14 +80,6 @@ def split_colour_dialog_test():
     if split_colour_dia.exec():
         print(split_colour_dia.colour_groups)
 
-
-def step_settings_dialog_test():
-    line_dia = StepSettingsDialog()
-    line_dia.exec()
-
-    print(f"{line_dia.tol_linear=}\n"
-          f"{line_dia.tol_angular=}\n"
-          f"{line_dia.tol_relative=}\n")
 
 def update_dialog_test():
     update_dialog = UpdateDialog()
@@ -97,5 +104,5 @@ if __name__ == "__main__":
     line_generation_dialog_test()
     settings_dialog_test()
     split_colour_dialog_test()
-    step_settings_dialog_test()
+    mesh_quality_dialog_test()
     update_dialog_test()

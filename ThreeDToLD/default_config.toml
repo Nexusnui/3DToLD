@@ -21,6 +21,12 @@ scale = 1.0
 up_axis = "+Z"
 custom_3mf_loader = true
 
+    [Import_Settings.Simplify]
+    apply_mesh_simplification = false
+    use_percentage = true
+    simplification_percentage = 0.0
+    simplification_face_count = 10000
+
     [Import_Settings.Step_Settings]
     tol_linear   = 0.1
     tol_angular  = 0.5

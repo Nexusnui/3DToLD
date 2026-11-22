@@ -39,7 +39,7 @@ from ThreeDToLD.ui_elements.previewPanel import PreviewPanel, register_scheme
 from ThreeDToLD.ui_elements.line_generation_dialog import LineGenerationDialog, LinePreset
 from ThreeDToLD.ui_elements.brickcolourwidget import ColourCategoriesDialog
 from ThreeDToLD.ui_elements.exceptiondialog import ExceptionDialog
-from ThreeDToLD.ui_elements.stepsettingsdialog import StepSettingsDialog
+from ThreeDToLD.ui_elements.meshqualitydialog import MeshQualityDialog
 from ThreeDToLD.ui_elements.settingsdialog import SettingsDialog
 from ThreeDToLD.ui_elements.aboutPage import AboutPage
 from ThreeDToLD.ui_elements.updateDialog import UpdateDialog
@@ -167,12 +167,16 @@ class MainWindow(QMainWindow):
         self.threemfloader_check.setChecked(self.config["Import_Settings"]["custom_3mf_loader"])
 
         # Step Quality Settings
-        self.step_quality_button: QPushButton = QPushButton("Step Mesh Quality")
+        self.mesh_quality_button: QPushButton = QPushButton("Mesh Quality")
+        self.apply_simplification = self.config["Import_Settings"]["Simplify"]["apply_mesh_simplification"]
+        self.use_percentage_simplification = self.config["Import_Settings"]["Simplify"]["use_percentage"]
+        self.simplification_percentage = self.config["Import_Settings"]["Simplify"]["simplification_percentage"]
+        self.simplification_face_count = self.config["Import_Settings"]["Simplify"]["simplification_face_count"]
         self.tol_linear = self.config["Import_Settings"]["Step_Settings"]["tol_linear"]
         self.tol_angular = self.config["Import_Settings"]["Step_Settings"]["tol_angular"]
         self.tol_relative = self.config["Import_Settings"]["Step_Settings"]["tol_relative"]
-        self.step_quality_button.clicked.connect(self.set_step_values)
-        load_file_inputs.addRow(self.step_quality_button)
+        self.mesh_quality_button.clicked.connect(self.open_mesh_quality_dialog)
+        load_file_inputs.addRow(self.mesh_quality_button)
 
         # File loading
         input_label = QLabel("Input File")
@@ -413,6 +417,9 @@ class MainWindow(QMainWindow):
                 loader = Trimeshloader()
             orientation = UpAxis.from_string(self.orientation_input.currentText())
             unit_conversion = LDrawConversionFactor.from_string(self.unit_input.currentText())
+            simplification_factor = self.simplification_percentage if self.use_percentage_simplification else (
+                                    self.simplification_face_count
+            )
             try:
                 loaded_part = LdrawObject(autoload=False)
                 loaded_part.load_scene(filepath,
@@ -421,7 +428,10 @@ class MainWindow(QMainWindow):
                                        multicolour=multicolour,
                                        orientation=orientation,
                                        loader=loader,
-                                       unit_conversion=unit_conversion
+                                       unit_conversion=unit_conversion,
+                                       apply_simplification=self.apply_simplification,
+                                       use_percentage_simplification=self.use_percentage_simplification,
+                                       simplification_factor=simplification_factor
                                        )
             except FileTypeUnsupportedError:
                 QMessageBox.critical(self, "Unsupported Filetype", "Not a 3D object or unsupported filetype")
@@ -555,7 +565,7 @@ class MainWindow(QMainWindow):
         self.generate_outlines_button.setDisabled(value)
         self.map_colours_button.setDisabled(value)
         self.settings_tabs.tabBar().setDisabled(value)
-        self.step_quality_button.setDisabled(value)
+        self.mesh_quality_button.setDisabled(value)
         if self.file_loaded:
             self.subpart_panel.setDisabled(value)
 
@@ -567,7 +577,7 @@ class MainWindow(QMainWindow):
         self.load_input_button.setDisabled(False)
         self.orientation_input.setDisabled(False)
         self.unit_input.setDisabled(False)
-        self.step_quality_button.setDisabled(False)
+        self.mesh_quality_button.setDisabled(False)
 
     def enable_reload(self):
         self.reload_preview = True
@@ -701,12 +711,18 @@ class MainWindow(QMainWindow):
             self.enable_reload()
         self.hide_loading_screen()
 
-    def set_step_values(self):
-        step_dialog = StepSettingsDialog(self, self.tol_linear, self.tol_angular, self.tol_relative)
-        if step_dialog.exec():
-            self.tol_linear = step_dialog.tol_linear
-            self.tol_angular = step_dialog.tol_angular
-            self.tol_relative = step_dialog.tol_relative
+    def open_mesh_quality_dialog(self):
+        mesh_dialog = MeshQualityDialog(self, self.tol_linear, self.tol_angular, self.tol_relative,
+                                        self.apply_simplification, self.use_percentage_simplification,
+                                        self.simplification_percentage, self.simplification_face_count)
+        if mesh_dialog.exec():
+            self.tol_linear = mesh_dialog.tol_linear
+            self.tol_angular = mesh_dialog.tol_angular
+            self.tol_relative = mesh_dialog.tol_relative
+            self.apply_simplification = mesh_dialog.apply_mesh_simplification
+            self.use_percentage_simplification = mesh_dialog.use_percentage
+            self.simplification_percentage = mesh_dialog.simplification_percentage
+            self.simplification_face_count = mesh_dialog.simplification_face_count
 
     def show_loading_screen(self, message: str = "Loading ..."):
         loading_blurr = QGraphicsBlurEffect()
