@@ -185,7 +185,7 @@ class MeshQualityDialog(QDialog):
     def linear_changed(self, length):
         self.tol_linear = length
 
-    def merge_check_changed(self, check):
+    def merge_check_changed(self):
         self.tol_relative = not self.tol_relative
 
     def reset_values(self):
