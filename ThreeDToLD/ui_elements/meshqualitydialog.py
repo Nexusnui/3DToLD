@@ -45,7 +45,7 @@ class MeshQualityDialog(QDialog):
         mesh_layout = QVBoxLayout()
         mesh_tab.setLayout(mesh_layout)
 
-        mesh_description_label = QLabel("Mesh Simplification Settings. If applied colours will be lost.\n(Are not applied to Step files)")
+        mesh_description_label = QLabel("Mesh Simplification Settings. If applied colours will be lost.")
         mesh_layout.addWidget(mesh_description_label)
 
         mesh_input_layout = QFormLayout()
