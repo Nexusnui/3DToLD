@@ -1,11 +1,10 @@
 # -*- mode: python ; coding: utf-8 -*-
 from PyInstaller.utils.hooks import collect_data_files
 
-datas=[('ThreeDToLD\\icons\\3DToLD_icon.ico','icons'),
-           ('ThreeDToLD\\icons\\reload-icon.svg','icons'),
+datas=[('ThreeDToLD\\icons\\3DToLD_icon.ico','ThreeDToLD\\icons'),
            ('ThreeDToLD\\icons\\reload-icon.svg','ThreeDToLD\\icons'),
-           ('ThreeDToLD\\icons\\loading_animation.webm','icons'),
-           ('ThreeDToLD\\icons\\Loading_Symbol.png','icons'),
+           ('ThreeDToLD\\icons\\loading_animation.webm','ThreeDToLD\\icons'),
+           ('ThreeDToLD\\icons\\Loading_Symbol.png','ThreeDToLD\\icons'),
            ('ThreeDToLD\\brick_data\\*_brick_resources.toml','ThreeDToLD\\brick_data'),
            ('LICENSE','.'),
            ('ThreeDToLD\\ui_elements\\viewer_template.html','ThreeDToLD\\ui_elements'),
