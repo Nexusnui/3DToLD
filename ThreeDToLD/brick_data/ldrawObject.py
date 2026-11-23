@@ -10,7 +10,6 @@ from ThreeDToLD.brick_data.brickcolour import Brickcolour, get_closest_brickcolo
 import numpy as np
 from collections import OrderedDict
 from ThreeDToLD.model_loaders.modelloader import Modelloader
-from ThreeDToLD.model_loaders.threemfloader import Threemfloader
 from ThreeDToLD.model_loaders.autoloader import Autoloader
 from ThreeDToLD.matrix_functions import is_identity_matrix
 from enum import Enum
