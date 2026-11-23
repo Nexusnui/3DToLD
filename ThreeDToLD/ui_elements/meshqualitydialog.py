@@ -68,8 +68,8 @@ class MeshQualityDialog(QDialog):
 
         self.simplification_percentage_input: QDoubleSpinBox = QDoubleSpinBox()
         self.simplification_percentage_input.setDecimals(4)
-        self.simplification_percentage_input.setMaximum(1)
-        self.simplification_percentage_input.setMinimum(0.0001)
+        self.simplification_percentage_input.setMaximum(0.9999)
+        self.simplification_percentage_input.setMinimum(0.0)
         self.simplification_percentage_input.setValue(simplification_percentage)
         self.simplification_percentage_input.setSingleStep(0.1)
         self.simplification_percentage_input.valueChanged.connect(self.percentage_changed)

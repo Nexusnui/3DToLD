@@ -196,8 +196,8 @@ class SettingsDialog(QDialog):
         self.simplification_percentage_input: QDoubleSpinBox = QDoubleSpinBox()
         self.simplification_percentage_input.setDecimals(4)
         self.simplification_percentage_input.setMaximum(1)
-        self.simplification_percentage_input.setMinimum(0.0001)
-        self.simplification_percentage_input.setSingleStep(0.1)
+        self.simplification_percentage_input.setMaximum(0.9999)
+        self.simplification_percentage_input.setMinimum(0.0)
         self.simplification_percentage_input.valueChanged.connect(self.input_changed)
         simplification_percentage_label: QLabel = QLabel("Percentage ℹ️")
         simplification_percentage_label.setToolTip("Amount by which all meshes is simplified.\n"
