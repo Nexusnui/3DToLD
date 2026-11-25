@@ -130,12 +130,12 @@ class MainWindow(QMainWindow):
         self.unit_input: QComboBox = QComboBox()
         self.unit_input.addItems(LDrawConversionFactor.get_membernames_as_string())
         self.unit_input.setInsertPolicy(QComboBox.InsertPolicy.NoInsert)
-        category_label = QLabel("Unit ℹ️")
-        category_label.setToolTip("Unit conversion used to convert to LDraw Units.\n"
+        unit_label = QLabel("Unit ℹ️")
+        unit_label.setToolTip("Unit conversion used to convert to LDraw Units.\n"
                                   "If LDraw is selected no conversion is applied.\n"
                                   "If no Unit is found Millimeter is used by default.")
         self.unit_input.setCurrentText(self.config["Import_Settings"]["unit"])
-        load_file_inputs.addRow(category_label, self.unit_input)
+        load_file_inputs.addRow(unit_label, self.unit_input)
 
         # Set Scale
         self.scale_input: QDoubleSpinBox = QDoubleSpinBox()
@@ -594,6 +594,7 @@ class MainWindow(QMainWindow):
                         self.part_license_input.setCurrentText(self.config["Metadata"]["default_license"])
                 self.part_category_input.clear()
                 self.part_category_input.addItems(get_brick_categories())
+                self.part_category_input.clearEditText()
 
                 filedir = os.path.dirname(filepath)
                 if not reload:
