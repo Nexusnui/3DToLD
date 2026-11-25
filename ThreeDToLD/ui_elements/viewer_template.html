@@ -9,7 +9,6 @@
 		   maximum-scale=1.0">
     <style>
       body {
-      margin: 0px;
       overflow: hidden;
       }
 	  video {
@@ -73,6 +72,22 @@
 		ld_loader.load(part_data,function(group){
 			ldraw_model = group;
 			scene.add(group);
+            scene.remove(grid_object)
+            const boundingBox=new THREE.Box3().setFromObject(group);
+            let center = boundingBox.getCenter(new THREE.Vector3(0,0,0));
+            let size = boundingBox.getSize(new THREE.Vector3(0,0,0));
+            let grid_size = Math.ceil(Math.max(size.x,size.z)/20);
+            if (grid_size % 2 === 0){
+                grid_size += 2;
+            }else{
+                grid_size += 1;
+            }
+            grid_object = new THREE.GridHelper( grid_size*20, grid_size );
+            grid_object.translateX(Math.round(center.x/20)*20);
+            grid_object.translateZ(Math.round(center.z/20)*20);
+            if (grid_visible){
+                scene.add(grid_object);
+            }
 			render();
 			hide_load_animation();
 		});
@@ -123,7 +138,6 @@
 	function centerControls(obj,camera,controls){
 		const boundingBox=new THREE.Box3().setFromObject(obj);
 		const boundingSphere=new THREE.Sphere();
-		boundingBox.getBoundingSphere((target=boundingSphere));
 		controls.update();
 		controls.target.set(boundingSphere.center.x,boundingSphere.center.y,boundingSphere.center.z);
 		//Setup Camera to look at object
@@ -145,7 +159,7 @@
 			scene.add(axis_object);
 		}
 		let grid_size = Math.ceil(Math.max(size.x,size.z)/20);
-		if (grid_size % 2 == 0){
+		if (grid_size % 2 === 0){
 			grid_size += 2;
 		}else{
 			grid_size += 1;
@@ -162,7 +176,7 @@
 		show_load_animation();
 		scene=new THREE.Scene();
 		scene.background=new THREE.Color(bg_color);
-        const environmentMap = new THREE.CubeTextureLoader().load([
+        scene.environment = new THREE.CubeTextureLoader().load([
                 './environment/px.png',
                 './environment/nx.png',
                 './environment/py.png',
@@ -170,7 +184,6 @@
                 './environment/pz.png',
                 './environment/nz.png'
         ])
-        scene.environment = environmentMap;
 		renderer=new THREE.WebGLRenderer({antialias:true});
 		renderer.setPixelRatio(window.devicePixelRatio);
 		renderer.setSize(window.innerWidth,window.innerHeight);
