@@ -394,18 +394,18 @@ class LdrawObject:
                         # Todo: Case filepath = None
                         subfilepath = f"{sub_dir}{subfilename}"
                         part.convert_to_dat_file(subfilepath, filename, self.author, license_line)
-                    tm_a = f"{part.transformation_matrix[0][0]:f}"
-                    tm_b = f"{part.transformation_matrix[0][1]:f}"
-                    tm_c = f"{part.transformation_matrix[0][2]:f}"
-                    tm_d = f"{part.transformation_matrix[1][0]:f}"
-                    tm_e = f"{part.transformation_matrix[1][1]:f}"
-                    tm_f = f"{part.transformation_matrix[1][2]:f}"
-                    tm_g = f"{part.transformation_matrix[2][0]:f}"
-                    tm_h = f"{part.transformation_matrix[2][1]:f}"
-                    tm_i = f"{part.transformation_matrix[2][2]:f}"
-                    tm_x = f"{part.transformation_matrix[0][3]:f}"
-                    tm_y = f"{part.transformation_matrix[1][3]:f}"
-                    tm_z = f"{part.transformation_matrix[2][3]:f}"
+                    tm_a = f"{part.applied_transformation_matrix[0][0]:f}"
+                    tm_b = f"{part.applied_transformation_matrix[0][1]:f}"
+                    tm_c = f"{part.applied_transformation_matrix[0][2]:f}"
+                    tm_d = f"{part.applied_transformation_matrix[1][0]:f}"
+                    tm_e = f"{part.applied_transformation_matrix[1][1]:f}"
+                    tm_f = f"{part.applied_transformation_matrix[1][2]:f}"
+                    tm_g = f"{part.applied_transformation_matrix[2][0]:f}"
+                    tm_h = f"{part.applied_transformation_matrix[2][1]:f}"
+                    tm_i = f"{part.applied_transformation_matrix[2][2]:f}"
+                    tm_x = f"{part.applied_transformation_matrix[0][3]:f}"
+                    tm_y = f"{part.applied_transformation_matrix[1][3]:f}"
+                    tm_z = f"{part.applied_transformation_matrix[2][3]:f}"
                     # Todo: Improve precision of floats to string conversion (np.float64(1))
                     code = part.main_colour.colour_code
                     if not one_file:
@@ -458,20 +458,42 @@ class LdrawObject:
         self.subparts.remove(subpart)
         self.scene.delete_geometry(subpart.node_key)
 
+    def apply_transform(self, transformation_matrix = None, angles = None, translation = None, convert_to_radians = True):
+        """
+                Apply transformation matrix or rotation and/or translation.
+                If all values are None previously applied values are reset.
+                :param transformation_matrix:
+                    A transformation matrix that is applied to all subparts.
+                    Overrides angles and translation if supplied.
+                :param angles:
+                    An array containing rotation values for x,y,z axis.
+                :param translation:
+                    An array containing translation values for x,y,z axis.
+                :param convert_to_radians:
+                    Convert angles from degrees to radians.
+        """
+        if not self.model_loaded:
+            raise Exception("No model loaded")
+        for subpart in self.subparts:
+            subpart.apply_transform(transformation_matrix, angles, translation, convert_to_radians)
+
 
 class Subpart:
     def __init__(self, mesh: Trimesh,
-                 transformation_matrix,
+                 transformation_matrix: np.ndarray,
                  name: str,
                  main_colour: Brickcolour | None = None,
                  cached_colour_definitions: OrderedDict | None = None,
                  node_key: str | None = None,
                  colours: OrderedDict | None = None,
-                 outlines: list | None = None
+                 outlines: list | None = None,
+                 applied_transformation_matrix: np.ndarray | None= None
                  ):
         self.mesh: Trimesh = mesh
         self.name: str = name
         self.transformation_matrix = transformation_matrix
+        self.applied_transformation_matrix = transformation_matrix.copy() if applied_transformation_matrix is None \
+            else applied_transformation_matrix
         self.vertices_with_transform = None
         if cached_colour_definitions is None:
             self.cached_colour_definitions: OrderedDict = OrderedDict()
@@ -639,11 +661,11 @@ class Subpart:
 
     def to_ldraw_lines(self, color_code: str = "16", apply_transform: bool = False):
         vertices = self.mesh.vertices
-        if apply_transform and not is_identity_matrix(self.transformation_matrix):
+        if apply_transform and not is_identity_matrix(self.applied_transformation_matrix):
             if self.vertices_with_transform is None:
                 self.vertices_with_transform = trimesh.transformations.transform_points(
                     self.mesh.vertices.copy(),
-                    self.transformation_matrix,
+                    self.applied_transformation_matrix,
                     True)
             vertices = self.vertices_with_transform
         if self.multicolour:
@@ -712,12 +734,33 @@ class Subpart:
                 self.cached_colour_definitions,
                 node_key,
                 colours,
-                outlines
+                outlines,
+                self.applied_transformation_matrix.copy(),
             )
             split_subparts.append(new_subpart)
         parent.delete_subpart(self)
         parent.subparts.extend(split_subparts)
         return split_subparts
+
+
+    def apply_transform(self, transformation_matrix = None, angles = None, translate = None, convert_to_radians = True):
+        self.vertices_with_transform = None
+        if ((is_identity_matrix(transformation_matrix) or transformation_matrix is None)
+                and angles is None and translate is None
+        ):
+            self.applied_transformation_matrix = self.transformation_matrix.copy()
+            return
+        if transformation_matrix is not None:
+            self.applied_transformation_matrix = trimesh.transformations.concatenate_matrices(
+                [transformation_matrix, self.transformation_matrix]
+            )
+        else:
+            if convert_to_radians:
+                angles = np.radians(angles)
+            combined_transformation_matrix = trimesh.transformations.compose_matrix(angles=angles, translate=translate)
+            self.applied_transformation_matrix = trimesh.transformations.concatenate_matrices(
+                combined_transformation_matrix, self.transformation_matrix
+            )
 
     def contains_alpha_colours(self) -> bool:
         # Returns True if the subpart has any Transparent Direct Colours
