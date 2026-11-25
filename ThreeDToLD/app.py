@@ -102,12 +102,12 @@ class MainWindow(QMainWindow):
 
     # File Selection Area:
         file_select_area = QVBoxLayout()
-        load_file_area = QGroupBox("Load File")
+        self.load_file_area = QGroupBox("Load File")
         load_file_inputs = QFormLayout()
-        load_file_area.setLayout(load_file_inputs)
-        save_file_area = QGroupBox("Save File")
+        self.load_file_area.setLayout(load_file_inputs)
+        self.save_file_area = QGroupBox("Save File")
         save_file_inputs = QFormLayout()
-        save_file_area.setLayout(save_file_inputs)
+        self.save_file_area.setLayout(save_file_inputs)
 
     # Input File Selection
         # Enable Multicolour Check
@@ -221,17 +221,17 @@ class MainWindow(QMainWindow):
 
     # Part  Area:
         part_area = QVBoxLayout()
-        part_settings_area = QGroupBox("Part Metadata")
+        self.part_metadata_area = QGroupBox("Part Metadata")
         part_settings_inputs = QFormLayout()
-        part_settings_area.setLayout(part_settings_inputs)
-        part_area.addWidget(part_settings_area)
+        self.part_metadata_area.setLayout(part_settings_inputs)
+        part_area.addWidget(self.part_metadata_area)
 
-        part_edit_area = QGroupBox("Edit Part")
-        part_edit_inputs = QFormLayout()
-        part_edit_area.setLayout(part_edit_inputs)
-        part_area.addWidget(part_edit_area)
+        self.part_edit_area = QGroupBox("Edit Part")
+        part_edit_inputs = QVBoxLayout()
+        self.part_edit_area.setLayout(part_edit_inputs)
+        part_area.addWidget(self.part_edit_area)
 
-    # Part Settings Area:
+    # Part Metadata Area:
 
         # Partname Input
         self.partname_line: QLineEdit = QLineEdit()
@@ -295,11 +295,117 @@ class MainWindow(QMainWindow):
 
         self.generate_outlines_button: QPushButton = QPushButton("Generate All Subpart Outlines")
         self.generate_outlines_button.clicked.connect(self.generate_outlines)
-        part_edit_inputs.addRow(self.generate_outlines_button)
+        part_edit_inputs.addWidget(self.generate_outlines_button)
 
         self.map_colours_button: QPushButton = QPushButton("Convert direct/html colours to LDraw colours")
         self.map_colours_button.clicked.connect(self.map_to_ldraw_colours)
-        part_edit_inputs.addRow(self.map_colours_button)
+        part_edit_inputs.addWidget(self.map_colours_button)
+
+        rotation_inputs = QHBoxLayout()
+        rotation_label = QLabel("Rotation ℹ️:")
+        rotation_label.setToolTip("Rotation of the part is degrees")
+        rotation_inputs.addWidget(rotation_label)
+
+        rotation_inputs.addStretch()
+
+        xrot_label = QLabel("X:")
+        rotation_inputs.addWidget(xrot_label)
+        self.x_rotation_input: QDoubleSpinBox = QDoubleSpinBox()
+        self.x_rotation_input.setMinimum(-180)
+        self.x_rotation_input.setMaximum(180)
+        self.x_rotation_input.setSingleStep(1)
+        self.x_rotation_input.setValue(0)
+        self.x_rotation_input.setDecimals(3)
+        self.x_rotation_input.valueChanged.connect(self.transform_input_changed)
+        rotation_inputs.addWidget(self.x_rotation_input)
+
+        rotation_inputs.addStretch()
+
+        yrot_label = QLabel("Y:")
+        rotation_inputs.addWidget(yrot_label)
+        self.y_rotation_input: QDoubleSpinBox = QDoubleSpinBox()
+        self.y_rotation_input.setMinimum(-180)
+        self.y_rotation_input.setMaximum(180)
+        self.y_rotation_input.setSingleStep(1)
+        self.y_rotation_input.setValue(0)
+        self.y_rotation_input.setDecimals(3)
+        self.y_rotation_input.valueChanged.connect(self.transform_input_changed)
+        rotation_inputs.addWidget(self.y_rotation_input)
+
+        rotation_inputs.addStretch()
+
+        zrot_label = QLabel("Z:")
+        rotation_inputs.addWidget(zrot_label)
+        self.z_rotation_input: QDoubleSpinBox = QDoubleSpinBox()
+        self.z_rotation_input.setMinimum(-180)
+        self.z_rotation_input.setMaximum(180)
+        self.z_rotation_input.setSingleStep(1)
+        self.z_rotation_input.setValue(0)
+        self.z_rotation_input.setDecimals(3)
+        self.z_rotation_input.valueChanged.connect(self.transform_input_changed)
+        rotation_inputs.addWidget(self.z_rotation_input)
+
+        rotation_inputs.addStretch()
+
+        part_edit_inputs.addLayout(rotation_inputs)
+
+        translation_inputs = QHBoxLayout()
+        translation_label = QLabel("Position ℹ️:")
+        translation_label.setToolTip("Position of the part in LDraw Units.\n"
+                                     "Brick 1x1 Width = 20ldu\n"
+                                     "Brick Height(without stud) = 24ldu\n"
+                                     "Keep in mind that -Y is the up axis."
+                                     )
+        translation_inputs.addWidget(translation_label)
+
+        translation_inputs.addStretch()
+
+        xtrans_label = QLabel("X:")
+        translation_inputs.addWidget(xtrans_label)
+        self.x_translation_input: QDoubleSpinBox = QDoubleSpinBox()
+        self.x_translation_input.setMinimum(-10000)
+        self.x_translation_input.setMaximum(10000)
+        self.x_translation_input.setSingleStep(1)
+        self.x_translation_input.setValue(0)
+        self.x_translation_input.setDecimals(3)
+        self.x_translation_input.valueChanged.connect(self.transform_input_changed)
+        translation_inputs.addWidget(self.x_translation_input)
+
+        translation_inputs.addStretch()
+
+        ytrans_label = QLabel("Y:")
+        translation_inputs.addWidget(ytrans_label)
+        self.y_translation_input: QDoubleSpinBox = QDoubleSpinBox()
+        self.y_translation_input.setMinimum(-10000)
+        self.y_translation_input.setMaximum(10000)
+        self.y_translation_input.setSingleStep(1)
+        self.y_translation_input.setValue(0)
+        self.y_translation_input.setDecimals(3)
+        self.y_translation_input.valueChanged.connect(self.transform_input_changed)
+        translation_inputs.addWidget(self.y_translation_input)
+
+        translation_inputs.addStretch()
+
+        ztrans_label = QLabel("Z:")
+        translation_inputs.addWidget(ztrans_label)
+        self.z_translation_input: QDoubleSpinBox = QDoubleSpinBox()
+        self.z_translation_input.setMinimum(-10000)
+        self.z_translation_input.setMaximum(10000)
+        self.z_translation_input.setSingleStep(1)
+        self.z_translation_input.setValue(0)
+        self.z_translation_input.setDecimals(3)
+        self.z_translation_input.valueChanged.connect(self.transform_input_changed)
+        translation_inputs.addWidget(self.z_translation_input)
+
+        translation_inputs.addStretch()
+
+        part_edit_inputs.addLayout(translation_inputs)
+
+        self.apply_transform_button = QPushButton("Apply Transformations")
+        part_edit_inputs.addWidget(self.apply_transform_button)
+        self.apply_transform_button.setDisabled(True)
+        self.apply_transform_button.clicked.connect(self.apply_transform)
+        part_edit_inputs.addStretch()
 
     # Loaded File Status Label
 
@@ -343,8 +449,8 @@ class MainWindow(QMainWindow):
 
     # Add Elements to Main Layout
         top_layout.addLayout(file_select_area)
-        file_select_area.addWidget(load_file_area)
-        file_select_area.addWidget(save_file_area)
+        file_select_area.addWidget(self.load_file_area)
+        file_select_area.addWidget(self.save_file_area)
         top_layout.addLayout(part_area)
         main_settings_widget = QWidget()
         main_settings_widget.setLayout(top_layout)
@@ -465,6 +571,8 @@ class MainWindow(QMainWindow):
                 if self.config["Convert_To_LDraw_Colours"]["convert_colours_on_load"]:
                     self.ldraw_object.map_to_ldraw_colours(
                         self.config["Convert_To_LDraw_Colours"]["default_colour_categories"])
+                if reload:
+                    self.apply_transform(True)
                 filename = ".".join(filename.split(".")[:-1])
                 name = filename
 
@@ -543,41 +651,29 @@ class MainWindow(QMainWindow):
         self.part_category_input.clearEditText()
         self.part_license_input.clearEditText()
         self.keywords_line.clear()
+        self.x_rotation_input.setValue(0)
+        self.y_rotation_input.setValue(0)
+        self.z_rotation_input.setValue(0)
+        self.x_translation_input.setValue(0)
+        self.y_translation_input.setValue(0)
+        self.z_translation_input.setValue(0)
+        self.apply_transform_button.setDisabled(True)
 
     def disable_settings(self, value: bool):
-        self.load_input_button.setDisabled(value)
-        self.output_file_line.setReadOnly(value)
-        self.select_output_button.setDisabled(value)
-        self.convert_button.setDisabled(value)
-        self.partname_line.setReadOnly(value)
-        self.bl_number_line.setReadOnly(value)
-        self.author_line.setReadOnly(value)
-        self.reload_button.setDisabled(value)
-        self.multicolour_check.setDisabled(value)
-        self.multi_object_check.setDisabled(value)
-        self.threemfloader_check.setDisabled(value)
-        self.scale_input.setDisabled(value)
-        self.orientation_input.setDisabled(value)
-        self.unit_input.setDisabled(value)
-        self.part_category_input.setDisabled(value)
-        self.part_license_input.setDisabled(value)
-        self.keywords_line.setReadOnly(value)
-        self.generate_outlines_button.setDisabled(value)
-        self.map_colours_button.setDisabled(value)
         self.settings_tabs.tabBar().setDisabled(value)
-        self.mesh_quality_button.setDisabled(value)
+        self.load_file_area.setDisabled(value)
+        self.reload_button.setDisabled(value)
+        self.save_file_area.setDisabled(value)
+        self.part_metadata_area.setDisabled(value)
+        self.part_edit_area.setDisabled(value)
         if self.file_loaded:
             self.subpart_panel.setDisabled(value)
 
+    def transform_input_changed(self):
+        self.apply_transform_button.setEnabled(True)
+
     def enable_load_settings(self):
-        self.multicolour_check.setDisabled(False)
-        self.multi_object_check.setDisabled(False)
-        self.threemfloader_check.setDisabled(False)
-        self.scale_input.setDisabled(False)
-        self.load_input_button.setDisabled(False)
-        self.orientation_input.setDisabled(False)
-        self.unit_input.setDisabled(False)
-        self.mesh_quality_button.setDisabled(False)
+        self.load_file_area.setEnabled(True)
 
     def enable_reload(self):
         self.reload_preview = True
@@ -710,6 +806,24 @@ class MainWindow(QMainWindow):
             self.disable_settings(False)
             self.enable_reload()
         self.hide_loading_screen()
+
+    def apply_transform(self, zero_check=False):
+        if not zero_check:
+            self.show_loading_screen("Applying Transformation")
+            self.disable_settings(True)
+        self.apply_transform_button.setDisabled(True)
+        angles = [self.x_rotation_input.value(), self.y_rotation_input.value(), self.z_rotation_input.value()]
+        translation = [self.x_translation_input.value(), self.y_translation_input.value(), self.z_translation_input.value()]
+        if not (zero_check and
+            angles[0]==0 and angles[1]==0 and angles[2]==0 and
+            translation[0]==0 and translation[1]==0 and translation[2]==0
+        ):
+            self.ldraw_object.apply_transform(angles=angles, translation=translation)
+        if not zero_check:
+            self.disable_settings(False)
+            self.enable_reload()
+            self.hide_loading_screen()
+
 
     def open_mesh_quality_dialog(self):
         mesh_dialog = MeshQualityDialog(self, self.tol_linear, self.tol_angular, self.tol_relative,
