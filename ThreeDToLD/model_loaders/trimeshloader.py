@@ -13,10 +13,10 @@ class Trimeshloader(Modelloader):
             self.tol_angular = tol_angular
             self.tol_relative = tol_relative
 
-    def load_model(self, file) -> tuple[Scene, dict]:
+    def load_model(self, file) -> Scene:
         if self.use_step_options:
             return load_scene(file,
                               tol_linear=self.tol_linear,
                               tol_angular=self.tol_angular,
-                              tol_relative=self.tol_relative), {}
-        return load_scene(file), {}
+                              tol_relative=self.tol_relative)
+        return load_scene(file)

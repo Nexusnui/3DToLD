@@ -7,7 +7,7 @@ from ThreeDToLD.model_loaders.threemfloader import Threemfloader
 
 class Autoloader(Modelloader):
 
-    def load_model(self, file) -> tuple[Scene, dict]:
+    def load_model(self, file) -> Scene:
         _, file_extension = os.path.splitext(file)
 
         if file_extension == ".3mf":

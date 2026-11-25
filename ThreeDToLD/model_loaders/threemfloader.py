@@ -80,7 +80,7 @@ class Threemfloader(Modelloader):
         self.sub_models: dict = {}
         self.meshes: list = []
 
-    def load_model(self, filepath) -> tuple[Scene, dict]:
+    def load_model(self, filepath) -> Scene:
         if not self.was_reset:
             self.__init__()
         self.was_reset = False
@@ -243,7 +243,8 @@ class Threemfloader(Modelloader):
                 self.model.add_geometry(geometry, transform=transform, geom_name=mesh_name)
 
         self.model.units = self.unit
-        return self.model, self.metadata
+        self.model.metadata = self.metadata
+        return self.model
 
     def collect_object_meshes(self, object_id: str, transform: str, depth: int):
         if object_id not in self.sub_models:

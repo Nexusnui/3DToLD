@@ -136,7 +136,7 @@ class LdrawObject:
         _, file_extension = os.path.splitext(filepath)
 
         try:
-            scene, metadata = loader.load_model(filepath)
+            scene = loader.load_model(filepath)
         except NotImplementedError as exc:
             raise FileTypeUnsupportedError("The filetype is not supported by Trimesh") from exc
         except (Missing3mfElementError, RecursionError) as exc:
@@ -148,12 +148,12 @@ class LdrawObject:
             raise LoaderError("Exception in Loader") from exc
 
         if override_metadata:
-            if "name" in metadata:
-                self.name = metadata["name"]
-            if "author" in metadata:
-                self.author = metadata["author"]
-            if "license" in metadata:
-                self.part_license = metadata["license"]
+            if "name" in scene.metadata:
+                self.name = scene.metadata["name"]
+            if "author" in scene.metadata:
+                self.author = scene.metadata["author"]
+            if "license" in scene.metadata:
+                self.part_license = scene.metadata["license"]
 
         if unit_conversion == LDrawConversionFactor.Auto:
             unit_conversion = LDrawConversionFactor.from_string(scene.units)
