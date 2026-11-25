@@ -707,8 +707,10 @@ class Subpart:
             faces = []
             outlines = None
             for colour_key in split_keys:
+                process = True
                 if colour_key == "outlines":
                     outlines = self.outlines
+                    process = False
                 else:
                     if colour_key not in self.colours:
                         raise ValueError(f"Colour key '{colour_key}' not in subpart.colours")
@@ -720,8 +722,7 @@ class Subpart:
                     ]
                     for face_index in self.colours[colour_key][1]:
                         faces.append(self.mesh.faces[face_index])
-
-            new_geometry = Trimesh(vertices=self.mesh.vertices, faces=faces)
+            new_geometry = Trimesh(vertices=self.mesh.vertices, faces=faces, process=process)
             node_key = parent.scene.add_geometry(new_geometry, transform=self.transformation_matrix)
             new_name = f"{self.name}-{group+1}"
             if len(faces) == 0 and outlines is not None:
